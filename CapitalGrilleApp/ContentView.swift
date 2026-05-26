@@ -16,12 +16,14 @@ extension Color {
 enum TopSection: String, CaseIterable, Identifiable {
     case food = "Food"
     case wine = "Wine"
+    case restock = "Restock"
     var id: String { rawValue }
 }
 
 struct ContentView: View {
     @StateObject private var store = MenuStore()
     @StateObject private var wineStore = WineStore()
+    @StateObject private var restockStore = RestockStore()
     @State private var searchText = ""
     @State private var section: TopSection = .food
 
@@ -81,7 +83,10 @@ struct ContentView: View {
             .onAppear {
                 if store.menu == nil { store.load() }
                 if wineStore.categories.isEmpty { wineStore.loadBundle() }
-                Task { await wineStore.refreshFromSupabase() }
+                Task {
+                    await wineStore.refreshFromSupabase()
+                    await restockStore.refresh()
+                }
             }
     }
 
@@ -154,6 +159,8 @@ struct ContentView: View {
                 WineListView(store: wineStore, searchText: searchText) { wine in
                     selectedWine = wine
                 }
+            } else if section == .restock {
+                RestockListView(restockStore: restockStore, wineStore: wineStore)
             } else {
                 menuListView
             }
@@ -248,6 +255,13 @@ struct ContentView: View {
 
         let toolName = Backend.current == .mac ? "mcp__wine__update_wine_locations" : "update_wine_locations"
         let areaTool = Backend.current == .mac ? "mcp__wine__edit_areas" : "edit_areas"
+        let restockTool = Backend.current == .mac ? "mcp__wine__update_restock" : "update_restock"
+
+        // Current restock list snapshot
+        let restockCtx = restockStore.items.map { item -> [String: Any] in
+            ["product_id": item.product_id, "quantity": item.quantity]
+        }
+        let restockJSON = (try? String(data: JSONSerialization.data(withJSONObject: restockCtx), encoding: .utf8)) ?? "[]"
         let system = """
         You are a quick reference assistant for The Capital Grille bartender/server training. You answer questions about both food and wine, and can update wine bottle locations behind the bar.
 
@@ -261,6 +275,15 @@ struct ContentView: View {
 
         EXISTING WINE AREAS (use ONLY these names — never invent new ones):
         \(areasJSON)
+
+        CURRENT RESTOCK LIST (product_id → quantity):
+        \(restockJSON)
+
+        Restock rules:
+        - When the user says "two Riondos, three Whispering Angels" or "add 4 of the Prisoner", call \(restockTool) with batched updates — quantity is the NEW absolute quantity to set for that product.
+        - When the user says "take off one Riondo" or "I found one, remove a Riondo", calculate the new quantity (current - 1) from the CURRENT RESTOCK LIST above and call \(restockTool) with that absolute value. If the result is 0 or less, pass quantity: 0 to remove the row.
+        - When the user says "remove the Riondo entirely" / "take it off the list", pass quantity: 0.
+        - For each product use its existing id from the WINES list (today the restock list is wine-only — product_kind defaults to "wine").
 
         Wine-location rules:
         - For lookups ("where is X?", "what's similar to Y?"), answer in plain text from the WINES data.
@@ -312,6 +335,34 @@ struct ContentView: View {
             }
         )
 
+        let restockToolDef = AnthropicTool(
+            name: "update_restock",
+            description: "Add/change/remove items on the restock list. Each entry sets the ABSOLUTE quantity for that product. quantity=0 removes the row. Use the existing wine ids. For relative changes (\"take one off\"), read current value from CURRENT RESTOCK LIST and pass the new absolute.",
+            inputSchema: [
+                "type": "object",
+                "properties": [
+                    "updates": [
+                        "type": "array",
+                        "items": [
+                            "type": "object",
+                            "properties": [
+                                "product_id":   ["type": "string"],
+                                "product_kind": ["type": "string", "enum": ["wine","soda","liquor"]],
+                                "quantity":     ["type": "integer", "minimum": 0]
+                            ],
+                            "required": ["product_id", "quantity"]
+                        ]
+                    ]
+                ],
+                "required": ["updates"]
+            ],
+            handler: { input in
+                let updates = (input["updates"] as? [[String: Any]]) ?? []
+                try await restockStore.apply(updates)
+                return "Updated restock list (\(updates.count) change(s))."
+            }
+        )
+
         let areasTool = AnthropicTool(
             name: "edit_areas",
             description: "Add, rename, or remove a wine storage area. Only call when the user explicitly asks to manage area names.",
@@ -347,13 +398,14 @@ struct ContentView: View {
         if Backend.current == .mac {
             let answer = try await MacClient.ask(question: question, history: history, systemPrompt: system, mode: "wine")
             await wineStore.refreshFromSupabase()
+            await restockStore.refresh()
             return answer
         }
         return try await AnthropicClient.chatWithTools(
             question: question,
             history: history,
             system: system,
-            tools: [updateTool, areasTool]
+            tools: [updateTool, areasTool, restockToolDef]
         )
     }
 

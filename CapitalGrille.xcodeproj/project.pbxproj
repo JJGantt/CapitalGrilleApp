@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 63;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -109,6 +109,7 @@
 		CBBE35F1E839F7928BC2067E /* mushroom-truffle-arancini.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1AEDB6614C31577220CD523 /* mushroom-truffle-arancini.jpg */; };
 		CC1B9361A331CD0676967976 /* kb-knights-bridge-chardonnay.jpg in Resources */ = {isa = PBXBuildFile; fileRef = BD72C9EABC7070B62A5DC962 /* kb-knights-bridge-chardonnay.jpg */; };
 		CCA4CC29B1A035F64F143248 /* chicken-sandwich.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 0E42021D53067F7887B213E2 /* chicken-sandwich.jpg */; };
+		D11647378FC36F267D88783F /* RestockListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD3C06AA6D1FA5048C62BD9 /* RestockListView.swift */; };
 		D386F69517318730A5DC86FB /* seasonal-chopped-salad.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 0E7C4C9BB10E7C614F5995A6 /* seasonal-chopped-salad.jpg */; };
 		D5E6E219C58C4AE071D9CDA6 /* broiled-fresh-lobster.jpg in Resources */ = {isa = PBXBuildFile; fileRef = F15B94DADCF15E19736B017F /* broiled-fresh-lobster.jpg */; };
 		D63AB166B2D5B2B809D316A0 /* french-onion-soup.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EBEB7D010B1D29DEFE969DC1 /* french-onion-soup.jpg */; };
@@ -117,6 +118,7 @@
 		E0E4A9E4EB610858750F4CB9 /* bone-in-kona-crusted-strip.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8602B8695E894A06E917762B /* bone-in-kona-crusted-strip.jpg */; };
 		E7FC10D022D8CE3925B76CD5 /* grand-plateau.jpg in Resources */ = {isa = PBXBuildFile; fileRef = C11EA45CD6653C06F2984A2B /* grand-plateau.jpg */; };
 		E81772CCD34FD76D7DD613E4 /* clam-chowder.jpg in Resources */ = {isa = PBXBuildFile; fileRef = ABF9F448B809AF9213B9D229 /* clam-chowder.jpg */; };
+		E8EF0370B44D65CEB1213466 /* RestockModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38AD51BC793EEC81FD921901 /* RestockModels.swift */; };
 		EABDBAC135CC898B9ECCB00E /* filet-mignon-lunch.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 0BA2D2F6E122795EF3A85716 /* filet-mignon-lunch.jpg */; };
 		F0DC6B07A9E4EA72EF44A226 /* sams-mashed-potatoes.jpg in Resources */ = {isa = PBXBuildFile; fileRef = F353672561BCB66C0B19F246 /* sams-mashed-potatoes.jpg */; };
 		F1503B10DE840BC3369FE3EA /* edna-valley-pinot-noir.jpg in Resources */ = {isa = PBXBuildFile; fileRef = B17DB309ADED6672748630DC /* edna-valley-pinot-noir.jpg */; };
@@ -149,6 +151,7 @@
 		2A40AA294F30B5EF8ACE25CD /* SupabaseClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseClient.swift; sourceTree = "<group>"; };
 		2B5F59C5B5E75A437209076B /* lobster-crab-cake.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "lobster-crab-cake.jpg"; sourceTree = "<group>"; };
 		316EC45DF80D4CA4873D1149 /* strawberries-cream-creme-anglaise.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "strawberries-cream-creme-anglaise.jpg"; sourceTree = "<group>"; };
+		38AD51BC793EEC81FD921901 /* RestockModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestockModels.swift; sourceTree = "<group>"; };
 		397B86D24792B47313966232 /* jumbo-lump-crab-cocktail.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "jumbo-lump-crab-cocktail.jpg"; sourceTree = "<group>"; };
 		3AAEFAA72EB2680E678E929D /* ny-strip-steak-frites.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "ny-strip-steak-frites.jpg"; sourceTree = "<group>"; };
 		3C78F0C47F429929FB43D452 /* moet-chandon-imperial.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "moet-chandon-imperial.jpg"; sourceTree = "<group>"; };
@@ -159,14 +162,14 @@
 		4823C1CF044C464441589393 /* casa-lunardi-pinot-grigio.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "casa-lunardi-pinot-grigio.jpg"; sourceTree = "<group>"; };
 		4A09944E0800AC36DBA07A1A /* wedge-salad.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "wedge-salad.jpg"; sourceTree = "<group>"; };
 		4A41F7752E672E337770B353 /* oysters-rockefeller.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "oysters-rockefeller.jpg"; sourceTree = "<group>"; };
-		4E196F9EEBE6ED0B2FD4A6F1 /* Secrets.swift.example */ = {isa = PBXFileReference; lastKnownFileType = text; path = Secrets.swift.example; sourceTree = "<group>"; };
+		4E196F9EEBE6ED0B2FD4A6F1 /* Secrets.swift.example */ = {isa = PBXFileReference; path = Secrets.swift.example; sourceTree = "<group>"; };
 		4FB5C43EFE3CCA38461711D0 /* bone-in-ny-kc-strip-lunch.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "bone-in-ny-kc-strip-lunch.jpg"; sourceTree = "<group>"; };
 		50FBA509B385A2DF0102A378 /* sliced-dry-aged-ny-strip.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "sliced-dry-aged-ny-strip.jpg"; sourceTree = "<group>"; };
 		520A64BC913EC5AD0B2726CD /* bone-in-ribeye-22oz.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "bone-in-ribeye-22oz.jpg"; sourceTree = "<group>"; };
 		56337AF33EE5F42A3AB48A40 /* sa-prum-essence-riesling.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "sa-prum-essence-riesling.jpg"; sourceTree = "<group>"; };
 		5D07AA2E87FCCF3A1EEA64AD /* DishDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DishDetailView.swift; sourceTree = "<group>"; };
 		5FF91A7710F08B1C33D1101F /* WineDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WineDetailView.swift; sourceTree = "<group>"; };
-		61FE4B5AAD5C1ED744CCE729 /* CapitalGrille.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CapitalGrille.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		61FE4B5AAD5C1ED744CCE729 /* CapitalGrille.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = CapitalGrille.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		62E35F55DBA3A6C3A9046D04 /* fisher-unity-cabernet.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "fisher-unity-cabernet.jpg"; sourceTree = "<group>"; };
 		6CD9CEC76D5BC70EF491F6D6 /* tuna-tartare.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "tuna-tartare.jpg"; sourceTree = "<group>"; };
 		6DE7AAEB4DB9075D2C6E16D3 /* caviar-onion-dip.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "caviar-onion-dip.jpg"; sourceTree = "<group>"; };
@@ -203,6 +206,7 @@
 		A2E47018ADA24F7F96AE7605 /* riondo-prosecco.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "riondo-prosecco.png"; sourceTree = "<group>"; };
 		AABD75C5CCAAB3E8ED816858 /* Secrets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Secrets.swift; sourceTree = "<group>"; };
 		AB39F0844FF96F577F6AD07C /* coconut-cream-pie.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "coconut-cream-pie.jpg"; sourceTree = "<group>"; };
+		ABD3C06AA6D1FA5048C62BD9 /* RestockListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestockListView.swift; sourceTree = "<group>"; };
 		ABF9F448B809AF9213B9D229 /* clam-chowder.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "clam-chowder.jpg"; sourceTree = "<group>"; };
 		ACE0C2E7A0895A621CD6E00D /* seared-citrus-glazed-salmon.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "seared-citrus-glazed-salmon.jpg"; sourceTree = "<group>"; };
 		AD0B256C46CF0CE98AB8ED27 /* sushi-grade-seared-sesame-tuna.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "sushi-grade-seared-sesame-tuna.jpg"; sourceTree = "<group>"; };
@@ -378,6 +382,8 @@
 				71554734948F61C28E503185 /* Info.plist */,
 				933AAF0B70269A99F4C8E5C1 /* MacClient.swift */,
 				4337C689418114168D2AE628 /* MenuModels.swift */,
+				ABD3C06AA6D1FA5048C62BD9 /* RestockListView.swift */,
+				38AD51BC793EEC81FD921901 /* RestockModels.swift */,
 				AABD75C5CCAAB3E8ED816858 /* Secrets.swift */,
 				4E196F9EEBE6ED0B2FD4A6F1 /* Secrets.swift.example */,
 				E1972A7C98F3E3B5549D5CF8 /* SettingsView.swift */,
@@ -440,6 +446,7 @@
 			);
 			mainGroup = 39526C639DDA36DC6D6FB99E;
 			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -572,6 +579,8 @@
 				A06F857C8B67DA6DB3762897 /* DishDetailView.swift in Sources */,
 				985419D5A333D461D407D8BC /* MacClient.swift in Sources */,
 				B5A3C6C2324E8B2EE980A291 /* MenuModels.swift in Sources */,
+				D11647378FC36F267D88783F /* RestockListView.swift in Sources */,
+				E8EF0370B44D65CEB1213466 /* RestockModels.swift in Sources */,
 				BBB8DBF92E457BFF7570BD43 /* Secrets.swift in Sources */,
 				69C8ED14C6C2C57767F8F357 /* SettingsView.swift in Sources */,
 				540FEDAA8739B614543FF2A3 /* SupabaseClient.swift in Sources */,
@@ -590,7 +599,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = XMH4AVFC78;
 				INFOPLIST_FILE = CapitalGrilleApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -673,7 +681,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = XMH4AVFC78;
 				INFOPLIST_FILE = CapitalGrilleApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
