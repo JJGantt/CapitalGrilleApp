@@ -383,7 +383,7 @@ struct ContentView: View {
 
         let updateTool = AnthropicTool(
             name: "update_wine_locations",
-            description: "Set the primary or backup location for one or more wines. The 'area' must be one of the existing areas. 'row' must be back/front/top/bottom. 'column' is a positive integer. When the user lists multiple wines in sequence on the same row, batch them all into one call with auto-incrementing columns.",
+            description: "Set the primary or backup location for one or more wines. The 'area' must be one of the existing areas. 'row' must be back/front/top/bottom. 'column' is any integer (positive, zero, or negative — negatives are valid for bottles sitting to the left of the main row). When the user lists multiple wines in sequence on the same row, batch them all into one call with auto-incrementing columns.",
             inputSchema: [
                 "type": "object",
                 "properties": [
