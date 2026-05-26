@@ -264,6 +264,7 @@ struct ContentView: View {
         let areaTool = Backend.current == .mac ? "mcp__wine__edit_areas" : "edit_areas"
         let restockTool = Backend.current == .mac ? "mcp__wine__update_restock" : "update_restock"
         let addProductTool = Backend.current == .mac ? "mcp__wine__add_product" : "add_product"
+        let deleteProductTool = Backend.current == .mac ? "mcp__wine__delete_product" : "delete_product"
 
         // Liquors snapshot from Supabase products (kind=liquor)
         let liquorsCtx = wineStore.liquors.map { row -> [String: Any] in
@@ -309,7 +310,7 @@ struct ContentView: View {
         Catalog rules:
         - To register a NEW bottle (wine or liquor) so it can be referenced later, call \(addProductTool) with id (kebab-case slug), name, kind, and any locations the user mentions.
         - Only call add_product when the user is explicitly cataloging a bottle. For one-off restock entries that don't need a catalog row, use \(restockTool) with product_kind 'misc' instead.
-        - There is no delete tool. If the user asks to delete a product, tell them to remove it manually in Supabase.
+        - To remove a product call \(deleteProductTool). This is a soft delete — the data is preserved. Wines are readonly and cannot be deleted by you; if the user tries, explain and suggest they remove it manually in Supabase.
 
         Wine-location rules:
         - For lookups ("where is X?", "what's similar to Y?"), answer in plain text from the WINES data.
@@ -358,6 +359,28 @@ struct ContentView: View {
                 let updates = (input["updates"] as? [[String: Any]]) ?? []
                 let ids = try await wineStore.updateLocations(updates)
                 return "Updated \(ids.count) wine(s): \(ids.joined(separator: ", "))"
+            }
+        )
+
+        let deleteProductDef = AnthropicTool(
+            name: "delete_product",
+            description: "Soft-delete a product from the catalog. Fails if the product is readonly. Data is preserved.",
+            inputSchema: [
+                "type": "object",
+                "properties": ["id": ["type": "string"]],
+                "required": ["id"]
+            ],
+            handler: { input in
+                let pid = (input["id"] as? String) ?? ""
+                // Pre-check readonly to give a clean refusal message
+                struct Row: Decodable { let readonly: Bool?; let name: String? }
+                let existing: [Row] = (try? await SupabaseClient.shared.get(path: "wines?id=eq.\(pid)&select=readonly,name")) ?? []
+                if existing.first?.readonly == true {
+                    return "'\(existing.first?.name ?? pid)' is readonly and can't be deleted by the AI."
+                }
+                try await SupabaseClient.shared.patch(path: "wines?id=eq.\(pid)", body: ["deleted": true])
+                await wineStore.refreshFromSupabase()
+                return "Deleted '\(existing.first?.name ?? pid)'."
             }
         )
 
@@ -465,7 +488,7 @@ struct ContentView: View {
             question: question,
             history: history,
             system: system,
-            tools: [updateTool, areasTool, restockToolDef, addProductDef]
+            tools: [updateTool, areasTool, restockToolDef, addProductDef, deleteProductDef]
         )
     }
 

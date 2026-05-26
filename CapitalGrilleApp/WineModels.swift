@@ -47,6 +47,8 @@ struct WineRow: Codable, Identifiable {
     let id: String
     var name: String?
     var kind: String?
+    var deleted: Bool?
+    var readonly: Bool?
     var primary_area: String?
     var primary_row: String?
     var primary_column: Int?
@@ -56,6 +58,8 @@ struct WineRow: Codable, Identifiable {
 
     var primary: WineLocation { .init(area: primary_area, row: primary_row, column: primary_column) }
     var backup: WineLocation { .init(area: backup_area, row: backup_row, column: backup_column) }
+    var isDeleted: Bool { deleted == true }
+    var isReadonly: Bool { readonly == true }
 }
 
 struct WineArea: Codable, Identifiable, Hashable {
@@ -87,7 +91,7 @@ final class WineStore: ObservableObject {
 
     func refreshFromSupabase() async {
         do {
-            async let winesTask: [WineRow] = SupabaseClient.shared.get(path: "wines?select=*")
+            async let winesTask: [WineRow] = SupabaseClient.shared.get(path: "wines?select=*&deleted=eq.false")
             async let areasTask: [WineArea] = SupabaseClient.shared.get(path: "wine_areas?select=*&order=name.asc")
             let (rows, areaList) = try await (winesTask, areasTask)
             self.locations = Dictionary(uniqueKeysWithValues: rows.map { ($0.id, $0) })
