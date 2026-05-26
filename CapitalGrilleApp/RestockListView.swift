@@ -45,6 +45,7 @@ struct RestockListView: View {
                         .padding(.top, 8)
                     }
                 }
+                .scrollDismissesKeyboard(.immediately)
             }
         }
         .background(Color.cgBackground)
@@ -69,7 +70,6 @@ private struct RestockRow: View {
     private var wine: Wine? {
         wineStore.categories.flatMap(\.wines).first { $0.id == item.product_id }
     }
-
     private var primary: WineLocation? { wineStore.locations[item.product_id]?.primary }
     private var backup:  WineLocation? { wineStore.locations[item.product_id]?.backup  }
 
@@ -78,8 +78,6 @@ private struct RestockRow: View {
             if let wine {
                 WineThumbnail(imageName: wine.image, size: 56)
             }
-            // Free-text items skip the photo entirely.
-
             VStack(alignment: .leading, spacing: 3) {
                 Text(wine?.name ?? item.name ?? item.product_id)
                     .font(.system(.body, design: .serif))

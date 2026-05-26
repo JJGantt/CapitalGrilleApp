@@ -7,7 +7,13 @@ struct WineListView: View {
 
     var body: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 12) {
+            content
+        }
+        .scrollDismissesKeyboard(.immediately)
+    }
+
+    private var content: some View {
+        LazyVStack(alignment: .leading, spacing: 12) {
                 if store.categories.isEmpty {
                     if let err = store.loadError {
                         Text(err).foregroundColor(.red).padding()
@@ -21,10 +27,9 @@ struct WineListView: View {
                                             onTapWine: onTapWine)
                     }
                 }
-            }
-            .padding(.horizontal, 12)
-            .padding(.bottom, 12)
         }
+        .padding(.horizontal, 12)
+        .padding(.bottom, 12)
     }
 
     private func filteredCategories() -> [WineCategory] {

@@ -254,7 +254,7 @@ struct ContentView: View {
 
     private var primaryAIButtonIcon: String {
         if voice.isRecording { return "arrow.up.circle.fill" }
-        return "mic.fill"
+        return "sparkles"
     }
 
     private func primaryAIButtonTap() {
@@ -354,6 +354,12 @@ struct ContentView: View {
         You are a quick reference assistant for The Capital Grille bartender/server training. You answer questions about both food and wine, and can update wine bottle locations behind the bar.
 
         Be concise — 1-3 sentences unless a list is needed.
+
+        IMPORTANT — input comes from VOICE TRANSCRIPTION. Interpret words phonetically before literally:
+        - Numbers may arrive as English homophones: "for"/"four"/"fore" → 4; "to"/"two"/"too" → 2; "won"/"one" → 1; "ate"/"eight" → 8; "tree"/"three" → 3; "ate" before "y" can be 80; "zero"/"oh" → 0; "negative one"/"minus one"/"neg one" → -1. Always assume an integer when the slot is a number.
+        - Punctuation and capitalization are unreliable.
+        - Wine/liquor names may be misheard or partially transcribed. Match phonetically against the catalog (e.g. "riondo prosecco" might come through as "rye on dough"; "Whispering Angel" as "whispering angle"). Match aggressively when intent is clear.
+        - Do NOT ask the user to clarify a number-vs-word ambiguity in the column/quantity slot — it's always a number. Only ask if you genuinely can't determine intent across multiple readings.
 
         FOOD MENU DATA:
         \(menuJSON)
@@ -600,6 +606,13 @@ struct ContentView: View {
     @ViewBuilder
     var aiResultsView: some View {
         ScrollView {
+            aiResultsContent
+        }
+        .scrollDismissesKeyboard(.immediately)
+    }
+
+    @ViewBuilder
+    var aiResultsContent: some View {
             VStack(alignment: .leading, spacing: 12) {
                 if aiHistory.isEmpty && aiError == nil {
                     VStack(spacing: 6) {
@@ -668,12 +681,17 @@ struct ContentView: View {
             }
             .padding(.horizontal, 12)
             .padding(.bottom, 12)
-        }
     }
 
     @ViewBuilder
     var menuListView: some View {
-        ScrollView {
+        ScrollView { menuListContent }
+            .scrollDismissesKeyboard(.immediately)
+    }
+
+    @ViewBuilder
+    var menuListContent: some View {
+        Group {
                 LazyVStack(alignment: .leading, spacing: 12) {
                     if let menu = store.menu {
                         ForEach(MenuGroup.allCases) { group in
