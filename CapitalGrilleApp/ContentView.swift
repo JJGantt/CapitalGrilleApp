@@ -553,13 +553,22 @@ struct ContentView: View {
         }
 
         if Backend.current == .mac {
-            let answer = try await MacClient.ask(
-                question: question, history: history, systemPrompt: system, mode: "wine",
-                onActivity: activityHandler
-            )
-            await wineStore.refreshFromSupabase()
-            await restockStore.refresh()
-            return answer
+            do {
+                let answer = try await MacClient.ask(
+                    question: question, history: history, systemPrompt: system, mode: "wine",
+                    onActivity: activityHandler
+                )
+                await wineStore.refreshFromSupabase()
+                await restockStore.refresh()
+                return answer
+            } catch {
+                if isConnectionError(error) {
+                    await MainActor.run { activityHandler("Mac unreachable — falling back to API") }
+                    // fall through to Direct API
+                } else {
+                    throw error
+                }
+            }
         }
         return try await AnthropicClient.chatWithTools(
             question: question,
@@ -568,6 +577,24 @@ struct ContentView: View {
             tools: [updateTool, areasTool, restockToolDef, addProductDef, deleteProductDef],
             onActivity: activityHandler
         )
+    }
+
+    /// True for "can't even reach the server" errors. HTTP error responses don't count.
+    private func isConnectionError(_ error: Error) -> Bool {
+        let ns = error as NSError
+        guard ns.domain == NSURLErrorDomain else { return false }
+        switch ns.code {
+        case NSURLErrorTimedOut,
+             NSURLErrorCannotFindHost,
+             NSURLErrorCannotConnectToHost,
+             NSURLErrorNetworkConnectionLost,
+             NSURLErrorNotConnectedToInternet,
+             NSURLErrorDNSLookupFailed,
+             NSURLErrorResourceUnavailable:
+            return true
+        default:
+            return false
+        }
     }
 
     @ViewBuilder
