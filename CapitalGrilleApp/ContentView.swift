@@ -401,6 +401,7 @@ struct ContentView: View {
 
         Apply this lens to every field:
         - **Numbers**: homophones map to digits — "for"/"four"/"fore" → 4; "to"/"two"/"too" → 2; "won"/"one" → 1; "ate"/"eight" → 8; "tree"/"three" → 3; "zero"/"oh" → 0; "negative one"/"minus one"/"neg one" → -1. Slots that expect a number ALWAYS take a number — never ask whether "for" meant 4.
+        - **Sentences that appear cut off**: If a request appears to end abruptly with a word that sounds like a number ("...position for", "...column to", "...row one"), it is NOT truncated — that final word IS the number. Never respond with "your message seems cut off" or "could you clarify" for these. Treat "for"=4, "to"=2, "one"=1, "tree"=3, "ate"=8 even when they fall at the end of a sentence. The user's intent is always complete; trust your phonetic interpretation.
         - **Product names** (wines, liquors): fuzzy-match phonetically against the catalog — "rye on dough" → Riondo, "whispering angle" → Whispering Angel, "see do ree" → Siduri, "more raise day cass ah res" → Marqués de Cáceres, "Don who leo" → Don Julio. Match aggressively when one product is a clear phonetic fit. If TWO products are plausible matches and you genuinely can't tell, ask.
         - **Area names**: same phonetic match against the EXISTING WINE AREAS list — "bar top reds" might come through as "bartop reds" or "bar tops". Match to the closest existing area.
         - **Row terms**: "back"/"front"/"top"/"bottom" — also accept "rear" → back, "lower" → bottom, "upper" → top.
