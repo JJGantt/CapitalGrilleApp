@@ -78,19 +78,19 @@ private struct RestockRow: View {
         HStack(spacing: 12) {
             if let wine {
                 WineThumbnail(imageName: wine.image, size: 56)
-            } else {
-                Rectangle().fill(Color.cgBorder.opacity(0.4))
-                    .frame(width: 56, height: 56)
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
             }
+            // Free-text items skip the photo entirely.
+
             VStack(alignment: .leading, spacing: 3) {
-                Text(wine?.name ?? item.product_id)
+                Text(wine?.name ?? item.name ?? item.product_id)
                     .font(.system(.body, design: .serif))
                     .foregroundColor(.cgText)
                     .lineLimit(2)
-                Text(backupLocation?.displayString ?? "—")
-                    .font(.footnote)
-                    .foregroundColor(.cgTextMuted)
+                if wine != nil {
+                    Text(backupLocation?.displayString ?? "—")
+                        .font(.footnote)
+                        .foregroundColor(.cgTextMuted)
+                }
             }
             Spacer()
             HStack(spacing: 8) {

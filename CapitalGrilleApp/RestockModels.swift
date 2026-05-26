@@ -5,6 +5,7 @@ struct RestockItem: Codable, Identifiable, Hashable {
     let product_id: String
     let product_kind: String
     let quantity: Int
+    let name: String?
     let added_at: String?
 
     var id: String { product_id }
@@ -33,9 +34,13 @@ final class RestockStore: ObservableObject {
                 try await SupabaseClient.shared.delete(path: "restock_items?product_id=eq.\(pid)")
             } else {
                 let kind = (u["product_kind"] as? String) ?? "wine"
+                var row: [String: Any] = ["product_id": pid, "product_kind": kind, "quantity": qty]
+                if let name = u["name"] as? String, !name.isEmpty {
+                    row["name"] = name
+                }
                 try await SupabaseClient.shared.upsert(
                     path: "restock_items",
-                    body: [["product_id": pid, "product_kind": kind, "quantity": qty]],
+                    body: [row],
                     onConflict: "product_id"
                 )
             }

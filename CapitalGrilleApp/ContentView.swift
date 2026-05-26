@@ -16,6 +16,7 @@ extension Color {
 enum TopSection: String, CaseIterable, Identifiable {
     case food = "Food"
     case wine = "Wine"
+    case liquor = "Liquor"
     case restock = "Restock"
     var id: String { rawValue }
 }
@@ -163,6 +164,11 @@ struct ContentView: View {
                 WineListView(store: wineStore, searchText: searchText) { wine in
                     selectedWine = wine
                 }
+            } else if section == .liquor {
+                Text("—")
+                    .font(.title3)
+                    .foregroundColor(.cgTextMuted)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if section == .restock {
                 RestockListView(restockStore: restockStore, wineStore: wineStore)
             } else {
@@ -284,10 +290,11 @@ struct ContentView: View {
         \(restockJSON)
 
         Restock rules:
-        - When the user says "two Riondos, three Whispering Angels" or "add 4 of the Prisoner", call \(restockTool) with batched updates — quantity is the NEW absolute quantity to set for that product.
-        - When the user says "take off one Riondo" or "I found one, remove a Riondo", calculate the new quantity (current - 1) from the CURRENT RESTOCK LIST above and call \(restockTool) with that absolute value. If the result is 0 or less, pass quantity: 0 to remove the row.
-        - When the user says "remove the Riondo entirely" / "take it off the list", pass quantity: 0.
-        - For each product use its existing id from the WINES list (today the restock list is wine-only — product_kind defaults to "wine").
+        - Quantity in update_restock is ABSOLUTE (the new total), not a delta. For relative phrasing like "take one off", compute the new value (current − 1) from the CURRENT RESTOCK LIST. Result ≤ 0 → quantity: 0 to remove.
+        - For real products (wines today, liquors later), use the product's existing id from the WINES list and product_kind matching its kind. Omit the name field.
+        - For items that don't match any real product (oranges, lemons, lime juice, ice, paper towels...), add as free-text: product_kind: "misc", product_id: a kebab-case slug of the name (e.g. "oranges", "lime-juice"), AND set the name field to the human-readable string ("Oranges", "Lime juice").
+        - Match aggressively against real products when the user's phrasing plausibly refers to one. If it's clearly not in the product list, free-text. If it's ambiguous, ASK rather than guessing.
+        - Batch multiple items in one call when the user lists them in sequence.
 
         Wine-location rules:
         - For lookups ("where is X?", "what's similar to Y?"), answer in plain text from the WINES data.
@@ -341,7 +348,7 @@ struct ContentView: View {
 
         let restockToolDef = AnthropicTool(
             name: "update_restock",
-            description: "Add/change/remove items on the restock list. Each entry sets the ABSOLUTE quantity for that product. quantity=0 removes the row. Use the existing wine ids. For relative changes (\"take one off\"), read current value from CURRENT RESTOCK LIST and pass the new absolute.",
+            description: "Add/change/remove items on the restock list. quantity is ABSOLUTE (new total), quantity=0 removes. For real products use their existing id and matching kind. For free-text items (oranges, lemons, etc.) use product_kind 'misc', a slug id, AND a name.",
             inputSchema: [
                 "type": "object",
                 "properties": [
@@ -350,9 +357,10 @@ struct ContentView: View {
                         "items": [
                             "type": "object",
                             "properties": [
-                                "product_id":   ["type": "string"],
-                                "product_kind": ["type": "string", "enum": ["wine","soda","liquor"]],
-                                "quantity":     ["type": "integer", "minimum": 0]
+                                "product_id":   ["type": "string", "description": "Slug. Real product → its existing id; free-text → kebab-case of the name."],
+                                "product_kind": ["type": "string", "enum": ["wine","liquor","soda","misc"]],
+                                "quantity":     ["type": "integer", "minimum": 0],
+                                "name":         ["type": "string", "description": "Display name. REQUIRED when product_kind is 'misc'."]
                             ],
                             "required": ["product_id", "quantity"]
                         ]
