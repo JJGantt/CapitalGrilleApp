@@ -6,7 +6,6 @@ struct MenuData: Codable {
     var lunch: [Dish] = []
     var dinner: [Dish] = []
     var capital_hours: [Dish] = []
-    var bread_service: [Dish] = []
 }
 
 // MARK: - Dish
@@ -137,7 +136,6 @@ enum MenuGroup: String, CaseIterable, Identifiable {
     case dinner = "Dinner"
     case lunch = "Lunch"
     case capitalHours = "Capital Hours"
-    case bread = "Bread Service"
 
     var id: String { rawValue }
 
@@ -161,7 +159,6 @@ enum MenuGroup: String, CaseIterable, Identifiable {
             "Entrées"
         ]
         case .capitalHours: return ["Capital Hours"]
-        case .bread: return ["Bread Service"]
         }
     }
 
@@ -170,7 +167,6 @@ enum MenuGroup: String, CaseIterable, Identifiable {
         case .dinner: return menu.dinner
         case .lunch: return menu.lunch
         case .capitalHours: return menu.capital_hours
-        case .bread: return menu.bread_service
         }
     }
 }
