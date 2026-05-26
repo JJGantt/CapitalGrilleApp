@@ -102,6 +102,54 @@ final class WineStore: ObservableObject {
     func backupLocation(for wineId: String) -> WineLocation? {
         locations[wineId]?.backup
     }
+
+    // MARK: - Mutations (Supabase)
+
+    /// Apply a batch of location updates. Each entry may set primary, backup, or both.
+    /// Pass `NSNull()` (or omit the key) to leave a field unchanged; pass explicit null in JSON
+    /// from the model to clear a field. Returns the list of wine IDs that were updated.
+    func updateLocations(_ updates: [[String: Any]]) async throws -> [String] {
+        var updated: [String] = []
+        for u in updates {
+            guard let wineId = u["wine_id"] as? String else { continue }
+
+            var patch: [String: Any?] = [:]
+            if let p = u["primary"] as? [String: Any] {
+                patch["primary_area"]   = p["area"] as? String
+                patch["primary_row"]    = p["row"] as? String
+                patch["primary_column"] = p["column"] as? Int
+            }
+            if let b = u["backup"] as? [String: Any] {
+                patch["backup_area"]   = b["area"] as? String
+                patch["backup_row"]    = b["row"] as? String
+                patch["backup_column"] = b["column"] as? Int
+            }
+            if patch.isEmpty { continue }
+
+            try await SupabaseClient.shared.patch(path: "wines?id=eq.\(wineId)", body: patch)
+            updated.append(wineId)
+        }
+        // Refresh from server so local state reflects truth.
+        await refreshFromSupabase()
+        return updated
+    }
+
+    func addArea(_ name: String) async throws {
+        try await SupabaseClient.shared.upsert(path: "wine_areas",
+            body: [["name": name]], onConflict: "name")
+        await refreshFromSupabase()
+    }
+
+    func renameArea(_ name: String, to newName: String) async throws {
+        try await SupabaseClient.shared.patch(path: "wine_areas?name=eq.\(name)",
+            body: ["name": newName])
+        await refreshFromSupabase()
+    }
+
+    func removeArea(_ name: String) async throws {
+        try await SupabaseClient.shared.delete(path: "wine_areas?name=eq.\(name)")
+        await refreshFromSupabase()
+    }
 }
 
 // MARK: - Wine image loader

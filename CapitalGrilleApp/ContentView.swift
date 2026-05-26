@@ -170,24 +170,21 @@ struct ContentView: View {
     func askAI() {
         let q = aiInput.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !q.isEmpty, !aiBusy else { return }
-        guard let menu = store.menu else { return }
-        let json: String = {
-            let enc = JSONEncoder()
-            enc.outputFormatting = [.prettyPrinted]
-            if let data = try? enc.encode(menu), let s = String(data: data, encoding: .utf8) {
-                return s
-            }
-            return "(menu unavailable)"
-        }()
         let history = aiHistory.map { (question: $0.question, answer: $0.answer) }
         aiBusy = true
         aiError = nil
         let asked = q
         aiInput = ""
+        let currentSection = section
 
         Task {
             do {
-                let answer = try await AnthropicClient.chat(question: asked, history: history, menuJSON: json)
+                let answer: String
+                if currentSection == .wine {
+                    answer = try await askWine(question: asked, history: history)
+                } else {
+                    answer = try await askFood(question: asked, history: history)
+                }
                 await MainActor.run {
                     aiHistory.append(QAExchange(question: asked, answer: answer))
                     aiBusy = false
@@ -199,6 +196,141 @@ struct ContentView: View {
                 }
             }
         }
+    }
+
+    private func askFood(question: String, history: [(question: String, answer: String)]) async throws -> String {
+        guard let menu = store.menu else { return "Menu not loaded." }
+        let json: String = {
+            let enc = JSONEncoder()
+            enc.outputFormatting = [.prettyPrinted]
+            if let data = try? enc.encode(menu), let s = String(data: data, encoding: .utf8) {
+                return s
+            }
+            return "(menu unavailable)"
+        }()
+        return try await AnthropicClient.chat(question: question, history: history, menuJSON: json)
+    }
+
+    @MainActor
+    private func askWine(question: String, history: [(question: String, answer: String)]) async throws -> String {
+        // Snapshot wines + locations + areas as a JSON context for the model.
+        struct WineCtx: Encodable {
+            let id: String
+            let name: String
+            let primary: WineLocation?
+            let backup: WineLocation?
+        }
+        let wines: [WineCtx] = wineStore.categories.flatMap { cat in
+            cat.wines.map { w in
+                WineCtx(id: w.id, name: w.name,
+                        primary: wineStore.locations[w.id]?.primary,
+                        backup:  wineStore.locations[w.id]?.backup)
+            }
+        }
+        let areas = wineStore.areas.map(\.name)
+
+        let enc = JSONEncoder()
+        enc.outputFormatting = [.prettyPrinted]
+        let winesJSON = (try? String(data: enc.encode(wines), encoding: .utf8)) ?? "[]"
+        let areasJSON = (try? String(data: JSONSerialization.data(withJSONObject: areas), encoding: .utf8)) ?? "[]"
+
+        let system = """
+        You help a bartender track The Capital Grille wine bottle locations behind the bar and in stockrooms.
+
+        WINES (id, name, current primary/backup location):
+        \(winesJSON)
+
+        EXISTING AREAS (you MUST pick from these when setting an area — do NOT invent new area names):
+        \(areasJSON)
+
+        Rules:
+        - For lookup questions ("where is X?", "what's similar to Y?"), answer in plain text using the data above. Be concise.
+        - For setting locations ("Santa Margherita goes back 3", "I'm reading off the back of bar top reds: A, B, C"), call update_wine_locations with a batched list. When the user reads off a sequence, the column auto-increments starting at 1.
+        - Row enum: "back" / "front" for bar areas, "top" / "bottom" for coolers. Match the user's wording.
+        - Fuzzy-match area names (e.g. "red wine area" → "Bar Top Reds"). If no existing area is a clear match, ask which one they mean — do NOT call edit_areas to make a new one unless the user explicitly asks to add an area.
+        - After running update_wine_locations, briefly confirm what was set ("Set 4 wines on back of Bar Top Reds.").
+        """
+
+        let updateTool = AnthropicTool(
+            name: "update_wine_locations",
+            description: "Set the primary or backup location for one or more wines. The 'area' must be one of the existing areas. 'row' must be back/front/top/bottom. 'column' is a positive integer. When the user lists multiple wines in sequence on the same row, batch them all into one call with auto-incrementing columns.",
+            inputSchema: [
+                "type": "object",
+                "properties": [
+                    "updates": [
+                        "type": "array",
+                        "items": [
+                            "type": "object",
+                            "properties": [
+                                "wine_id": ["type": "string", "description": "Wine ID from the WINES list"],
+                                "primary": [
+                                    "type": "object",
+                                    "properties": [
+                                        "area":   ["type": "string"],
+                                        "row":    ["type": "string", "enum": ["back","front","top","bottom"]],
+                                        "column": ["type": "integer"]
+                                    ]
+                                ],
+                                "backup": [
+                                    "type": "object",
+                                    "properties": [
+                                        "area":   ["type": "string"],
+                                        "row":    ["type": "string", "enum": ["back","front","top","bottom"]],
+                                        "column": ["type": "integer"]
+                                    ]
+                                ]
+                            ],
+                            "required": ["wine_id"]
+                        ]
+                    ]
+                ],
+                "required": ["updates"]
+            ],
+            handler: { input in
+                let updates = (input["updates"] as? [[String: Any]]) ?? []
+                let ids = try await wineStore.updateLocations(updates)
+                return "Updated \(ids.count) wine(s): \(ids.joined(separator: ", "))"
+            }
+        )
+
+        let areasTool = AnthropicTool(
+            name: "edit_areas",
+            description: "Add, rename, or remove a wine storage area. Only call when the user explicitly asks to manage area names.",
+            inputSchema: [
+                "type": "object",
+                "properties": [
+                    "action":   ["type": "string", "enum": ["add","rename","remove"]],
+                    "name":     ["type": "string"],
+                    "new_name": ["type": "string", "description": "Required for rename"]
+                ],
+                "required": ["action","name"]
+            ],
+            handler: { input in
+                let action = (input["action"] as? String) ?? ""
+                let name = (input["name"] as? String) ?? ""
+                switch action {
+                case "add":
+                    try await wineStore.addArea(name)
+                    return "Added area '\(name)'."
+                case "rename":
+                    guard let newName = input["new_name"] as? String else { return "Missing new_name." }
+                    try await wineStore.renameArea(name, to: newName)
+                    return "Renamed '\(name)' to '\(newName)'."
+                case "remove":
+                    try await wineStore.removeArea(name)
+                    return "Removed area '\(name)'."
+                default:
+                    return "Unknown action '\(action)'."
+                }
+            }
+        )
+
+        return try await AnthropicClient.chatWithTools(
+            question: question,
+            history: history,
+            system: system,
+            tools: [updateTool, areasTool]
+        )
     }
 
     @ViewBuilder
