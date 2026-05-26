@@ -1,0 +1,24 @@
+# Secrets — never commit the real API key
+CapitalGrilleApp/Secrets.swift
+
+# Xcode
+build/
+DerivedData/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcworkspace/xcuserdata/
+xcuserdata/
+
+# Swift Package Manager
+.swiftpm/
+.build/
+Packages/
+Package.resolved
+
+# CocoaPods / Carthage (not used today, but cheap to ignore)
+Pods/
+Carthage/Build/
+
+# macOS junk
+.DS_Store
+*.swp

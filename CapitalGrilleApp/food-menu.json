@@ -1,0 +1,4647 @@
+{
+  "meta": {
+    "restaurant": "The Capital Grille",
+    "source": "Food Menu Specifications book + dinner menu photograph",
+    "notes": "Prices/calories only present for items found on the dinner menu photo. Lunch menu was not photographed; lunch items have null price/calories."
+  },
+  "bread_service": [
+    {
+      "name": "Breadbasket",
+      "section": "Bread Service",
+      "page": 1,
+      "description": "Bread from La Brea Bakery (based in California), served room temperature. Includes Pumpernickel Raisin, French Dinner Rolls, Pan Rustique, and Lavosh.",
+      "notes": [
+        "Offer bread after taking the entrée order at lunch service. At dinner, bread is served to all guests.",
+        "Bread Spiel: 'Good evening. Hot, crispy, fresh bread straight from the oven!'"
+      ],
+      "talking_points": [
+        "Pumpernickel Raisin: Dark rye, malt and raisins give this bread a subtle sweetness",
+        "French Dinner Rolls: Poppy, sesame and amaranth seeds decorate the golden crust. Tomcat rolls have fennel seed only",
+        "Pan Rustique (rus-TEEK): A touch of olive oil gives this free formed bread its moist texture and smooth flavor. Topped with caramelized onions and grana cracker bread",
+        "Lavosh (LAH-vohsh): a round, thin, crisp bread also known as Armenian cracker bread"
+      ],
+      "serving_piece": "Silver wire breadbasket lined with white linen napkin",
+      "portion_table_lunch": [
+        {
+          "guests": "2-3",
+          "lavosh": "¼ Sheet",
+          "french_dinner_roll": "2 Each"
+        },
+        {
+          "guests": "4-5",
+          "lavosh": "¼ Sheet",
+          "french_dinner_roll": "3 Each"
+        },
+        {
+          "guests": "6-8",
+          "lavosh": "2 x ½ Sheets",
+          "french_dinner_roll": "4 Each"
+        }
+      ],
+      "portion_table_dinner": [
+        {
+          "guests": "2-3",
+          "lavosh": "¼ Sheet",
+          "pumpernickel": "2 Slices – ¾\"",
+          "pan_rustique": "2 Slices – ¾\"",
+          "french_dinner_roll": "2 Each"
+        },
+        {
+          "guests": "4-5",
+          "lavosh": "¼ Sheet",
+          "pumpernickel": "3 Slices – ¾\"",
+          "pan_rustique": "3 Slices – ¾\"",
+          "french_dinner_roll": "3 Each"
+        },
+        {
+          "guests": "6-8",
+          "lavosh": "2 x ½ Sheets",
+          "pumpernickel": "4 Slices – ¾\"",
+          "pan_rustique": "4 Slices – ¾\"",
+          "french_dinner_roll": "4 Each"
+        }
+      ],
+      "garnish": "B&B with butter",
+      "production_time": "3-5 minutes",
+      "station": "Bread Station (for bake times see Bread Procedures in guide)"
+    },
+    {
+      "name": "Butter Service",
+      "section": "Bread Service",
+      "page": 2,
+      "description": "Our butter accompanies each breadbasket. Served at room temperature, garnished with Fleur de Sel. One butter per plate – do not serve multiple pads of butter on the same plate.",
+      "portion_table": [
+        {
+          "guests": "2-4",
+          "butter_plates": 1
+        },
+        {
+          "guests": "5-8",
+          "butter_plates": 2
+        },
+        {
+          "guests": "9-12",
+          "butter_plates": 3
+        }
+      ],
+      "serving_piece": "B&B Plate (Room Temperature)",
+      "garnish": "Fleur de Sel",
+      "station": "Bread Station"
+    }
+  ],
+  "lunch": [
+    {
+      "name": "Lobster Bisque",
+      "section": "Appetizers & Soups",
+      "page": 3,
+      "price": null,
+      "calories": null,
+      "description": "Our Lobster Bisque is a Classic preparation of a cream and lobster stock sautéed with chunks of fresh North Atlantic Lobster.",
+      "notes": [
+        "Lobster bisque is presented to the guest with Dry Sack Sherry served tableside."
+      ],
+      "talking_points": [
+        "Sherry: Sherry differs from other wines because of how it is treated after fermentation. After fermentation is complete, it is fortified with brandy. Because the fortification takes place after fermentation, all natural sherries are dry; any sweetness is applied later. Dry Sack Sherry is a traditional accompaniment to lobster bisque, as it enhances the flavor of the dish."
+      ],
+      "sizes": {
+        "bowl": "8 oz",
+        "cup": "6 oz"
+      },
+      "serving_piece": "Hot Soup Bowl on doily lined salad plate; Hot Soup Cup on a saucer (no doily); Gooseneck on doilied B&B for Sherry",
+      "portion": [
+        {
+          "ingredient": "Bisque (Bowl)",
+          "amount": "8 oz"
+        },
+        {
+          "ingredient": "Bisque (Cup)",
+          "amount": "6 oz"
+        },
+        {
+          "ingredient": "Lobster Meat",
+          "amount": "1½ oz",
+          "prep": "each size"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Dry Sack Sherry",
+          "amount": "½ oz",
+          "prep": "in a gooseneck on a doily lined B&B"
+        },
+        {
+          "ingredient": "Sliced Chives",
+          "amount": "¼ tsp"
+        }
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper"
+      ],
+      "questions_to_ask": [
+        "Cup or bowl?",
+        "Automatically bring sherry but offer to guest upon service: 'Would you care for some sherry to enhance the flavor of your bisque?'"
+      ],
+      "production_time": "3-5 minutes",
+      "station": "Soup or pantry",
+      "variants": {},
+      "image": "images/dishes/lobster-bisque.jpg"
+    },
+    {
+      "name": "Clam Chowder",
+      "section": "Appetizers & Soups",
+      "page": 3,
+      "price": 13,
+      "calories": 220,
+      "menu_name": "New England Clam Chowder",
+      "description": "Award winning New England style cream based chowder made with a blend of Littleneck and Quahog clams.",
+      "notes": [
+        "Our clam chowder DOES have bacon."
+      ],
+      "talking_points": [
+        "Quahog (KWAH-hog) is the American Indian name for the East Coast hard-shell clam. The term 'quahog' is also sometimes used to describe the largest of these hard-shell clams.",
+        "Called littlenecks on the East Coast and Pacific littlenecks on the West Coast — small, hard-shell clams with a shell diameter of less than 2 inches."
+      ],
+      "sizes": {
+        "bowl": "10 oz",
+        "cup": "7 oz"
+      },
+      "serving_piece": "Hot Soup Bowl on doily lined salad plate; Hot Soup Cup on a saucer (no doily)",
+      "portion": [
+        {
+          "ingredient": "Clam Chowder (Cup)",
+          "amount": "7 oz"
+        },
+        {
+          "ingredient": "Clam Chowder (Bowl)",
+          "amount": "10 oz"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Chopped Parsley",
+          "amount": "¼ tsp"
+        },
+        {
+          "ingredient": "Oyster Crackers",
+          "amount": "1 pkg"
+        }
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper",
+        "Soup Spoon Framed"
+      ],
+      "questions_to_ask": [
+        "Would you like a cup or bowl?"
+      ],
+      "production_time": "3-5 minutes",
+      "station": "Soup or pantry",
+      "variants": {
+        "dinner": "also on dinner menu (cup) — $13 · 220 cal"
+      },
+      "image": "images/dishes/clam-chowder.jpg"
+    },
+    {
+      "name": "French Onion Soup",
+      "section": "Appetizers & Soups",
+      "page": 4,
+      "price": 14,
+      "calories": 740,
+      "menu_name": "Caramelized French Onion Soup",
+      "description": "Our traditional French style onion soup is loaded with caramelized onions and topped with house made Grana croutons, melted mozzarella and Jarlsberg cheese.",
+      "notes": [
+        "Mozzarella cheese is placed on top of the Jarlsberg as it browns better. The soup is NOT vegetarian, as it is made with both beef and chicken bases."
+      ],
+      "talking_points": [
+        "Jarlsberg (YAHRLZ-berg): a mild Swiss-style cheese from Norway with a yellow-wax rind and semi-firm yellow interior. Buttery-rich texture, mild and slightly sweet flavor.",
+        "The caramelized onions are prepared by sautéing onions with kosher salt and clarified butter to brown the natural sugars."
+      ],
+      "sizes": {
+        "crock": "17 oz",
+        "cup": "7 oz"
+      },
+      "serving_piece": "Hot Onion Soup Crock on a doily lined share plate; Hot Soup Cup with saucer (no doily)",
+      "portion": [
+        {
+          "ingredient": "Onion Soup (Cup)",
+          "amount": "7 oz"
+        },
+        {
+          "ingredient": "Croutons (Cup)",
+          "amount": "4-5"
+        },
+        {
+          "ingredient": "Mozzarella (Cup)",
+          "amount": "1 slice (1 oz)"
+        },
+        {
+          "ingredient": "Jarlsberg Cheese (Cup)",
+          "amount": "1 slice (1 oz)"
+        },
+        {
+          "ingredient": "Onion Soup (Crock)",
+          "amount": "17 oz"
+        },
+        {
+          "ingredient": "Croutons (Crock)",
+          "amount": "7-8"
+        },
+        {
+          "ingredient": "Mozzarella (Crock)",
+          "amount": "2 slices (2 oz)"
+        },
+        {
+          "ingredient": "Jarlsberg Cheese (Crock)",
+          "amount": "2 slices (2 oz)"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Chopped Parsley",
+          "amount": "¼ tsp"
+        }
+      ],
+      "to_bring": [
+        "Soup Spoon Framed"
+      ],
+      "questions_to_ask": [
+        "Would you like a cup or a crock?"
+      ],
+      "production_time": "3-5 minutes",
+      "station": "Broil",
+      "variants": {
+        "dinner": "also on dinner menu (crock) — $14 · 740 cal"
+      },
+      "image": "images/dishes/french-onion-soup.jpg"
+    },
+    {
+      "name": "Seasonal: Tomato Bisque with Toasted Brie Crostini",
+      "section": "Appetizers & Soups",
+      "page": 4,
+      "price": 12,
+      "calories": 510,
+      "description": "A velvety tomato bisque with a hint of Grana Padano, topped with crème fraîche and green onion oil. Served with a ciabatta crostini spread with creamy Brie.",
+      "sizes": {
+        "bowl": "10 oz",
+        "cup": "7 oz"
+      },
+      "serving_piece": "Hot Soup Bowl on doily lined salad plate; Hot Soup Cup on a saucer (no doily)",
+      "portion": [
+        {
+          "ingredient": "Tomato Bisque (Cup)",
+          "amount": "7 fl oz"
+        },
+        {
+          "ingredient": "Tomato Bisque (Bowl)",
+          "amount": "10 fl oz"
+        },
+        {
+          "ingredient": "Crème Fraîche",
+          "amount": "1 Tbsp"
+        },
+        {
+          "ingredient": "Green Onion Oil",
+          "amount": "¼ tsp"
+        },
+        {
+          "ingredient": "Toasted Brie Crostini",
+          "amount": "1 each"
+        }
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper",
+        "Soup Spoon Framed"
+      ],
+      "questions_to_ask": [
+        "Would you like a cup or a bowl?"
+      ],
+      "production_time": "3-5 minutes",
+      "station": "Soup or pantry",
+      "variants": {
+        "dinner": "also on dinner menu (cup) — $12 · 510 cal"
+      },
+      "image": "images/dishes/tomato-bisque.jpg"
+    },
+    {
+      "name": "Field Greens, Butter Leaf Lettuce, Heirloom Tomatoes with Parmesan Vinaigrette",
+      "section": "Appetizers & Soups",
+      "page": 4,
+      "price": 14,
+      "calories": 210,
+      "description": "Our house salad — a mixture of butter leaf lettuce and delicate baby greens with radish, tomato and carrots dressed with parmesan vinaigrette and crumbled Gorgonzola cheese upon guest request only.",
+      "notes": [
+        "Capital Grille Dressing Choices: Parmesan Vinaigrette (house dressing), Bleu Cheese, Balsamic Vinegar, Champagne Shallot Vinaigrette, and Extra Virgin Olive Oil — served in separate goosenecks."
+      ],
+      "talking_points": [
+        "Bibb lettuce: a type of butterhead lettuce, delicate, loose leaves and lots of flavor",
+        "Gorgonzola (GORE-goned-ZOE-la): a veined Italian blue cheese, made from unskimmed cow's and/or goat's milk. Buttery or firm, crumbly and quite salty, with a 'bite' from its blue veining"
+      ],
+      "serving_piece": "Salad Plate (Chilled)",
+      "portion": [
+        {
+          "ingredient": "Field Greens Salad Mix",
+          "amount": "4 oz",
+          "prep": "Bibb Lettuce, Lettuce Blend"
+        },
+        {
+          "ingredient": "Grape Tomatoes",
+          "amount": "2 oz",
+          "prep": "halved"
+        },
+        {
+          "ingredient": "Radishes",
+          "amount": "1 oz",
+          "prep": "sliced"
+        },
+        {
+          "ingredient": "Baby Carrots",
+          "amount": "1 oz",
+          "prep": "cut"
+        },
+        {
+          "ingredient": "Parmesan Vinaigrette",
+          "amount": "1 oz"
+        },
+        {
+          "ingredient": "Gorgonzola cheese",
+          "amount": "1 oz",
+          "prep": "per guest request"
+        }
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "3-5 minutes",
+      "station": "Pantry",
+      "variants": {
+        "dinner": "also on dinner menu — $14 · 210 cal"
+      },
+      "image": "images/dishes/field-greens-salad.jpg"
+    },
+    {
+      "name": "Caesar Salad",
+      "section": "Appetizers & Soups",
+      "page": 4,
+      "price": 14,
+      "calories": 420,
+      "menu_name": "Caesar Salad with Grana Padano Croutons",
+      "description": "Crisp hearts of romaine lettuce tossed with our Caesar dressing and house made Grana croutons, finished with shaved Grana Padano cheese. Garnished with two oven roasted anchovies upon request.",
+      "talking_points": [
+        "Romaine (roh-MAYN): elongated head with dark green outer leaves that lighten to pale celadon in the center. Leaves are crisp and slightly bitter; the crunchy 'heart' is particularly succulent. Adds crunch and flavor to mixed green salads; the lettuce of choice for Caesar.",
+        "The true anchovy (AN-choh-vee, an-CHOH-vee) comes only from the Mediterranean and southern European coastlines. Tiny fish generally filleted, salt-cured and canned in oil; sold flat and rolled. Used sparingly to flavor or garnish sauces and other preparations."
+      ],
+      "serving_piece": "Salad Plate (Chilled)",
+      "portion": [
+        {
+          "ingredient": "Romaine Lettuce",
+          "amount": "4 oz"
+        },
+        {
+          "ingredient": "Caesar Dressing",
+          "amount": "1 oz"
+        },
+        {
+          "ingredient": "House made Grana Croutons",
+          "amount": "6 ea",
+          "prep": "broken up into silver dollar sized pieces"
+        },
+        {
+          "ingredient": "Curled Grana Padano",
+          "amount": "½ oz",
+          "prep": "4-6 pieces"
+        },
+        {
+          "ingredient": "Whole White Anchovies",
+          "amount": "2",
+          "prep": "upon request"
+        }
+      ],
+      "questions_to_ask": [
+        "Would you like Anchovies?"
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "3-5 minutes",
+      "station": "Pantry",
+      "variants": {
+        "dinner": "also on dinner menu — $14 · 420 cal"
+      },
+      "image": "images/dishes/caesar-salad.jpg"
+    },
+    {
+      "name": "Shrimp Cocktail",
+      "section": "Appetizers & Soups",
+      "page": 6,
+      "price": 22,
+      "calories": 170,
+      "menu_name": "Shrimp Cocktail (5)",
+      "description": "Five (5) large (U12) shrimp served chilled with the tail on, accompanied by our house made cocktail sauce.",
+      "talking_points": [
+        "U10, U12, or U15: term to describe count per pound (particularly shellfish); 10, 12 or 15 per pound",
+        "Cocktail Sauce ingredients: Chili Sauce, Lemon Juice, Tabasco Sauce, Worcestershire Sauce, Horseradish"
+      ],
+      "serving_piece": "Scallop shell filled w/crushed ice on white napkin-lined salad plate",
+      "portion": [
+        {
+          "ingredient": "Shrimp",
+          "amount": "5",
+          "prep": "U12"
+        },
+        {
+          "ingredient": "Bibb lettuce",
+          "amount": "1 piece"
+        },
+        {
+          "ingredient": "Dill Sprig",
+          "amount": "1"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Lemon Wrap",
+          "amount": "1"
+        },
+        {
+          "ingredient": "Cocktail Sauce",
+          "amount": "2 oz",
+          "prep": "in ramekin"
+        }
+      ],
+      "to_bring": [
+        "Share plates if needed",
+        "Frame with cocktail fork",
+        "Hot towel(s) upon completion"
+      ],
+      "production_time": "5 minutes",
+      "station": "Pantry",
+      "variants": {
+        "dinner": "also on dinner menu — $22 · 170 cal"
+      },
+      "image": "images/dishes/shrimp-cocktail.jpg"
+    },
+    {
+      "name": "Pan-Fried Calamari with Hot Cherry Peppers",
+      "section": "Appetizers & Soups",
+      "page": 6,
+      "price": 22,
+      "calories": 710,
+      "serves": 2,
+      "description": "Our signature pan-fried Calamari is lightly breaded, flash fried and sautéed with a blend of hot cherry peppers, sliced pepperoncini's (the hot pepper relish) and pimientos tossed in garlic butter.",
+      "notes": [
+        "This item is always French served to the guest – SERVE IMMEDIATELY"
+      ],
+      "talking_points": [
+        "Pimento (pih-MYEHN-toh): a large, red, heart-shaped sweet pepper. The familiar red stuffing in green olives. Much of the pimento crop is used for paprika.",
+        "Pepperoncini (pep-per-awn-CHEE-nee): thin, 2-3 inches long, mild with a slight heat; commonly pickled and sold packaged.",
+        "Cherry peppers: bright red, slightly sweet flavor with medium heat."
+      ],
+      "serving_piece": "Small Oval Plate (Warm)",
+      "portion": [
+        {
+          "ingredient": "Squid Rings",
+          "amount": "8 oz"
+        },
+        {
+          "ingredient": "Squid Tentacles",
+          "amount": "4 oz"
+        },
+        {
+          "ingredient": "Club Soda",
+          "amount": "6 Tbsp"
+        },
+        {
+          "ingredient": "Enhance Cantonese Batter",
+          "amount": "2 oz"
+        },
+        {
+          "ingredient": "Garlic Butter",
+          "amount": "1⅓ oz"
+        },
+        {
+          "ingredient": "Hot Pepper Relish",
+          "amount": "4 oz"
+        },
+        {
+          "ingredient": "Chopped Pimientos",
+          "amount": "1⅓ oz"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Grilled Half Lemon"
+        },
+        {
+          "ingredient": "Chopped Parsley"
+        },
+        {
+          "ingredient": "Large Serving Spoon",
+          "prep": "stays at the table on plate for guests to use"
+        },
+        {
+          "ingredient": "Large Serving Fork",
+          "prep": "used for French service then removed"
+        }
+      ],
+      "to_bring": [
+        "Share plates"
+      ],
+      "production_time": "5 minutes",
+      "station": "Cold",
+      "variants": {
+        "dinner": "also on dinner menu — $22 · 710 cal · serves 2"
+      },
+      "image": "images/dishes/pan-fried-calamari.jpg"
+    },
+    {
+      "name": "Seared Salmon with Avocado, Mango and Tomato Salad",
+      "section": "Entrée Salads",
+      "page": 7,
+      "price": null,
+      "calories": null,
+      "description": "Seared Annatto Spiced Salmon with Avocado, Mango and Tomato salad tossed in Shallot Champagne Vinaigrette.",
+      "notes": [
+        "Salmon is Pacific King Salmon in Seattle and California only."
+      ],
+      "talking_points": [
+        "Annatto (A-NA-TOE): a derivative of the achiote trees of tropical regions of the Americas, used to produce a yellow to orange food coloring and as a flavoring. Slightly peppery scent with a hint of nutmeg; slightly sweet and peppery flavor."
+      ],
+      "serving_piece": "Large Shallow Bowl (Room Temperature)",
+      "portion": [
+        {
+          "ingredient": "Salmon Fillet",
+          "amount": "7 oz"
+        },
+        {
+          "ingredient": "Annatto Seasoning",
+          "amount": "2 tsp"
+        },
+        {
+          "ingredient": "Field Greens Salad Mix",
+          "amount": "2 oz"
+        },
+        {
+          "ingredient": "Champagne Shallot Vinaigrette",
+          "amount": "1 oz"
+        },
+        {
+          "ingredient": "Mango",
+          "amount": "2 oz",
+          "prep": "peeled, diced"
+        },
+        {
+          "ingredient": "Avocado",
+          "amount": "½",
+          "prep": "peeled, diced"
+        },
+        {
+          "ingredient": "Diced Tomatoes",
+          "amount": "2 oz"
+        },
+        {
+          "ingredient": "Champagne Vinaigrette finish",
+          "amount": "1 tsp",
+          "prep": "brushed on top"
+        }
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "8-10 minutes",
+      "station": "Broil & Cold",
+      "variants": {},
+      "image": "images/dishes/seared-salmon-avocado.jpg"
+    },
+    {
+      "name": "Maine Lobster Salad",
+      "section": "Entrée Salads",
+      "page": 7,
+      "price": null,
+      "calories": null,
+      "description": "Chilled North Atlantic lobster meat tossed in a Red Chile vinaigrette over arugula, avocado, and fresh citrus.",
+      "talking_points": [
+        "Red Chile: Native to South America, though now predominately grown in California. Red Fresno chili peppers are considered a hot chili, with flavor and heat similar to a jalapeño."
+      ],
+      "serving_piece": "Large Round Dinner Plate (Cold)",
+      "portion": [
+        {
+          "ingredient": "Arugula",
+          "amount": "½ oz"
+        },
+        {
+          "ingredient": "Avocado",
+          "amount": "½"
+        },
+        {
+          "ingredient": "Trio Tomatoes",
+          "amount": "2 oz",
+          "prep": "halved"
+        },
+        {
+          "ingredient": "Citrus segments",
+          "amount": "2 oz"
+        },
+        {
+          "ingredient": "Red Chile Vinaigrette",
+          "amount": "1 oz"
+        },
+        {
+          "ingredient": "Lobster Meat",
+          "amount": "4 oz"
+        },
+        {
+          "ingredient": "Red Chile Vinaigrette (finish)",
+          "amount": "½ oz",
+          "prep": "drizzled around the plate"
+        }
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "8-10 minutes",
+      "station": "Cold",
+      "variants": {},
+      "image": "images/dishes/maine-lobster-salad.jpg"
+    },
+    {
+      "name": "The Capital Grille 'Cobb' (with Sliced Tenderloin)",
+      "section": "Entrée Salads",
+      "page": 8,
+      "price": null,
+      "calories": null,
+      "description": "The Cobb salad features 6 oz. of sliced beef tenderloin, garnished with aged balsamic vinegar. Accompanied by a salad composed of Quattro tomatoes, diced avocado, hardboiled egg, crumbled gorgonzola, bacon lardons and field greens tossed in a bacon mustard dressing.",
+      "talking_points": [
+        "Gorgonzola (GORE-gone-ZO-LA): veined Italian blue cheese, made from unskimmed cow's and/or goat's milk. Buttery or firm, crumbly and quite salty, with a 'bite' from its blue veining."
+      ],
+      "serving_piece": "Large Round Dinner Plate (Room Temperature)",
+      "portion": [
+        {
+          "ingredient": "Tenderloin",
+          "amount": "3 – 2 oz",
+          "prep": "sliced"
+        },
+        {
+          "ingredient": "Avocado",
+          "amount": "½",
+          "prep": "sliced and diced"
+        },
+        {
+          "ingredient": "Field Greens Salad Mix",
+          "amount": "2 oz"
+        },
+        {
+          "ingredient": "Honey Dijon Bacon Dressing",
+          "amount": "1 fl oz"
+        },
+        {
+          "ingredient": "Hardboiled Eggs",
+          "amount": "½ oz",
+          "prep": "diced ¼\""
+        },
+        {
+          "ingredient": "Crumbled Gorgonzola",
+          "amount": "½ oz"
+        },
+        {
+          "ingredient": "Bacon Lardons",
+          "amount": "½ oz"
+        },
+        {
+          "ingredient": "Quattro Tomato",
+          "amount": "1 oz",
+          "prep": "halved"
+        },
+        {
+          "ingredient": "Aged Balsamic Vinegar",
+          "amount": "1 tsp"
+        }
+      ],
+      "questions_to_ask": [
+        "What temperature would you like your steak prepared to?"
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper",
+        "Steak Knife Framed"
+      ],
+      "production_time": "10-12 minutes",
+      "station": "Broil & Cold",
+      "variants": {},
+      "image": "images/dishes/capital-grille-cobb.jpg"
+    },
+    {
+      "name": "Housemade Potato Chips",
+      "section": "Sandwiches",
+      "page": 9,
+      "price": null,
+      "calories": null,
+      "description": "Thin sliced potatoes fried until crisp and golden brown, seasoned with fine sea salt. Served as a lunch side item and our complimentary bar snacks.",
+      "serving_piece": "Side: Stainless Cup. Bar: Black Wire Basket",
+      "portion": [
+        {
+          "ingredient": "Chips",
+          "amount": "1.5 oz"
+        }
+      ],
+      "production_time": "3-5 minutes",
+      "station": "Cold",
+      "variants": {}
+    },
+    {
+      "name": "Ribeye Steak Sandwich (with Caramelized Onions and Havarti Cheese)",
+      "section": "Sandwiches",
+      "page": 9,
+      "price": null,
+      "calories": null,
+      "description": "Our hand-carved Prime cut ribeye broiled and served with balsamic onions and melted Havarti cheese on a toasted French baguette with creamy horseradish sauce.",
+      "talking_points": [
+        "Horseradish Cream sauce is a mixture of sour cream, horseradish and Worcestershire sauce."
+      ],
+      "serving_piece": "Large Round Dinner Plate (Hot)",
+      "portion": [
+        {
+          "ingredient": "Prime Ribeye Steak",
+          "amount": "10 oz"
+        },
+        {
+          "ingredient": "Havarti Cheese",
+          "amount": "1 slice"
+        },
+        {
+          "ingredient": "Balsamic Onions",
+          "amount": "1 oz"
+        },
+        {
+          "ingredient": "Baguette",
+          "prep": "Buttered/Toasted"
+        },
+        {
+          "ingredient": "Side choice",
+          "prep": "Sea Salt Fries, Parmesan Truffle Fries, or Chips"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Watercress Sprigs",
+          "amount": "6-8"
+        },
+        {
+          "ingredient": "Horseradish Cream",
+          "amount": "2 oz",
+          "prep": "in ramekin"
+        }
+      ],
+      "questions_to_ask": [
+        "How would you like the steak prepared?",
+        "Which side would you prefer?",
+        "If a guest orders fries: Would you like a side of ketchup?"
+      ],
+      "to_bring": [
+        "Steak Knife Framed",
+        "Hot towel(s) upon completion"
+      ],
+      "production_time": "8-10 minutes",
+      "station": "Broil",
+      "variants": {},
+      "image": "images/dishes/ribeye-steak-sandwich.jpg"
+    },
+    {
+      "name": "Mini Tenderloin Sandwiches (2)",
+      "section": "Sandwiches",
+      "page": 10,
+      "price": null,
+      "calories": null,
+      "description": "2 petite filet mignons broiled and served on brioche with Mushroom Duxelle and herbed cream cheese, accompanied by Parmesan Truffle Fries.",
+      "talking_points": [
+        "Mushroom Duxelle ingredients: Butter, Shiitake mushrooms, Cremini mushrooms, Oyster mushrooms, Sherry wine, Fresh thyme, Kosher salt, Black pepper",
+        "Boursin Cheese ingredients: Cream cheese, Garlic, Lemon juice, Parsley, Tarragon, Basil, Oregano, Black pepper"
+      ],
+      "serving_piece": "Large Oval Plate (Warm)",
+      "portion": [
+        {
+          "ingredient": "Tenderloin Steaks",
+          "amount": "2 ea",
+          "prep": "2 oz each"
+        },
+        {
+          "ingredient": "Mushroom Duxelle",
+          "amount": "1½ oz"
+        },
+        {
+          "ingredient": "Brioche Buns",
+          "amount": "2 ea"
+        },
+        {
+          "ingredient": "Boursin Cheese",
+          "amount": "2 Tbsp"
+        },
+        {
+          "ingredient": "Side choice",
+          "prep": "Sea Salt Fries, Parmesan Truffle Fries, or Chips"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Sprigs Watercress",
+          "amount": "6-8"
+        }
+      ],
+      "questions_to_ask": [
+        "How would you like your tenderloin prepared?",
+        "Would you like a side of ketchup?"
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper",
+        "Steak Knife"
+      ],
+      "production_time": "5-7 minutes",
+      "station": "Broil",
+      "variants": {},
+      "image": "images/dishes/mini-tenderloin-sandwiches.jpg"
+    },
+    {
+      "name": "The Grille's Signature Cheeseburger",
+      "section": "Sandwiches",
+      "page": 10,
+      "price": null,
+      "calories": null,
+      "description": "An exclusive blend of beef from butcher Pat LaFrieda with French-onion style caramelized onions, Wisconsin Grand Cru Gruyère and shallot aioli. Served with our housemade pickles and your choice of sea salt fries, truffle fries or housemade chips.",
+      "serving_piece": "Large Round Dinner Plate (Hot), side item placed on the plate",
+      "portion": [
+        {
+          "ingredient": "Burger, LaFrieda",
+          "amount": "8 oz"
+        },
+        {
+          "ingredient": "Seeded Brioche Bun",
+          "amount": "1"
+        },
+        {
+          "ingredient": "Kobe Tallow",
+          "amount": "½ tsp",
+          "prep": "melted"
+        },
+        {
+          "ingredient": "Grand Cru Cheese",
+          "amount": "1 slice"
+        },
+        {
+          "ingredient": "Mozzarella Cheese",
+          "amount": "1 slice"
+        },
+        {
+          "ingredient": "Warm Caramelized Onions"
+        },
+        {
+          "ingredient": "Housemade Pickle Slices"
+        },
+        {
+          "ingredient": "Shallot Mayo"
+        },
+        {
+          "ingredient": "Side choice",
+          "prep": "Sea Salt Fries, Parmesan Truffle Fries, or Chips"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Ketchup & Pickles",
+          "prep": "in ramekin"
+        }
+      ],
+      "questions_to_ask": [
+        "How would you like the burger prepared?",
+        "Which side would you prefer?"
+      ],
+      "to_bring": [
+        "Steak Knife Framed",
+        "Hot towel(s) upon completion"
+      ],
+      "production_time": "8-15 minutes, depending on temperature",
+      "station": "Broil",
+      "variants": {},
+      "image": "images/dishes/signature-cheeseburger.jpg"
+    },
+    {
+      "name": "Chicken Sandwich (Crispy or Grilled) with Korean BBQ Glaze, Housemade Pickles and Miso Aioli",
+      "section": "Sandwiches",
+      "page": 11,
+      "price": null,
+      "calories": null,
+      "description": "CRISPY: Golden-fried chicken breast layered on a toasted brioche bun with Gochujang BBQ sauce, pickles, arugula, and a drizzle of hot honey. Finished with miso aioli on the bun. Served with your choice of fries. Frame with a Steak Knife. GRILLED: Juicy grilled chicken breast brushed with Gochujang BBQ sauce, paired with pickles, arugula, and hot honey on a toasted brioche bun. Topped with miso aioli and served with choice of fries. Frame with a Steak Knife.",
+      "serving_piece": "Large Round Dinner Plate (Hot)",
+      "portion": [
+        {
+          "ingredient": "Chicken Breast",
+          "amount": "6 wt oz"
+        },
+        {
+          "ingredient": "Chicken Batter"
+        },
+        {
+          "ingredient": "Cantonese Batter Flour"
+        },
+        {
+          "ingredient": "Clarified Butter"
+        },
+        {
+          "ingredient": "Seeded Brioche Bun"
+        },
+        {
+          "ingredient": "Gochujang Korean BBQ"
+        },
+        {
+          "ingredient": "House Pickles"
+        },
+        {
+          "ingredient": "Arugula"
+        },
+        {
+          "ingredient": "Hot Honey"
+        },
+        {
+          "ingredient": "Miso Aioli"
+        },
+        {
+          "ingredient": "Ketchup",
+          "prep": "ramekin"
+        },
+        {
+          "ingredient": "Side choice",
+          "prep": "Sea Salt Fries, Parmesan Truffle Fries, or Chips"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Ketchup",
+          "prep": "in ramekin"
+        }
+      ],
+      "questions_to_ask": [
+        "Would you like it grilled or crispy?",
+        "Which side would you prefer?"
+      ],
+      "to_bring": [
+        "Steak Knife Framed",
+        "Hot towel(s) upon completion"
+      ],
+      "production_time": "8-15 minutes, depending on temperature",
+      "station": "Broil",
+      "variants": {},
+      "image": "images/dishes/chicken-sandwich.jpg"
+    },
+    {
+      "name": "Seared Salmon with Mediterranean Couscous, Asparagus and Heirloom Tomatoes",
+      "section": "Plates",
+      "page": 12,
+      "price": null,
+      "calories": null,
+      "description": "Citrus glazed salmon with Israeli couscous, asparagus, and heirloom tomatoes.",
+      "serving_piece": "Large Entrée Bowl (Hot)",
+      "portion": [
+        {
+          "ingredient": "Salmon",
+          "amount": "6 oz"
+        },
+        {
+          "ingredient": "Seasoning Salt",
+          "amount": "½ tsp"
+        },
+        {
+          "ingredient": "Clarified Butter",
+          "amount": "1 fl oz"
+        },
+        {
+          "ingredient": "White Wine Water Mix",
+          "amount": "2 fl oz"
+        },
+        {
+          "ingredient": "Couscous",
+          "amount": "1 Green Scoop",
+          "prep": "see recipe"
+        },
+        {
+          "ingredient": "Asparagus",
+          "amount": "1 Green Scoop",
+          "prep": "blanched, cut 3\" bias"
+        },
+        {
+          "ingredient": "Tomato, Quattro",
+          "amount": "1 Black Scoop",
+          "prep": "halved"
+        },
+        {
+          "ingredient": "Ginger Butter",
+          "amount": "1 Purple Scoop",
+          "prep": "see recipe"
+        },
+        {
+          "ingredient": "Vegetable Stock",
+          "amount": "½ fl oz",
+          "prep": "see recipe"
+        },
+        {
+          "ingredient": "Fine Herb Mix",
+          "amount": "1 tsp"
+        },
+        {
+          "ingredient": "Fleur du Sel",
+          "amount": "1 tsp"
+        },
+        {
+          "ingredient": "Citrus Glaze",
+          "amount": "1 tsp"
+        },
+        {
+          "ingredient": "Micro Basil",
+          "amount": ".1 oz"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Citrus glaze and micro basil",
+          "amount": "1 oz"
+        }
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "15-18 minutes",
+      "station": "Broil or Sauté",
+      "variants": {},
+      "image": "images/dishes/seared-salmon-couscous.jpg"
+    },
+    {
+      "name": "Chicken & Fingerling Potatoes",
+      "section": "Plates",
+      "page": 13,
+      "price": null,
+      "calories": null,
+      "description": "Pan-seared chicken breast with a sherry jus, paired with roasted fingerling potatoes, asparagus tips, and fresh arugula tossed in a light dressing.",
+      "serving_piece": "Shallow Entrée Bowl (Hot)",
+      "portion": [
+        {
+          "ingredient": "Chicken Breast",
+          "amount": "1"
+        },
+        {
+          "ingredient": "Seasoning Salt"
+        },
+        {
+          "ingredient": "Clarified Butter"
+        },
+        {
+          "ingredient": "Roasted Fingerling Potato"
+        },
+        {
+          "ingredient": "Asparagus Tips",
+          "prep": "3\" halved"
+        },
+        {
+          "ingredient": "Arugula"
+        },
+        {
+          "ingredient": "Fingerling Potato Dressing"
+        },
+        {
+          "ingredient": "Sherry Chicken Jus"
+        }
+      ],
+      "to_bring": [
+        "Offer cracked pepper tableside. Frame with a Steak Knife."
+      ],
+      "production_time": "15 minutes",
+      "station": "Broil & Sauté",
+      "variants": {
+        "dinner": "Dinner version (page 29) uses 2 chicken breasts; same dish appears on dinner menu as 'Roasted Chicken Breast with Fingerling Potatoes and Dijon Cream' — $42 · 880 cal"
+      },
+      "image": "images/dishes/chicken-fingerling-lunch.jpg"
+    },
+    {
+      "name": "Dry-Aged NY Strip Steak Frites with Aji Verde and Sea Salt Fries",
+      "section": "Plates",
+      "page": 13,
+      "price": null,
+      "calories": null,
+      "description": "NY Strip dry aged in-house for 18-24 days, sliced and served with sea salt fries, Aji Verde, and herb aioli.",
+      "serving_piece": "Large Oval Plate (Hot)",
+      "portion": [
+        {
+          "ingredient": "Dry Aged Sirloin",
+          "amount": "8-9 oz",
+          "prep": "1 each"
+        },
+        {
+          "ingredient": "Seasoning Salt",
+          "prep": "to season"
+        },
+        {
+          "ingredient": "Steak Butter",
+          "amount": "½ oz"
+        },
+        {
+          "ingredient": "Aji Verde",
+          "amount": "1 oz"
+        },
+        {
+          "ingredient": "French Fries",
+          "amount": "8 oz"
+        },
+        {
+          "ingredient": "Sea Salt Blend",
+          "amount": "1 tsp"
+        },
+        {
+          "ingredient": "Herb Aioli",
+          "amount": "2 oz"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Fries",
+          "prep": "served in a silver bullet holder"
+        }
+      ],
+      "to_bring": [
+        "Steak Knife Framed",
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "15 minutes",
+      "station": "Broil & Sauté",
+      "variants": {},
+      "image": "images/dishes/ny-strip-steak-frites.jpg"
+    },
+    {
+      "name": "Filet Mignon (8 oz)",
+      "section": "Entrées",
+      "page": 14,
+      "price": null,
+      "calories": null,
+      "description": "Our most tender cut of steak on the menu, the filet is simply broiled and brushed with our house-made steak butter enhanced with Kobe Beef Tallow. Served with your choice of side item. Guest chooses side dish; place side at 12 o'clock.",
+      "serving_piece": "Large Round Dinner Plate (Hot) with side item on the plate",
+      "portion": [
+        {
+          "ingredient": "Filet",
+          "amount": "8 oz"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Steak Butter",
+          "amount": "1 oz"
+        },
+        {
+          "ingredient": "Watercress Sprigs",
+          "amount": "6-8"
+        }
+      ],
+      "questions_to_ask": [
+        "How would you like your steak prepared?"
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper",
+        "Steak Knife Framed"
+      ],
+      "production_time": "10-15 minutes, depending on temperature",
+      "station": "Broil",
+      "variants": {
+        "dinner": "Dinner version is 10 oz — $61 · 490 cal"
+      },
+      "image": "images/dishes/filet-mignon-lunch.jpg"
+    },
+    {
+      "name": "Bone-In NY or KC Strip (14 oz)",
+      "section": "Entrées",
+      "page": 14,
+      "price": null,
+      "calories": null,
+      "description": "Our bone in dry aged 14 oz NY Strip (KC Strip in KC) broiled to perfection and brushed with our house-made steak butter enhanced with Kobe Beef Tallow. Served with your choice of side item. Guest chooses side dish; place side at 12 o'clock.",
+      "serving_piece": "Large Round Dinner Plate (Hot), side item placed on the plate",
+      "portion": [
+        {
+          "ingredient": "NY Strip (Bone-in)",
+          "amount": "14 oz"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Steak Butter"
+        },
+        {
+          "ingredient": "Watercress Sprigs",
+          "amount": "6-8"
+        }
+      ],
+      "questions_to_ask": [
+        "How would you like your steak prepared?",
+        "Which side item would you like?"
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper",
+        "Steak Knife Framed"
+      ],
+      "production_time": "10-15 minutes, depending on temperature",
+      "station": "Broil",
+      "variants": {
+        "dinner": "Dinner portion is 18 oz — $65 · 830 cal — listed as 'Dry Aged Bone-In NY Strip'"
+      },
+      "image": "images/dishes/bone-in-ny-kc-strip-lunch.jpg"
+    },
+    {
+      "name": "Sushi-Grade Seared Sesame Tuna",
+      "section": "Entrées",
+      "page": 15,
+      "price": null,
+      "calories": null,
+      "description": "Lightly dusted with sesame seeds, seared, over a bed of gingered rice. 8 oz dinner / 6 oz lunch.",
+      "talking_points": [
+        "Yellowfin tuna: flesh varies from pink in smaller fish to deeper red in larger fish. Mild flavor, firm texture, adapts well to many preparations.",
+        "Gingered Rice: sushi rice steamed in our rice cooker for 20-30 minutes with water, champagne vinegar, sugar, ginger and kosher salt"
+      ],
+      "serving_piece": "Large Round (Hot)",
+      "portion": [
+        {
+          "ingredient": "Tuna Steak (Lunch)",
+          "amount": "6 oz"
+        },
+        {
+          "ingredient": "Toasted Sesame Seeds",
+          "amount": "1 Tbsp"
+        },
+        {
+          "ingredient": "Kosher Salt",
+          "amount": "½ tsp"
+        },
+        {
+          "ingredient": "Clarified Butter",
+          "amount": "2 oz"
+        },
+        {
+          "ingredient": "Gingered Rice",
+          "amount": "1 Green Scoop"
+        },
+        {
+          "ingredient": "Sambal Vinaigrette",
+          "amount": "½ oz"
+        },
+        {
+          "ingredient": "Chive Oil",
+          "amount": "½ oz"
+        },
+        {
+          "ingredient": "White Soy",
+          "amount": "2 tsp"
+        },
+        {
+          "ingredient": "Micro Cilantro",
+          "amount": "½ oz"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Chive Oil, Sambal Vinaigrette, White Soy Sauce"
+        }
+      ],
+      "questions_to_ask": [
+        "What temperature would you like your Tuna prepared?"
+      ],
+      "to_bring": [
+        "Steak Knife Framed",
+        "Fresh Cracked Pepper",
+        "Share Plates"
+      ],
+      "production_time": "8-10 minutes",
+      "station": "Broil or Sauté",
+      "variants": {
+        "dinner": "Dinner portion is 8 oz tuna steak — $54 · 500 cal · menu name 'Sushi-Grade Sesame Seared Tuna with Gingered Rice, White Soy and Sambal Vinaigrette'"
+      },
+      "image": "images/dishes/sushi-grade-seared-sesame-tuna.jpg"
+    },
+    {
+      "name": "Sliced Filet Mignon with Cipollini Onions, Wild Mushrooms and Fig Essence (8 oz Lunch)",
+      "section": "Entrées",
+      "page": 15,
+      "price": null,
+      "calories": null,
+      "description": "Our 10 oz / 8 oz Filet mignon, broiled and sliced, over a sauté of Cipollini onions, wild mushrooms and finished with fig essence. NON PLATES RESTAURANTS ONLY.",
+      "talking_points": [
+        "The edible fig (a fruit from the ficus tree) is one of the first plants cultivated by humans. The find predates the domestication of wheat, barley and legumes — may be the first known instance of agriculture.",
+        "Essences are concentrated, usually oily substances extracted from food such as fish, mint leaves, fruits or vegetables and used in small amounts (1 Tbsp.) to flavor various dishes."
+      ],
+      "serving_piece": "Large Round Dinner Plate (Hot)",
+      "portion": [
+        {
+          "ingredient": "Filet Mignon (Lunch)",
+          "amount": "8 oz"
+        },
+        {
+          "ingredient": "Roasted Cipollini Onions",
+          "amount": "2 oz"
+        },
+        {
+          "ingredient": "Wild Mushroom Mix",
+          "amount": "3 oz"
+        },
+        {
+          "ingredient": "Seasoning Salt"
+        },
+        {
+          "ingredient": "Fig Essence",
+          "amount": "1 Tbsp"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Sprigs Watercress",
+          "amount": "6-8"
+        },
+        {
+          "ingredient": "Steak Butter"
+        }
+      ],
+      "questions_to_ask": [
+        "What temperature would you like your steak prepared?"
+      ],
+      "to_bring": [
+        "Steak Knife Framed",
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "15-18 minutes",
+      "station": "Broil & Sauté",
+      "variants": {
+        "dinner": "Dinner portion is 10 oz filet mignon — $63 · 580 cal — listed under 'Chef Recommends'"
+      },
+      "image": "images/dishes/sliced-filet-mignon-lunch.jpg"
+    }
+  ],
+  "dinner": [
+    {
+      "name": "Shrimp Cocktail",
+      "section": "Appetizers",
+      "page": 6,
+      "price": 22,
+      "calories": 170,
+      "menu_name": "Shrimp Cocktail (5)",
+      "description": "Five (5) large (U12) shrimp served chilled with the tail on, accompanied by our house made cocktail sauce.",
+      "talking_points": [
+        "U10, U12, or U15: term to describe count per pound (particularly shellfish); 10, 12 or 15 per pound",
+        "Cocktail Sauce ingredients: Chili Sauce, Lemon Juice, Tabasco Sauce, Worcestershire Sauce, Horseradish"
+      ],
+      "serving_piece": "Scallop shell filled w/crushed ice on white napkin-lined salad plate",
+      "portion": [
+        {
+          "ingredient": "Shrimp",
+          "amount": "5",
+          "prep": "U12"
+        },
+        {
+          "ingredient": "Bibb lettuce",
+          "amount": "1 piece"
+        },
+        {
+          "ingredient": "Dill Sprig",
+          "amount": "1"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Lemon Wrap",
+          "amount": "1"
+        },
+        {
+          "ingredient": "Cocktail Sauce",
+          "amount": "2 oz",
+          "prep": "in ramekin"
+        }
+      ],
+      "to_bring": [
+        "Share plates if needed",
+        "Frame with cocktail fork",
+        "Hot towel(s) upon completion"
+      ],
+      "production_time": "5 minutes",
+      "station": "Pantry",
+      "variants": {
+        "lunch": "also on lunch menu"
+      },
+      "image": "images/dishes/shrimp-cocktail.jpg"
+    },
+    {
+      "name": "Pan-Fried Calamari with Hot Cherry Peppers",
+      "section": "Appetizers",
+      "page": 6,
+      "price": 22,
+      "calories": 710,
+      "serves": 2,
+      "description": "Our signature pan-fried Calamari is lightly breaded, flash fried and sautéed with a blend of hot cherry peppers, sliced pepperoncini's (the hot pepper relish) and pimientos tossed in garlic butter.",
+      "notes": [
+        "This item is always French served to the guest – SERVE IMMEDIATELY"
+      ],
+      "talking_points": [
+        "Pimento (pih-MYEHN-toh): a large, red, heart-shaped sweet pepper. The familiar red stuffing in green olives. Much of the pimento crop is used for paprika.",
+        "Pepperoncini (pep-per-awn-CHEE-nee): thin, 2-3 inches long, mild with a slight heat; commonly pickled and sold packaged.",
+        "Cherry peppers: bright red, slightly sweet flavor with medium heat."
+      ],
+      "serving_piece": "Small Oval Plate (Warm)",
+      "portion": [
+        {
+          "ingredient": "Squid Rings",
+          "amount": "8 oz"
+        },
+        {
+          "ingredient": "Squid Tentacles",
+          "amount": "4 oz"
+        },
+        {
+          "ingredient": "Club Soda",
+          "amount": "6 Tbsp"
+        },
+        {
+          "ingredient": "Enhance Cantonese Batter",
+          "amount": "2 oz"
+        },
+        {
+          "ingredient": "Garlic Butter",
+          "amount": "1⅓ oz"
+        },
+        {
+          "ingredient": "Hot Pepper Relish",
+          "amount": "4 oz"
+        },
+        {
+          "ingredient": "Chopped Pimientos",
+          "amount": "1⅓ oz"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Grilled Half Lemon"
+        },
+        {
+          "ingredient": "Chopped Parsley"
+        },
+        {
+          "ingredient": "Large Serving Spoon",
+          "prep": "stays at the table on plate for guests to use"
+        },
+        {
+          "ingredient": "Large Serving Fork",
+          "prep": "used for French service then removed"
+        }
+      ],
+      "to_bring": [
+        "Share plates"
+      ],
+      "production_time": "5 minutes",
+      "station": "Cold",
+      "variants": {
+        "lunch": "also on lunch menu"
+      },
+      "image": "images/dishes/pan-fried-calamari.jpg"
+    },
+    {
+      "name": "Jumbo Lump Crab Cocktail",
+      "section": "Appetizers",
+      "page": 16,
+      "price": 28,
+      "calories": 460,
+      "description": "Jumbo lump crab meat accompanied by our house made mustard sauce.",
+      "serving_piece": "Chilled Silver Goblet on doiled lined salad plate",
+      "portion": [
+        {
+          "ingredient": "Jumbo Crab",
+          "amount": "4 oz"
+        },
+        {
+          "ingredient": "Bibb lettuces",
+          "amount": "2 ea"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Lemon Wrap"
+        },
+        {
+          "ingredient": "Mustard Sauce",
+          "amount": "2 oz",
+          "prep": "in ramekin"
+        }
+      ],
+      "to_bring": [
+        "Frame with cocktail fork",
+        "Share plates and tongs if needed for guests if a shared appetizer"
+      ],
+      "production_time": "5-7 minutes",
+      "station": "Pantry",
+      "variants": {},
+      "image": "images/dishes/jumbo-lump-crab-cocktail.jpg"
+    },
+    {
+      "name": "Oysters on the Half Shell",
+      "section": "Appetizers",
+      "page": 16,
+      "price": 23,
+      "calories": 130,
+      "menu_name": "Fresh Oysters on the Half Shell (6)",
+      "description": "Six (6) Seasonal Cold Water oysters served with our house made cocktail and mignonette sauces. Our oysters come from the North Atlantic and West Coast, North Pacific.",
+      "notes": [
+        "Serve horseradish and Tabasco upon request"
+      ],
+      "serving_piece": "Scallop shell filled with crushed ice on white napkin-lined salad plate",
+      "portion": [
+        {
+          "ingredient": "Oysters",
+          "amount": "6 ea"
+        },
+        {
+          "ingredient": "Bibb lettuce",
+          "amount": "1 piece"
+        },
+        {
+          "ingredient": "Dill Sprig",
+          "amount": "1"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Lemon Wrap"
+        },
+        {
+          "ingredient": "Cocktail Sauce",
+          "amount": "2 oz",
+          "prep": "in ramekin"
+        },
+        {
+          "ingredient": "Mignonette Sauce",
+          "amount": "2 oz",
+          "prep": "in ramekin"
+        },
+        {
+          "ingredient": "Demitasse Spoons",
+          "amount": "2",
+          "prep": "placed into the ice, spoon side down"
+        }
+      ],
+      "to_bring": [
+        "Share plates",
+        "Frame with cocktail fork",
+        "Hot towel(s) upon completion",
+        "Sauce Plate Set-Up: 5+ Guests — place mignonette and cocktail sauce on a doily lined B&B plate with a wrapped lemon. Add 2 demitasse spoons on the plate, 1 spoon per sauce. 6+ Guests — make one sauce plate for every three guests at the table."
+      ],
+      "production_time": "5-7 minutes",
+      "station": "Pantry",
+      "variants": {},
+      "image": "images/dishes/oysters-on-the-half-shell.jpg"
+    },
+    {
+      "name": "Lobster and Crab Cake with Lemon Basil Aioli",
+      "section": "Appetizers",
+      "page": 17,
+      "price": 28,
+      "calories": 350,
+      "serves": 2,
+      "description": "Our lobster and crab cake is a delectable blend of fresh lobster and crabmeat, pan fried to a golden brown and served with lemon basil aioli.",
+      "notes": [
+        "Dungeness Crab is used in Seattle and California only."
+      ],
+      "serving_piece": "Round Plate (Hot)",
+      "portion": [
+        {
+          "ingredient": "Crab & Lobster Cakes",
+          "amount": "1 ea (6 oz)"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Grilled Half Lemon"
+        },
+        {
+          "ingredient": "Micro basil and finely chopped chives"
+        },
+        {
+          "ingredient": "Large Serving Fork"
+        }
+      ],
+      "to_bring": [
+        "Share plates"
+      ],
+      "production_time": "5-7 minutes",
+      "station": "Cold",
+      "variants": {},
+      "image": "images/dishes/lobster-crab-cake.jpg"
+    },
+    {
+      "name": "Nueske's Double Cut Smoked Bacon, Korean BBQ Glaze",
+      "section": "Appetizers",
+      "page": 17,
+      "price": 20,
+      "calories": 450,
+      "serves": 2,
+      "menu_name": "Nueske's Double Cut Cherrywood Bacon, Korean BBQ Glaze",
+      "description": "Double cut smoked bacon with Korean BBQ glaze and pickled shallots.",
+      "serving_piece": "(Hot) Long Bar Plate / Canoe",
+      "portion": [
+        {
+          "ingredient": "Nueske's Slab Bacon",
+          "amount": "8 oz",
+          "prep": "jaccarded"
+        },
+        {
+          "ingredient": "Gochuchang Korean BBQ",
+          "amount": "2 fl oz"
+        },
+        {
+          "ingredient": "Black and White Sesame Seeds",
+          "amount": "2 tsp"
+        },
+        {
+          "ingredient": "Pickled Shallots",
+          "amount": "1 oz"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Pickled shallots and micro cilantro",
+          "amount": "6-8 sprigs"
+        }
+      ],
+      "to_bring": [
+        "Share Plates",
+        "Steak Knife Framed"
+      ],
+      "production_time": "5-7 minutes",
+      "station": "Sauté",
+      "variants": {},
+      "image": "images/dishes/nueskes-bacon.jpg"
+    },
+    {
+      "name": "Prosciutto Wrapped Mozzarella",
+      "section": "Appetizers",
+      "page": 18,
+      "price": 20,
+      "calories": 440,
+      "serves": 2,
+      "menu_name": "Prosciutto-Wrapped Mozzarella with Vine Ripe Tomatoes",
+      "description": "Fresh Mozzarella wrapped in Prosciutto and pan seared until crisp. Garnished with a seasonal salad of mixed heirloom tomatoes tossed in 15-year aged balsamic and topped with fresh basil and house made Grana toast points.",
+      "notes": [
+        "This item must be SERVED IMMEDIATELY"
+      ],
+      "talking_points": [
+        "Prosciutto (proh-SHOO-toh): a term broadly used to describe a ham that has been seasoned, salt-cured and air-dried. The Capital Grille serves prosciutto di Parma, an Italian ham labeled according to its city of origin.",
+        "Grana Padano (GRAH-nah PUH-dano): a semi-fat hard cheese, cooked and ripened slowly. Fragrant and delicate aroma. Structurally fine, grainy, and easily fractures into slivers.",
+        "Grana toast points: pressed thin slices of pan rustique bread, butter, and grated Grana Padano cheese on our sandwich press until golden brown and crisp. Made per shift."
+      ],
+      "serving_piece": "Large Round Dinner Plate (Hot)",
+      "portion": [
+        {
+          "ingredient": "Prosciutto Wrapped Mozzarella",
+          "amount": "4 each"
+        },
+        {
+          "ingredient": "Heirloom Tomato Salad",
+          "amount": "3 oz"
+        },
+        {
+          "ingredient": "15-Year Aged Balsamic",
+          "amount": "2 tsp",
+          "prep": "drizzle"
+        },
+        {
+          "ingredient": "Pain Rustique Croutons",
+          "amount": "2"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Basil Sprig"
+        },
+        {
+          "ingredient": "Large Serving Fork"
+        }
+      ],
+      "to_bring": [
+        "Share Plates"
+      ],
+      "production_time": "5-7 minutes",
+      "station": "Sauté",
+      "variants": {},
+      "image": "images/dishes/prosciutto-wrapped-mozzarella.jpg"
+    },
+    {
+      "name": "Tuna Tartare with Avocado, Mango and Sriracha",
+      "section": "Appetizers",
+      "page": 18,
+      "price": 23,
+      "calories": 130,
+      "description": "Delicate soy marinated sushi grade tuna, over fresh avocado and cucumber, paired with sweet mango puree and spicy sriracha topped with soy pearls.",
+      "serving_piece": "Round Salad Plate (Chilled)",
+      "portion": [
+        {
+          "ingredient": "Tuna",
+          "amount": "4 oz",
+          "prep": "¼\" diced"
+        },
+        {
+          "ingredient": "Tuna Marinade",
+          "amount": "½ fl oz"
+        },
+        {
+          "ingredient": "Mango Puree",
+          "amount": "½ fl oz",
+          "prep": "perfect puree"
+        },
+        {
+          "ingredient": "Cucumber",
+          "amount": "1⅓ oz",
+          "prep": "¼\" diced"
+        },
+        {
+          "ingredient": "Avocado",
+          "amount": "1⅓ oz",
+          "prep": "¼\" diced"
+        },
+        {
+          "ingredient": "Micro Cilantro",
+          "amount": "6-8 sprigs"
+        },
+        {
+          "ingredient": "Soy Pearls",
+          "amount": "6"
+        },
+        {
+          "ingredient": "Sriracha",
+          "amount": "1 tsp"
+        },
+        {
+          "ingredient": "Tuna Crisps",
+          "amount": "5 each"
+        }
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper",
+        "Share Plates",
+        "Large Serving Fork"
+      ],
+      "production_time": "6 minutes",
+      "station": "Pantry",
+      "variants": {},
+      "image": "images/dishes/tuna-tartare.jpg"
+    },
+    {
+      "name": "Cold Shellfish Platter",
+      "section": "Appetizers",
+      "page": 19,
+      "price": 65,
+      "calories": 430,
+      "description": "Our cold shellfish platter consists of a one pound cold lobster, (6) jumbo shrimp cocktail, (6) seasonal Oysters on the half shell, garnished with house made cocktail and mignonette sauce. If the platter is for 6 or more guests, make one sauce plate for every three guests at the table. (Horseradish or Tabasco served upon request).",
+      "notes": [
+        "Restaurants may seasonally offer Littleneck Clams in addition to Oysters. If both Clams and Oysters are offered on the same platter, the INGREDIENTS are 4 of each. Horseradish and Tabasco served upon request.",
+        "HOT Towel Presentation: Roll a clean washcloth and place it in a half or full relish dish. Fully dampen with hot water and place a lemon wrap on the end of the dish next to the napkin. French serve to the guest (dangle by the corner to release the steam). Alert the guest that the napkin is 'hot'. Used towels are to be removed from the table immediately. If you hot towel one guest at the table then you hot towel all guests."
+      ],
+      "talking_points": [
+        "Mignonette (meen-yawn-NEHT): traditional condiment served with raw oysters, consisting of Red Wine Vinegar, minced shallot and cracked black pepper"
+      ],
+      "serving_piece": "Shellfish Pan filled with crushed ice on Shellfish Pan Stand (for shared appetizer); Shellfish Pan filled with crushed ice on white napkin-lined round plate (entrée or single serve app)",
+      "portion": [
+        {
+          "ingredient": "Cold Lobster",
+          "amount": "1 (1 lb)"
+        },
+        {
+          "ingredient": "Shrimp",
+          "amount": "6 (U12)",
+          "prep": "peeled with tails"
+        },
+        {
+          "ingredient": "Shucked Oysters",
+          "amount": "6 ea"
+        },
+        {
+          "ingredient": "Green Bibb Lettuce",
+          "amount": "4 ea"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Lemon Wraps",
+          "amount": "2"
+        },
+        {
+          "ingredient": "Mignonette",
+          "amount": "2 oz",
+          "prep": "in ramekin"
+        },
+        {
+          "ingredient": "Cocktail Sauce",
+          "amount": "2 oz",
+          "prep": "in ramekin"
+        },
+        {
+          "ingredient": "Demitasse Spoons",
+          "amount": "2",
+          "prep": "placed into the ice"
+        }
+      ],
+      "to_bring": [
+        "Cocktail Fork for each guest",
+        "Lobster Crackers for every two guests placed on table",
+        "Share Plates for each guest",
+        "Soup bowl for shells",
+        "Hot towel(s) upon completion",
+        "Sauce Plate Set-Up: 5+ Guests — place mignonette and cocktail sauce on a doily lined B&B plate with a wrapped lemon. Add 2 demitasse spoons on the plate, 1 spoon per sauce. 6+ Guests — make one sauce plate for every three guests at the table."
+      ],
+      "production_time": "8-10 minutes",
+      "station": "Pantry",
+      "variants": {},
+      "image": "images/dishes/cold-shellfish-platter.jpg"
+    },
+    {
+      "name": "Grand Plateau",
+      "section": "Appetizers",
+      "page": 20,
+      "price": 130,
+      "calories": 1120,
+      "description": "Our Grand Plateau consists of two 1LB chilled Lobsters, (8) jumbo shrimp cocktail, (8) seasonal Oysters on the half shell, (4 oz) Colossal Crab, garnished with house made cocktail sauce, mignonette sauce and mustard sauce. If the platter is for 6 or more guests, make one sauce plate for every three guests at the table. (Horseradish or Tabasco served upon request).",
+      "notes": [
+        "Dungeness Crab is used in Seattle and California only.",
+        "Restaurants may seasonally offer Littleneck Clams in addition to Oysters. If both are offered on the same platter, INGREDIENTS are 4 of each. Horseradish and Tabasco served upon request.",
+        "HOT Towel Presentation: Roll a clean washcloth and place it in a half or full relish dish. Fully dampen with hot water and place a lemon wrap on the end of the dish next to the napkin. French serve to the guest (dangle by the corner to release the steam). Alert the guest that the napkin is 'hot'. Used towels are to be removed from the table immediately. If you hot towel one guest at the table then you hot towel all guests."
+      ],
+      "talking_points": [
+        "U10, 12 or 15: term to describe count per pound; particularly shellfish; 10, 12 or 15 per pound",
+        "Mignonette (meen-yawn-NEHT): made with red wine vinegar, shallots and coarsely ground black peppercorns. Historically, a mignonette was a small cloth sachet filled with peppercorns and cloves, used to flavor soups and stews.",
+        "Jumbo lump grade crab meat: comes from larger crabs, is the meat from the two large muscles connected to the swimming legs. Contrary to smaller portions of crab meat (lump, special, backfin), it can be used whole. Brilliant white color."
+      ],
+      "serving_piece": "2 Shellfish Pans filled with crushed ice; Shellfish Pan Stand; Silver Goblet",
+      "portion": [
+        {
+          "ingredient": "Cold Lobsters",
+          "amount": "2 (1 lb each)"
+        },
+        {
+          "ingredient": "Shrimp",
+          "amount": "8 (U12)",
+          "prep": "peeled with tails"
+        },
+        {
+          "ingredient": "Colossal Crab",
+          "amount": "4 oz"
+        },
+        {
+          "ingredient": "Shucked Oysters",
+          "amount": "8 ea"
+        },
+        {
+          "ingredient": "Green Bibb Lettuce",
+          "amount": "8 ea"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Lemon Wraps",
+          "amount": "4"
+        },
+        {
+          "ingredient": "Mignonette",
+          "amount": "2 oz",
+          "prep": "in ramekin"
+        },
+        {
+          "ingredient": "Cocktail Sauce",
+          "amount": "2 oz",
+          "prep": "in ramekin"
+        },
+        {
+          "ingredient": "Mustard Sauce",
+          "amount": "2 oz",
+          "prep": "in ramekin"
+        },
+        {
+          "ingredient": "Demitasse Spoons",
+          "amount": "3",
+          "prep": "placed into the ice"
+        }
+      ],
+      "to_bring": [
+        "Cocktail Fork for each guest",
+        "Lobster Crackers for every two guests placed on table",
+        "Share plates for each guest",
+        "Soup bowl for shells",
+        "Hot towel(s) upon completion",
+        "Sauce Plate Set-Up: 5+ Guests — place mignonette, mustard and cocktail sauce on a doily lined share plate with a wrapped lemon. Add 3 demitasse spoons on the plate, 1 spoon per sauce. 6+ Guests — make one sauce plate for every three guests at the table."
+      ],
+      "production_time": "8-10 minutes",
+      "station": "Pantry",
+      "variants": {},
+      "image": "images/dishes/grand-plateau.jpg"
+    },
+    {
+      "name": "Snake River Farms Gold Wagyu Steak Tartare",
+      "section": "Appetizers",
+      "page": 21,
+      "price": 28,
+      "calories": 310,
+      "description": "Hand-cut Snake River Farms Wagyu tenderloin, seasoned and served in a roasted marrow bone. Finished with egg yolk, fresh chives, and accompanied by pickled shallots, cornichons, and brioche toast points.",
+      "serving_piece": "Chilled Small Oval Plate",
+      "portion": [
+        {
+          "ingredient": "SRF Wagyu Tenderloin",
+          "amount": "4 wt oz"
+        },
+        {
+          "ingredient": "Wet Mixture",
+          "amount": "1 fl oz"
+        },
+        {
+          "ingredient": "Maldon Sea Salt",
+          "amount": "1 Pinch"
+        },
+        {
+          "ingredient": "Beef Marrow Bone",
+          "amount": "1 ea",
+          "prep": "clean"
+        },
+        {
+          "ingredient": "Hard Boiled Egg Yolk",
+          "amount": "1 tsp",
+          "prep": "micro plane"
+        },
+        {
+          "ingredient": "Chives",
+          "amount": "1 tsp",
+          "prep": "sliced 1/16\""
+        },
+        {
+          "ingredient": "Pickled Shallots"
+        },
+        {
+          "ingredient": "Cornichons",
+          "amount": "4 ea",
+          "prep": "whole"
+        },
+        {
+          "ingredient": "Brioche Toast Points",
+          "amount": "8 ea",
+          "prep": "¼\""
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Cracked pepper tableside; Demitasse Spoon inside Tartare Mixture"
+        }
+      ],
+      "to_bring": [
+        "Share Plates and offer fresh cracked black pepper"
+      ],
+      "variants": {},
+      "image": "images/dishes/snake-river-wagyu-steak-tartare.jpg"
+    },
+    {
+      "name": "Caviar and Caramelized Onion Dip with Housemade Chips",
+      "section": "Appetizers",
+      "page": 22,
+      "price": 38,
+      "calories": 450,
+      "serves": 2,
+      "description": "A decadent, chilled blend of slow-caramelized onions with Royal Ossetra Caviar, served with crispy housemade potato chips. Guest can choose to have this as an add-on to any lunch item.",
+      "serving_piece": "Large Shallow Bowl and Chilled Silver Goblet",
+      "portion": [
+        {
+          "ingredient": "Fresh Potato Chips",
+          "amount": "3 oz cooked / 10 oz raw potatoes"
+        },
+        {
+          "ingredient": "Onion Dip Batch",
+          "amount": "2 each, green scoops",
+          "prep": "see recipe"
+        },
+        {
+          "ingredient": "Petrossian Baika Caviar",
+          "amount": "15 grams"
+        },
+        {
+          "ingredient": "Chives",
+          "amount": "1 tsp"
+        }
+      ],
+      "to_bring": [
+        "Share Plates"
+      ],
+      "station": "Cold",
+      "variants": {},
+      "image": "images/dishes/caviar-onion-dip.jpg"
+    },
+    {
+      "name": "Oysters Rockefeller Style with Champagne Brie Fondue",
+      "section": "Appetizers",
+      "page": 22,
+      "price": 24,
+      "calories": 230,
+      "description": "4 East Coast oysters baked with a Champagne-Brie topping, spinach, and a sprinkle of Parmesan-panko crumbs.",
+      "notes": [
+        "Deliver to the guest with hinge pointing away from the guest."
+      ],
+      "serving_piece": "Room Temperature Canoe Plate",
+      "portion": [
+        {
+          "ingredient": "Oysters, East Coast",
+          "amount": "4 ea"
+        },
+        {
+          "ingredient": "Oyster Spinach Prep",
+          "amount": "4 Tbsp"
+        },
+        {
+          "ingredient": "Champagne Brie Prep",
+          "amount": "2 tsp"
+        },
+        {
+          "ingredient": "Grana Padano Cheese",
+          "amount": "2 tsp",
+          "prep": "micro planed"
+        },
+        {
+          "ingredient": "Parmesan Panko Breadcrumbs",
+          "amount": "2 tsp"
+        },
+        {
+          "ingredient": "Kosher Salt"
+        },
+        {
+          "ingredient": "Black Pepper, cracked",
+          "amount": "1 tsp"
+        },
+        {
+          "ingredient": "Red Pepper Flakes",
+          "amount": "½ tsp"
+        }
+      ],
+      "to_bring": [
+        "Frame with Cocktail Fork and serve with tongs",
+        "Offer cracked black pepper"
+      ],
+      "station": "Sauté / Pantry",
+      "variants": {},
+      "image": "images/dishes/oysters-rockefeller.jpg"
+    },
+    {
+      "name": "New England Clam Chowder",
+      "section": "Soups & Salads",
+      "page": 3,
+      "price": 13,
+      "calories": 220,
+      "description": "Award winning New England style cream based chowder made with a blend of Littleneck and Quahog clams.",
+      "notes": [
+        "Our clam chowder DOES have bacon."
+      ],
+      "talking_points": [
+        "Quahog (KWAH-hog) is the American Indian name for the East Coast hard-shell clam. The term 'quahog' is also sometimes used to describe the largest of these hard-shell clams.",
+        "Called littlenecks on the East Coast and Pacific littlenecks on the West Coast — small, hard-shell clams with a shell diameter of less than 2 inches."
+      ],
+      "sizes": {
+        "bowl": "10 oz",
+        "cup": "7 oz"
+      },
+      "serving_piece": "Hot Soup Bowl on doily lined salad plate; Hot Soup Cup on a saucer (no doily)",
+      "portion": [
+        {
+          "ingredient": "Clam Chowder (Cup)",
+          "amount": "7 oz"
+        },
+        {
+          "ingredient": "Clam Chowder (Bowl)",
+          "amount": "10 oz"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Chopped Parsley",
+          "amount": "¼ tsp"
+        },
+        {
+          "ingredient": "Oyster Crackers",
+          "amount": "1 pkg"
+        }
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper",
+        "Soup Spoon Framed"
+      ],
+      "questions_to_ask": [
+        "Would you like a cup or bowl?"
+      ],
+      "production_time": "3-5 minutes",
+      "station": "Soup or pantry",
+      "variants": {
+        "lunch": "also on lunch menu"
+      },
+      "image": "images/dishes/clam-chowder.jpg"
+    },
+    {
+      "name": "Caramelized French Onion Soup",
+      "section": "Soups & Salads",
+      "page": 4,
+      "price": 14,
+      "calories": 740,
+      "description": "Our traditional French style onion soup is loaded with caramelized onions and topped with house made Grana croutons, melted mozzarella and Jarlsberg cheese.",
+      "notes": [
+        "Mozzarella cheese is placed on top of the Jarlsberg as it browns better. The soup is NOT vegetarian, as it is made with both beef and chicken bases."
+      ],
+      "talking_points": [
+        "Jarlsberg (YAHRLZ-berg): a mild Swiss-style cheese from Norway with a yellow-wax rind and semi-firm yellow interior. Buttery-rich texture, mild and slightly sweet flavor.",
+        "The caramelized onions are prepared by sautéing onions with kosher salt and clarified butter to brown the natural sugars."
+      ],
+      "sizes": {
+        "crock": "17 oz",
+        "cup": "7 oz"
+      },
+      "serving_piece": "Hot Onion Soup Crock on a doily lined share plate; Hot Soup Cup with saucer (no doily)",
+      "portion": [
+        {
+          "ingredient": "Onion Soup (Cup)",
+          "amount": "7 oz"
+        },
+        {
+          "ingredient": "Croutons (Cup)",
+          "amount": "4-5"
+        },
+        {
+          "ingredient": "Mozzarella (Cup)",
+          "amount": "1 slice (1 oz)"
+        },
+        {
+          "ingredient": "Jarlsberg Cheese (Cup)",
+          "amount": "1 slice (1 oz)"
+        },
+        {
+          "ingredient": "Onion Soup (Crock)",
+          "amount": "17 oz"
+        },
+        {
+          "ingredient": "Croutons (Crock)",
+          "amount": "7-8"
+        },
+        {
+          "ingredient": "Mozzarella (Crock)",
+          "amount": "2 slices (2 oz)"
+        },
+        {
+          "ingredient": "Jarlsberg Cheese (Crock)",
+          "amount": "2 slices (2 oz)"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Chopped Parsley",
+          "amount": "¼ tsp"
+        }
+      ],
+      "to_bring": [
+        "Soup Spoon Framed"
+      ],
+      "questions_to_ask": [
+        "Would you like a cup or a crock?"
+      ],
+      "production_time": "3-5 minutes",
+      "station": "Broil",
+      "variants": {
+        "lunch": "also on lunch menu"
+      },
+      "image": "images/dishes/french-onion-soup.jpg"
+    },
+    {
+      "name": "Tomato Bisque with Toasted Brie Crostini",
+      "section": "Soups & Salads",
+      "page": 4,
+      "price": 12,
+      "calories": 510,
+      "description": "A velvety tomato bisque with a hint of Grana Padano, topped with crème fraîche and green onion oil. Served with a ciabatta crostini spread with creamy Brie.",
+      "sizes": {
+        "bowl": "10 oz",
+        "cup": "7 oz"
+      },
+      "serving_piece": "Hot Soup Bowl on doily lined salad plate; Hot Soup Cup on a saucer (no doily)",
+      "portion": [
+        {
+          "ingredient": "Tomato Bisque (Cup)",
+          "amount": "7 fl oz"
+        },
+        {
+          "ingredient": "Tomato Bisque (Bowl)",
+          "amount": "10 fl oz"
+        },
+        {
+          "ingredient": "Crème Fraîche",
+          "amount": "1 Tbsp"
+        },
+        {
+          "ingredient": "Green Onion Oil",
+          "amount": "¼ tsp"
+        },
+        {
+          "ingredient": "Toasted Brie Crostini",
+          "amount": "1 each"
+        }
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper",
+        "Soup Spoon Framed"
+      ],
+      "questions_to_ask": [
+        "Would you like a cup or a bowl?"
+      ],
+      "production_time": "3-5 minutes",
+      "station": "Soup or pantry",
+      "variants": {
+        "lunch": "also on lunch menu"
+      },
+      "image": "images/dishes/tomato-bisque.jpg"
+    },
+    {
+      "name": "Field Greens, Butter Leaf Lettuce, Heirloom Tomatoes with Parmesan Vinaigrette",
+      "section": "Soups & Salads",
+      "page": 4,
+      "price": 14,
+      "calories": 210,
+      "description": "Our house salad — a mixture of butter leaf lettuce and delicate baby greens with radish, tomato and carrots dressed with parmesan vinaigrette and crumbled Gorgonzola cheese upon guest request only.",
+      "notes": [
+        "Capital Grille Dressing Choices: Parmesan Vinaigrette (house dressing), Bleu Cheese, Balsamic Vinegar, Champagne Shallot Vinaigrette, and Extra Virgin Olive Oil — served in separate goosenecks."
+      ],
+      "talking_points": [
+        "Bibb lettuce: a type of butterhead lettuce, delicate, loose leaves and lots of flavor",
+        "Gorgonzola (GORE-goned-ZOE-la): a veined Italian blue cheese, made from unskimmed cow's and/or goat's milk. Buttery or firm, crumbly and quite salty, with a 'bite' from its blue veining"
+      ],
+      "serving_piece": "Salad Plate (Chilled)",
+      "portion": [
+        {
+          "ingredient": "Field Greens Salad Mix",
+          "amount": "4 oz",
+          "prep": "Bibb Lettuce, Lettuce Blend"
+        },
+        {
+          "ingredient": "Grape Tomatoes",
+          "amount": "2 oz",
+          "prep": "halved"
+        },
+        {
+          "ingredient": "Radishes",
+          "amount": "1 oz",
+          "prep": "sliced"
+        },
+        {
+          "ingredient": "Baby Carrots",
+          "amount": "1 oz",
+          "prep": "cut"
+        },
+        {
+          "ingredient": "Parmesan Vinaigrette",
+          "amount": "1 oz"
+        },
+        {
+          "ingredient": "Gorgonzola cheese",
+          "amount": "1 oz",
+          "prep": "per guest request"
+        }
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "3-5 minutes",
+      "station": "Pantry",
+      "variants": {
+        "lunch": "also on lunch menu"
+      },
+      "image": "images/dishes/field-greens-salad.jpg"
+    },
+    {
+      "name": "Caesar Salad with Grana Padano Croutons",
+      "section": "Soups & Salads",
+      "page": 4,
+      "price": 14,
+      "calories": 420,
+      "description": "Crisp hearts of romaine lettuce tossed with our Caesar dressing and house made Grana croutons, finished with shaved Grana Padano cheese. Garnished with two oven roasted anchovies upon request.",
+      "talking_points": [
+        "Romaine (roh-MAYN): elongated head with dark green outer leaves that lighten to pale celadon in the center. Leaves are crisp and slightly bitter; the crunchy 'heart' is particularly succulent. Adds crunch and flavor to mixed green salads; the lettuce of choice for Caesar.",
+        "The true anchovy (AN-choh-vee, an-CHOH-vee) comes only from the Mediterranean and southern European coastlines. Tiny fish generally filleted, salt-cured and canned in oil; sold flat and rolled. Used sparingly to flavor or garnish sauces and other preparations."
+      ],
+      "serving_piece": "Salad Plate (Chilled)",
+      "portion": [
+        {
+          "ingredient": "Romaine Lettuce",
+          "amount": "4 oz"
+        },
+        {
+          "ingredient": "Caesar Dressing",
+          "amount": "1 oz"
+        },
+        {
+          "ingredient": "House made Grana Croutons",
+          "amount": "6 ea",
+          "prep": "broken up into silver dollar sized pieces"
+        },
+        {
+          "ingredient": "Curled Grana Padano",
+          "amount": "½ oz",
+          "prep": "4-6 pieces"
+        },
+        {
+          "ingredient": "Whole White Anchovies",
+          "amount": "2",
+          "prep": "upon request"
+        }
+      ],
+      "questions_to_ask": [
+        "Would you like Anchovies?"
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "3-5 minutes",
+      "station": "Pantry",
+      "variants": {
+        "lunch": "also on lunch menu"
+      },
+      "image": "images/dishes/caesar-salad.jpg"
+    },
+    {
+      "name": "Wedge Salad with Gorgonzola, Candied Bacon, and Heirloom Tomatoes",
+      "section": "Soups & Salads",
+      "page": 23,
+      "price": 15,
+      "calories": 710,
+      "menu_name": "Wedge with Gorgonzola, Candied Bacon and Heirloom Tomatoes",
+      "description": "A crisp iceberg wedge topped with creamy bleu cheese dressing, crumbled Gorgonzola, trio tomatoes, and fresh parsley. Crowned with two slices of candied bacon.",
+      "talking_points": [
+        "Iceberg Lettuce: though crisp, succulent and well-resistant, Iceberg has a rather neutral flavor."
+      ],
+      "serving_piece": "Salad Plate (Chilled)",
+      "portion": [
+        {
+          "ingredient": "Iceberg Lettuce Wedge"
+        },
+        {
+          "ingredient": "Blue Cheese Dressing"
+        },
+        {
+          "ingredient": "Gorgonzola Cheese",
+          "prep": "crumbled"
+        },
+        {
+          "ingredient": "Trio Tomatoes",
+          "prep": "halved"
+        },
+        {
+          "ingredient": "Candied Bacon"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Chopped Parsley",
+          "amount": "1 tsp"
+        }
+      ],
+      "to_bring": [
+        "Serve to the guest with Bacon guest facing",
+        "Fresh Cracked Pepper",
+        "Steak Knife"
+      ],
+      "production_time": "3-5 minutes",
+      "station": "Pantry",
+      "variants": {},
+      "image": "images/dishes/wedge-salad.jpg"
+    },
+    {
+      "name": "Roasted Beet and Goat Cheese Salad",
+      "section": "Soups & Salads",
+      "page": 23,
+      "price": 15,
+      "calories": 310,
+      "menu_name": "Roasted Beet and Goat Cheese Salad with Crushed Pistachios and Citrus Vinaigrette",
+      "description": "Roasted red beets with mixed greens, arugula, goat cheese crumble, arugula pesto, heirloom tomatoes, crushed pistachios and citrus vinaigrette.",
+      "serving_piece": "Salad Plate (Chilled)",
+      "portion": [
+        {
+          "ingredient": "Arugula Lettuce Mix",
+          "amount": "2 wt oz",
+          "prep": "see recipe"
+        },
+        {
+          "ingredient": "Roasted Red Beet Wedges",
+          "amount": "5 oz (6-8 wedges)",
+          "prep": "see recipe"
+        },
+        {
+          "ingredient": "Cherry Tomatoes",
+          "amount": "2 oz (Black Scoop)",
+          "prep": "halved"
+        },
+        {
+          "ingredient": "Pistachio Arugula Pesto",
+          "amount": "1 tsp",
+          "prep": "see recipe"
+        },
+        {
+          "ingredient": "Red Chili Vinaigrette",
+          "amount": "½ fl oz",
+          "prep": "see recipe"
+        },
+        {
+          "ingredient": "Crushed Pistachios",
+          "amount": "1 tsp"
+        },
+        {
+          "ingredient": "Laura Chenal Goat Cheese",
+          "amount": "1.5 oz (Black Scoop)",
+          "prep": "crumbled"
+        },
+        {
+          "ingredient": "Honey Vinaigrette Glaze",
+          "amount": "2 tsp",
+          "prep": "see recipe"
+        }
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "3-5 minutes",
+      "station": "Pantry",
+      "tasting_notes": "Beets are cooked soft. Goat cheese is whipped light and is fresh and clean.",
+      "variants": {},
+      "image": "images/dishes/roasted-beet-goat-cheese.jpg"
+    },
+    {
+      "name": "Seasonal: Chopped Salad with Feta, Port Dried Cherries, Marcona Almonds & Walnut Vinaigrette",
+      "section": "Soups & Salads",
+      "page": 24,
+      "price": 16,
+      "calories": 510,
+      "menu_name": "Chopped Salad with Feta, Port Dried Cherries, Marcona Almonds and Walnut Vinaigrette",
+      "description": "A mix of baby kale and spinach tossed with feta, orzo, toasted Marcona almonds, and port wine-soaked cherries. Finished with a house-made walnut mustard vinaigrette.",
+      "serving_piece": "Chilled Salad Plate",
+      "portion": [
+        {
+          "ingredient": "Chopped Salad Mix"
+        },
+        {
+          "ingredient": "Feta Cheese",
+          "prep": "crumbled"
+        },
+        {
+          "ingredient": "Marcona Almond",
+          "prep": "toasted, chopped"
+        },
+        {
+          "ingredient": "Port Wine-Soaked Sundried Cherries",
+          "prep": "chopped"
+        },
+        {
+          "ingredient": "Walnut Mustard Vinaigrette"
+        }
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper",
+        "Butter Knife Framed"
+      ],
+      "production_time": "10-12 minutes",
+      "station": "Pantry / Cold",
+      "variants": {},
+      "image": "images/dishes/seasonal-chopped-salad.jpg"
+    },
+    {
+      "name": "Sliced Filet Mignon with Cipollini Onions, Wild Mushrooms and Fig Essence (10 oz Dinner)",
+      "section": "Chef Recommends",
+      "page": 24,
+      "price": 63,
+      "calories": 580,
+      "menu_name": "Sliced Filet Mignon with Cipollini Onions, Wild Mushrooms and Fig Essence",
+      "description": "Our 10 oz / 8 oz Filet mignon, broiled and sliced, over a sauté of Cipollini onions, wild mushrooms and finished with fig essence.",
+      "talking_points": [
+        "The edible fig (a fruit from the ficus tree) is one of the first plants cultivated by humans. The find predates the domestication of wheat, barley and legumes — may be the first known instance of agriculture.",
+        "Essences are concentrated, usually oily substances extracted from food (fish, mint leaves, fruits, vegetables) used in small amounts (1 Tbsp.) to flavor various dishes."
+      ],
+      "serving_piece": "Large Round Dinner Plate (Hot)",
+      "portion": [
+        {
+          "ingredient": "Filet Mignon (Dinner)",
+          "amount": "10 oz"
+        },
+        {
+          "ingredient": "Roasted Cipollini Onions",
+          "amount": "2 oz"
+        },
+        {
+          "ingredient": "Wild Mushroom Mix",
+          "amount": "3 oz"
+        },
+        {
+          "ingredient": "Seasoning Salt"
+        },
+        {
+          "ingredient": "Fig Essence",
+          "amount": "1 Tbsp"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Sprigs Watercress",
+          "amount": "6-8"
+        },
+        {
+          "ingredient": "Steak Butter"
+        }
+      ],
+      "questions_to_ask": [
+        "What temperature would you like your steak prepared?"
+      ],
+      "to_bring": [
+        "Steak Knife Framed",
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "15-18 minutes",
+      "station": "Broil & Sauté",
+      "variants": {
+        "lunch": "Lunch portion is 8 oz filet mignon (non-plates restaurants only)"
+      },
+      "image": "images/dishes/sliced-filet-mignon-dinner.jpg"
+    },
+    {
+      "name": "Gorgonzola Crusted Dry Aged NY Strip — Bone-In 18 oz",
+      "section": "Chef Recommends",
+      "page": 25,
+      "price": 69,
+      "calories": 1100,
+      "menu_name": "Gorgonzola-Crusted Dry Aged Bone-In NY Strip with Cabernet Reduction",
+      "description": "Hand cut 18 oz NY Strip crusted with gorgonzola and Grana Padano, on top of our cherry cabernet reduction.",
+      "serving_piece": "Large Round Dinner Plate (Hot)",
+      "portion": [
+        {
+          "ingredient": "Bone-In NY Strip",
+          "amount": "18 oz"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Gorgonzola Butter"
+        },
+        {
+          "ingredient": "Sprigs Watercress",
+          "amount": "6-8"
+        }
+      ],
+      "questions_to_ask": [
+        "What temperature would you like your steak prepared?"
+      ],
+      "to_bring": [
+        "Steak Knife Framed",
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "15-20 minutes",
+      "station": "Broil",
+      "variants": {},
+      "image": "images/dishes/gorgonzola-crusted-strip.jpg"
+    },
+    {
+      "name": "Porcini Rubbed Ribeye (with 15-Year Aged Balsamic) 22 oz",
+      "section": "Chef Recommends",
+      "page": 25,
+      "price": 81,
+      "calories": 990,
+      "menu_name": "Porcini-Rubbed Bone-In Ribeye with 15-Year Aged Balsamic",
+      "description": "Our Prime-Cut Bone-In Ribeye is hand carved daily. The Prime Ribeye is our most flavorful steak. Before serving we lightly cut the steak with a signature porcini mushroom spice rub. When broiled the rub forms a rich crust that blends with the natural juices of the steak. The porcini-crusted ribeye is finished with just 2 tsps. of 15-year aged balsamico and a tsp. extra virgin olive oil. This is just enough balsamic and oil to perfectly enhance the experience. It is important that this steak is not over dressed.",
+      "talking_points": [
+        "Porcini (pohr-CHEE-nee): delicious, earthy treasures, members of the Boletus edulis species of wild mushroom. Pale brown in color, can weigh from an ounce or two up to a pound. Caps range from 1 to 10 inches in diameter. Smooth, meaty texture and pungent, woodsy flavor."
+      ],
+      "serving_piece": "Large Round Dinner Plate (Hot)",
+      "portion": [
+        {
+          "ingredient": "Ribeye Steak",
+          "amount": "22 oz"
+        },
+        {
+          "ingredient": "Dry Rub Seasoning",
+          "amount": "2 Tbsp",
+          "prep": "sugar, salt, red pepper flakes, black pepper and porcini powder"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "15-yr Balsamico",
+          "amount": "2 tsp"
+        },
+        {
+          "ingredient": "Extra Virgin Olive Oil",
+          "amount": "1 tsp"
+        },
+        {
+          "ingredient": "Sprigs Watercress",
+          "amount": "6-8"
+        }
+      ],
+      "questions_to_ask": [
+        "What temperature would you like your steak prepared?"
+      ],
+      "to_bring": [
+        "Steak Knife Framed",
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "15-18 minutes",
+      "station": "Broil",
+      "variants": {},
+      "image": "images/dishes/porcini-rubbed-ribeye.jpg"
+    },
+    {
+      "name": "Dry Aged Strip Au Poivre (14 oz)",
+      "section": "Chef Recommends",
+      "page": 26,
+      "price": 66,
+      "calories": 730,
+      "menu_name": "Dry Aged NY Strip au Poivre with Courvoisier Cream",
+      "description": "Our Strip (KC Strip in Kansas City) dry aged for 18-24 days and hand-carved in house, encrusted with crushed black peppercorns, and seared; finished with a Courvoisier cognac cream sauce.",
+      "serving_piece": "Large Oval Plate (Hot)",
+      "portion": [
+        {
+          "ingredient": "Dry-Aged Strip",
+          "amount": "14 oz"
+        },
+        {
+          "ingredient": "Cracked Black Peppercorns",
+          "amount": "2 oz"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Sprigs Watercress",
+          "amount": "6-8"
+        },
+        {
+          "ingredient": "Courvoisier Cream Sauce",
+          "amount": "3 oz"
+        },
+        {
+          "ingredient": "Chopped Parsley",
+          "amount": "1 tsp"
+        }
+      ],
+      "questions_to_ask": [
+        "What temperature would you like your steak prepared?"
+      ],
+      "to_bring": [
+        "Steak Knife Framed",
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "15-18 minutes",
+      "station": "Broil",
+      "variants": {},
+      "image": "images/dishes/dry-aged-strip-au-poivre.jpg"
+    },
+    {
+      "name": "Bone-In Kona Crusted Dry Aged NY Strip (18 oz)",
+      "section": "Chef Recommends",
+      "page": 26,
+      "price": 69,
+      "calories": 950,
+      "menu_name": "Kona-Crusted Dry Aged Bone-In NY Strip with Shallot Butter",
+      "description": "Our bone-in NY Strip (KC Strip in Kansas City) is dry-aged in house for 18-24 days, hand carved, and is pressed with a house made Kona coffee rub and drizzled with our caramelized shallot butter.",
+      "talking_points": [
+        "Kona coffee: market name for a variety of coffee cultivated on the slopes of Mount Hualalai and Mauna Loa in the North and South Kona Districts of the Big Island of Hawaii. Only coffee from the Kona Districts can be legally described as 'Kona'.",
+        "Shallot (SHAL-uht): member of the onion-family thought to have originated from Ascalon, an ancient Palestinian city. Formed more like garlic than onions, with a head composed of multiple cloves, each covered with a thin, papery skin. Favored for their mild onion flavor and can be used in the same manner as onions.",
+        "Caramelized Shallot Butter: made by first caramelizing shallots, next deglazing the sauté pan with white wine and au jus, and finally combining with butter, a touch of lemon juice, kosher salt & fresh cracked black pepper."
+      ],
+      "serving_piece": "Large Round Dinner Plate (Hot)",
+      "portion": [
+        {
+          "ingredient": "Bone-In Dry-Aged Strip",
+          "amount": "18 oz"
+        },
+        {
+          "ingredient": "Kona Rub",
+          "amount": "2 tbsp",
+          "prep": "sugar, decaf coffee, cocoa powder, Grana Padano, dry mustard, garlic, salt and pepper"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Shallot Butter",
+          "amount": "2 oz"
+        },
+        {
+          "ingredient": "Sprigs Watercress",
+          "amount": "6-8"
+        }
+      ],
+      "questions_to_ask": [
+        "What temperature would you like your steak prepared?"
+      ],
+      "to_bring": [
+        "Steak Knife Framed",
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "15-18 minutes",
+      "station": "Broil",
+      "variants": {},
+      "image": "images/dishes/bone-in-kona-crusted-strip.jpg"
+    },
+    {
+      "name": "Seared Tenderloin (with Butter Poached Lobster Tails)",
+      "section": "Chef Recommends",
+      "page": 27,
+      "price": 71,
+      "calories": 570,
+      "description": "Two 4 oz petite filets 'twin tournedos', seasoned and seared. Topped with two butter poached North Atlantic lobster tails. Finished with Beurre Monte and fine herbs.",
+      "talking_points": [
+        "Beurre Monte: butter is an emulsification of 80% milk fat, 18% water and 2% milk solids. Heating butter above 160 degrees will cause it to 'break'. A beurre monte is a way of keeping melted butter in an emulsified state between 180 and 190 degrees, sufficient to poach meats or vegetables.",
+        "Tournedos (our petite filets in this dish): one of many French food names carried over into English directly (foie gras, génoise, etc.). A small, round slice taken from near the end of the tenderloin."
+      ],
+      "serving_piece": "Large Round Dinner Plate (Hot)",
+      "portion": [
+        {
+          "ingredient": "Filet Tournedos",
+          "amount": "2 / 4 oz"
+        },
+        {
+          "ingredient": "Lobster Tails",
+          "amount": "2 / 3 oz"
+        },
+        {
+          "ingredient": "Clarified Butter",
+          "amount": "2 oz"
+        },
+        {
+          "ingredient": "Beurre Monte (drizzled around plate)",
+          "amount": "1 oz"
+        },
+        {
+          "ingredient": "Beurre Monte (to cook)",
+          "amount": "2 oz"
+        },
+        {
+          "ingredient": "Seasoning Salt",
+          "prep": "as needed"
+        },
+        {
+          "ingredient": "Herb Blend",
+          "amount": "1 Tbsp",
+          "prep": "chives, parsley, tarragon"
+        }
+      ],
+      "questions_to_ask": [
+        "What temperature would you like your steak prepared?"
+      ],
+      "to_bring": [
+        "Steak Knife Framed",
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "15-18 minutes",
+      "station": "Sauté",
+      "variants": {},
+      "image": "images/dishes/seared-tenderloin-lobster.jpg"
+    },
+    {
+      "name": "Bone-In Ribeye (22 oz)",
+      "section": "Hand-Carved Steaks & Chops",
+      "page": 28,
+      "price": 77,
+      "calories": 990,
+      "description": "Our Prime-Cut Bone-In Ribeye is our most flavorful steak, hand-carved, simply broiled and brushed with our house-made steak butter enhanced with Kobe Beef Tallow. This cut is well marbled which enhances the flavor.",
+      "talking_points": [
+        "Ribeye steaks are distinguished by the rich marbling that runs through each steak. It is this marbling that slowly melts and bastes the meat throughout the cooking process."
+      ],
+      "serving_piece": "Large Oval Plate (Hot)",
+      "portion": [
+        {
+          "ingredient": "Ribeye Steak",
+          "amount": "22 oz"
+        },
+        {
+          "ingredient": "Seasoning Salt"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Steak Butter"
+        },
+        {
+          "ingredient": "Sprigs Watercress",
+          "amount": "6-8"
+        }
+      ],
+      "questions_to_ask": [
+        "What temperature would you like your steak prepared?"
+      ],
+      "to_bring": [
+        "Steak Knife Framed",
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "15-18 minutes",
+      "station": "Broil",
+      "variants": {},
+      "image": "images/dishes/bone-in-ribeye-22oz.jpg"
+    },
+    {
+      "name": "Dry Aged NY Strip Steak (14 oz)",
+      "section": "Hand-Carved Steaks & Chops",
+      "page": 28,
+      "price": 62,
+      "calories": 710,
+      "description": "Our NY Strip (KC Strip in Kansas City) is a well-marbled and flavorful cut, dry-aged for 18-24 days and hand carved in house; prepared simply broiled and brushed with our house-made steak butter enhanced with Kobe Beef Tallow.",
+      "talking_points": [
+        "Strip: This cut of beef lies between the very tender short loin and the much tougher round.",
+        "Watercress: Cool running water is the growing ground for this member of the mustard family, often found in the wild in and around streams and brooks. Small, crisp, dark green leaves. Pungent flavor is slightly bitter with a peppery snap. Also a popular garnish."
+      ],
+      "serving_piece": "Large Oval Plate (Hot)",
+      "portion": [
+        {
+          "ingredient": "Dry-Aged Strip",
+          "amount": "14 oz"
+        },
+        {
+          "ingredient": "Seasoning Salt"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Sprigs Watercress",
+          "amount": "6-8"
+        },
+        {
+          "ingredient": "Steak Butter",
+          "amount": "1 oz"
+        }
+      ],
+      "questions_to_ask": [
+        "What temperature would you like your steak prepared?"
+      ],
+      "to_bring": [
+        "Steak Knife Framed",
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "15-22 minutes depending on temperature",
+      "station": "Broil",
+      "variants": {},
+      "image": "images/dishes/dry-aged-ny-strip-14oz.jpg"
+    },
+    {
+      "name": "Dry Aged Bone-In NY Strip (18 oz)",
+      "section": "Hand-Carved Steaks & Chops",
+      "page": 28,
+      "price": 65,
+      "calories": 830,
+      "description": "The bone-in version of the Dry Aged NY Strip — listed on the dinner menu as a separate item from the 14 oz boneless. Same preparation: dry-aged 18-24 days and hand carved in house; simply broiled and brushed with our house-made steak butter enhanced with Kobe Beef Tallow.",
+      "serving_piece": "Large Round Dinner Plate (Hot)",
+      "portion": [
+        {
+          "ingredient": "Bone-In Dry-Aged Strip",
+          "amount": "18 oz"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Sprigs Watercress",
+          "amount": "6-8"
+        },
+        {
+          "ingredient": "Steak Butter",
+          "amount": "1 oz"
+        }
+      ],
+      "questions_to_ask": [
+        "What temperature would you like your steak prepared?"
+      ],
+      "to_bring": [
+        "Steak Knife Framed",
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "15-22 minutes depending on temperature",
+      "station": "Broil",
+      "variants": {
+        "lunch": "Lunch portion is 14 oz — listed as 'Bone-In NY or KC Strip'"
+      },
+      "image": "images/dishes/dry-aged-ny-strip-14oz.jpg"
+    },
+    {
+      "name": "Chicken & Fingerling Potatoes (Dinner)",
+      "section": "Hand-Carved Steaks & Chops",
+      "page": 29,
+      "price": 42,
+      "calories": 880,
+      "menu_name": "Roasted Chicken Breast with Fingerling Potatoes and Dijon Cream",
+      "description": "Pan-seared chicken breast with a sherry jus, paired with roasted fingerling potatoes, asparagus tips, and fresh arugula tossed in a light dressing.",
+      "serving_piece": "Shallow Entrée Bowl (Hot)",
+      "portion": [
+        {
+          "ingredient": "Chicken Breast",
+          "amount": "2"
+        },
+        {
+          "ingredient": "Seasoning Salt"
+        },
+        {
+          "ingredient": "Clarified Butter"
+        },
+        {
+          "ingredient": "Roasted Fingerling Potato"
+        },
+        {
+          "ingredient": "Asparagus Tips",
+          "prep": "3\" halved"
+        },
+        {
+          "ingredient": "Arugula"
+        },
+        {
+          "ingredient": "Fingerling Potato Dressing"
+        },
+        {
+          "ingredient": "Sherry Chicken Jus"
+        }
+      ],
+      "to_bring": [
+        "Offer cracked pepper tableside. Frame with a Steak Knife."
+      ],
+      "production_time": "15 minutes",
+      "station": "Broil & Sauté",
+      "variants": {
+        "lunch": "Lunch version uses 1 chicken breast"
+      },
+      "image": "images/dishes/chicken-fingerling-dinner.jpg"
+    },
+    {
+      "name": "Roasted Rack of Lamb with Mint and Honey Gremolata",
+      "section": "Hand-Carved Steaks & Chops",
+      "page": 29,
+      "price": 68,
+      "calories": 710,
+      "menu_name": "Mint Gremolata and Honey Crusted Double Cut Lamb Rib Chops (4)",
+      "description": "Mint gremolata and honey crusted lamb chops, seasoned and broiled to perfection, served with a sherry chicken jus.",
+      "serving_piece": "Large Round Dinner Plate (Hot)",
+      "portion": [
+        {
+          "ingredient": "Rack of Lamb",
+          "amount": "1",
+          "prep": "frenched, 4 double chops"
+        },
+        {
+          "ingredient": "Honey",
+          "amount": "1 Tbsp"
+        },
+        {
+          "ingredient": "Minted Crumbs",
+          "amount": "3 oz"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Sherry Chicken Jus",
+          "amount": "1 fl oz"
+        }
+      ],
+      "questions_to_ask": [
+        "What temperature would you like your lamb prepared?"
+      ],
+      "to_bring": [
+        "Steak Knife Framed",
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "15-18 minutes",
+      "station": "Broil",
+      "variants": {},
+      "image": "images/dishes/roasted-rack-of-lamb.jpg"
+    },
+    {
+      "name": "Dry Aged Porterhouse Steak (24 oz)",
+      "section": "Hand-Carved Steaks & Chops",
+      "page": 30,
+      "price": 90,
+      "calories": 960,
+      "description": "The best of both worlds — the 24 oz dry-aged porterhouse is a combination of a NY Strip and a Filet Mignon, separated by a flavor-enhancing bone; dry-aged for 18-24 days and hand carved in house; prepared simply broiled and brushed with our house-made steak butter enhanced with Kobe Beef Tallow.",
+      "talking_points": [
+        "The Porterhouse is cut from the large end of the short loin containing meat from both the tenderloin and the top loin muscle. Many guests expect our Porterhouse to be a traditional T-bone; however, the Porterhouse has a larger filet, a minimum of two inches in diameter."
+      ],
+      "serving_piece": "Large Round Dinner Plate (Hot)",
+      "portion": [
+        {
+          "ingredient": "Dry-Aged Porterhouse",
+          "amount": "24 oz"
+        },
+        {
+          "ingredient": "Seasoning Salt"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Sprigs Watercress",
+          "amount": "6-8"
+        },
+        {
+          "ingredient": "Steak butter",
+          "amount": "1 oz"
+        }
+      ],
+      "questions_to_ask": [
+        "What temperature would you like your steak prepared?"
+      ],
+      "to_bring": [
+        "Steak Knife Framed",
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "15-18 minutes depending on temperature",
+      "station": "Broil",
+      "variants": {},
+      "image": "images/dishes/dry-aged-porterhouse-24oz.jpg"
+    },
+    {
+      "name": "Snake River Farms Gold Grade Wagyu Filet Mignon (8 oz)",
+      "section": "Hand-Carved Steaks & Chops",
+      "page": 30,
+      "price": 90,
+      "calories": 550,
+      "menu_name": "Snake River Farms Gold Wagyu Filet Mignon 8 oz",
+      "description": "An 8 oz Snake River Farms Gold Grade Wagyu filet mignon, accompanied by a crispy potato, hollowed out and stuffed with red wine onion jam and a scoop of Sam's Mashed Potatoes.",
+      "serving_piece": "Large Oval Dinner Plate (Hot)",
+      "portion": [
+        {
+          "ingredient": "SRF Wagyu Gold Filet Mignon",
+          "amount": "1 ea (8 wt oz)"
+        },
+        {
+          "ingredient": "Steak Seasoning",
+          "amount": "2 tsp"
+        },
+        {
+          "ingredient": "Steak Butter",
+          "amount": "2 tsp"
+        },
+        {
+          "ingredient": "Maldon Sea Salt",
+          "amount": "0.2 oz"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Sprigs Watercress",
+          "amount": "6-8"
+        },
+        {
+          "ingredient": "Potato and Onion Jam"
+        }
+      ],
+      "questions_to_ask": [
+        "What temperature would you like your steak prepared?"
+      ],
+      "to_bring": [
+        "Steak Knife Framed",
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "15-20 minutes",
+      "station": "Broil",
+      "variants": {},
+      "image": "images/dishes/wagyu-filet-mignon-8oz.jpg"
+    },
+    {
+      "name": "Filet Mignon (10 oz)",
+      "section": "Hand-Carved Steaks & Chops",
+      "page": 14,
+      "price": 61,
+      "calories": 490,
+      "description": "Our most tender cut of steak on the menu, the filet is simply broiled and brushed with our house-made steak butter enhanced with Kobe Beef Tallow. Served with your choice of side item.",
+      "serving_piece": "Large Round Dinner Plate (Hot) with side item on the plate",
+      "portion": [
+        {
+          "ingredient": "Filet",
+          "amount": "10 oz"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Steak Butter",
+          "amount": "1 oz"
+        },
+        {
+          "ingredient": "Watercress Sprigs",
+          "amount": "6-8"
+        }
+      ],
+      "questions_to_ask": [
+        "How would you like your steak prepared?"
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper",
+        "Steak Knife Framed"
+      ],
+      "production_time": "10-15 minutes, depending on temperature",
+      "station": "Broil",
+      "variants": {
+        "lunch": "Lunch version is 8 oz (page 14 in spec book)"
+      },
+      "image": "images/dishes/filet-mignon-lunch.jpg"
+    },
+    {
+      "name": "Oscar-Style with Jumbo Lump Crab",
+      "section": "Enhancements",
+      "page": 31,
+      "price": 23,
+      "calories": 760,
+      "description": "A plating of the guest's steak of choice broiled to perfection, topped with a Jumbo Lump Crab crumble, and finished with housemade Bearnaise sauce. (This enhancement no longer includes asparagus.) Available for: Filet, Boneless Strip, Ribeye, Bone-In Filet.",
+      "variants": {}
+    },
+    {
+      "name": "Kona Crust",
+      "section": "Enhancements",
+      "page": 31,
+      "price": 4,
+      "calories": 280,
+      "description": "The guest's choice steak crusted with our house-made Kona Coffee Rub and finished with our Caramelized Shallot Butter.",
+      "variants": {}
+    },
+    {
+      "name": "Porcini Rub",
+      "section": "Enhancements",
+      "page": 31,
+      "price": 4,
+      "calories": 120,
+      "description": "The guest's choice steak crusted with our signature porcini mushroom spice rub. When broiled, the rub forms a rich crust that blends with the natural juices of the steak. Finished with 15-year aged balsamic and extra virgin olive oil.",
+      "variants": {}
+    },
+    {
+      "name": "Gorgonzola Crust",
+      "section": "Enhancements",
+      "page": 31,
+      "price": 4,
+      "calories": 270,
+      "description": "A decadent crust of Gorgonzola and Grana Padano Cheeses, finished with cherry cabernet reduction.",
+      "variants": {}
+    },
+    {
+      "name": "Courvoisier Cream",
+      "section": "Enhancements",
+      "page": 31,
+      "price": 4,
+      "calories": 200,
+      "description": "An accompaniment of the rich, housemade Courvoisier Cognac Cream Sauce served on the side in a gooseneck on a lined B&B plate. (This enhancement is not an Au Poivre enhancement. It is only the sauce.)",
+      "variants": {}
+    },
+    {
+      "name": "Bearnaise",
+      "section": "Enhancements",
+      "page": 31,
+      "price": 4,
+      "calories": 550,
+      "description": "A 2 oz accompaniment of our housemade Bearnaise Sauce served on the side in a gooseneck on a lined B&B plate.",
+      "variants": {}
+    },
+    {
+      "name": "Sushi-Grade Seared Sesame Tuna (Dinner)",
+      "section": "Seafood",
+      "page": 15,
+      "price": 54,
+      "calories": 500,
+      "menu_name": "Sushi-Grade Sesame Seared Tuna with Gingered Rice, White Soy and Sambal Vinaigrette",
+      "description": "Lightly dusted with sesame seeds, seared, over a bed of gingered rice. 8 oz dinner / 6 oz lunch.",
+      "talking_points": [
+        "Yellowfin tuna: flesh varies from pink in smaller fish to deeper red in larger fish. Mild flavor, firm texture, adapts well to many preparations.",
+        "Gingered Rice: sushi rice steamed in our rice cooker for 20-30 minutes with water, champagne vinegar, sugar, ginger and kosher salt"
+      ],
+      "serving_piece": "Large Round (Hot)",
+      "portion": [
+        {
+          "ingredient": "Tuna Steak (Dinner)",
+          "amount": "8 oz"
+        },
+        {
+          "ingredient": "Toasted Sesame Seeds",
+          "amount": "1 Tbsp"
+        },
+        {
+          "ingredient": "Kosher Salt",
+          "amount": "½ tsp"
+        },
+        {
+          "ingredient": "Clarified Butter",
+          "amount": "2 oz"
+        },
+        {
+          "ingredient": "Gingered Rice",
+          "amount": "1 Green Scoop"
+        },
+        {
+          "ingredient": "Sambal Vinaigrette",
+          "amount": "½ oz"
+        },
+        {
+          "ingredient": "Chive Oil",
+          "amount": "½ oz"
+        },
+        {
+          "ingredient": "White Soy",
+          "amount": "2 tsp"
+        },
+        {
+          "ingredient": "Micro Cilantro",
+          "amount": "½ oz"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Chive Oil, Sambal Vinaigrette, White Soy Sauce"
+        }
+      ],
+      "questions_to_ask": [
+        "What temperature would you like your Tuna prepared?"
+      ],
+      "to_bring": [
+        "Steak Knife Framed",
+        "Fresh Cracked Pepper",
+        "Share Plates"
+      ],
+      "production_time": "8-10 minutes",
+      "station": "Broil or Sauté",
+      "variants": {
+        "lunch": "Lunch portion is 6 oz tuna steak"
+      },
+      "image": "images/dishes/sushi-grade-seared-sesame-tuna.jpg"
+    },
+    {
+      "name": "Seared Citrus Glazed Salmon with Marcona Almonds and Brown Butter",
+      "section": "Seafood",
+      "page": 32,
+      "price": 48,
+      "calories": 720,
+      "description": "Seared Salmon with haricot verts, cipollini onions and brown butter.",
+      "serving_piece": "Large Round Dinner Plate (Hot)",
+      "portion": [
+        {
+          "ingredient": "Salmon Fillet",
+          "amount": "6 oz / 8 oz"
+        },
+        {
+          "ingredient": "Kosher Salt",
+          "amount": "1 tsp"
+        },
+        {
+          "ingredient": "Ground Black Pepper",
+          "amount": "¼ tsp"
+        },
+        {
+          "ingredient": "Clarified Butter",
+          "amount": "1 oz"
+        },
+        {
+          "ingredient": "Water Wine Mix",
+          "amount": "2 oz"
+        },
+        {
+          "ingredient": "Citrus Glaze",
+          "amount": "1 oz + ½ oz"
+        },
+        {
+          "ingredient": "Brown butter",
+          "amount": "½ oz"
+        },
+        {
+          "ingredient": "Haricots Verts",
+          "amount": "3 oz"
+        },
+        {
+          "ingredient": "Roasted Cipollini Onions",
+          "amount": "1 oz"
+        },
+        {
+          "ingredient": "Marcona Almonds",
+          "amount": "½ oz",
+          "prep": "chopped"
+        }
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "15-18 minutes",
+      "station": "Broil or Sauté",
+      "variants": {},
+      "image": "images/dishes/seared-citrus-glazed-salmon.jpg"
+    },
+    {
+      "name": "Scallops and Lobster Risotto",
+      "section": "Seafood",
+      "page": 32,
+      "price": 62,
+      "calories": 720,
+      "menu_name": "Seared Sea Scallops with Maine Lobster and Asparagus Risotto",
+      "description": "5 sea scallops pan seared and served atop a bed of creamy asparagus and Maine lobster risotto. The dish is finished with arugula tossed in lemon oil.",
+      "serving_piece": "Large Entrée Bowl (Hot)",
+      "portion": [
+        {
+          "ingredient": "Scallops",
+          "amount": "5",
+          "prep": "U/15"
+        },
+        {
+          "ingredient": "Cooked lobster meat",
+          "amount": "1½ oz"
+        },
+        {
+          "ingredient": "Lobster bisque",
+          "amount": "1 fl oz"
+        },
+        {
+          "ingredient": "Blanched risotto",
+          "amount": "5 oz"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Arugula leaves",
+          "amount": "6-8"
+        },
+        {
+          "ingredient": "Lemon Oil",
+          "amount": "2 tsp"
+        }
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "15 minutes",
+      "station": "Sauté",
+      "variants": {},
+      "image": "images/dishes/scallops-lobster-risotto.jpg"
+    },
+    {
+      "name": "Pan-Seared Sea Bass with Shiitake Mushrooms, Asparagus, and Miso Butter",
+      "section": "Seafood",
+      "page": 33,
+      "price": 56,
+      "calories": 830,
+      "description": "Pan-seared Chilean Sea Bass served with Shiitake Mushrooms, Asparagus, and Miso Butter Sauce.",
+      "serving_piece": "Large Shallow Bowl (Hot)",
+      "portion": [
+        {
+          "ingredient": "Sea Bass",
+          "amount": "8 oz"
+        },
+        {
+          "ingredient": "Miso Butter Sauce",
+          "amount": "3 oz"
+        },
+        {
+          "ingredient": "Shiitake Mushroom Caps",
+          "amount": "4"
+        },
+        {
+          "ingredient": "Bias Cut Asparagus",
+          "amount": "5"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Sliced Chives"
+        }
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "15 minutes",
+      "station": "Sauté",
+      "variants": {},
+      "image": "images/dishes/pan-seared-sea-bass.jpg"
+    },
+    {
+      "name": "Broiled Fresh Lobster (Market Price per Pound; 2-3-4 lb)",
+      "section": "Seafood",
+      "page": 34,
+      "price": null,
+      "calories": null,
+      "description": "Not listed on the Menu. Our fresh North Atlantic Lobster is available in 2, 3 or 4 lbs (confirm availability daily). We offer lobsters broiled, steamed, or baked stuffed.",
+      "notes": [
+        "Out: meat removed from the shell, yet served in the shell of lobster",
+        "Out-Out: meat removed from the shell and served placed on top of Bibb lettuce in a Staub dish with linen underliner",
+        "Broiled vs. Steamed: broiling caramelizes the natural sugars in the lobster meat enhancing the sweet flavor. Steamed lobster will have the natural flavors."
+      ],
+      "serving_piece": "Large Rectangle Plate (Hot); Soup Cup (Hot). Variants: Centerpiece — Large Entrée Bowl (Hot) on Shellfish Pan Stand. Out — Large Rectangle Plate (Hot). Out-Out — Cast Iron Staub on napkin-lined salad plate.",
+      "portion": [
+        {
+          "ingredient": "Lobster",
+          "amount": "1 ea"
+        },
+        {
+          "ingredient": "Green Bibb Lettuce",
+          "amount": "2 ea"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Grilled Half Lemon"
+        },
+        {
+          "ingredient": "Drawn Butter in Soup Cup",
+          "amount": "4 oz"
+        }
+      ],
+      "questions_to_ask": [
+        "Broiled or steamed?",
+        "Ask if the guest would like a napkin to protect their clothing (using lobster clip)"
+      ],
+      "to_bring": [
+        "Steak Knife Framed",
+        "Lobster Cracker",
+        "Cocktail Fork Set Up",
+        "Napkin (upon guest request)",
+        "Hot Towel(s) upon completion"
+      ],
+      "production_time": "15-18 minutes",
+      "station": "Broil or Cold",
+      "baked_stuffed_lobster_portions": [
+        {
+          "ingredient": "Lobster, live",
+          "amount": "1 ea (2 lb, 3 lb, or 4 lb)"
+        },
+        {
+          "ingredient": "Crab & Lobster Cake Mix",
+          "amount": "6 oz"
+        },
+        {
+          "ingredient": "Toasted Crumbs",
+          "amount": "3 oz"
+        },
+        {
+          "ingredient": "Drawn Butter",
+          "amount": "4 oz"
+        },
+        {
+          "ingredient": "Bibb Leaf Lettuce",
+          "amount": "2 pieces"
+        },
+        {
+          "ingredient": "Grilled Lemon Half",
+          "amount": "1 ea"
+        }
+      ],
+      "variants": {},
+      "image": "images/dishes/broiled-fresh-lobster.jpg"
+    },
+    {
+      "name": "Lobster Mac N' Cheese",
+      "section": "Sides — For the Table",
+      "page": 35,
+      "price": 26,
+      "calories": 830,
+      "description": "Baked Campanelle pasta and fresh Lobster meat tossed in a Mascarpone, Havarti, and Grana Padano cream sauce, topped with grated white cheddar and Panko bread crumbs.",
+      "notes": [
+        "Not available in half portions"
+      ],
+      "talking_points": [
+        "Cheese Sauce: Heavy Cream, Kosher Salt, Mascarpone, Grana Padano, Havarti",
+        "Campanelle Pasta: comes in many shapes and sizes; means 'Bellflowers' in Italian. Has fluted, petal-like edges and a hollow center for capturing sauce.",
+        "Mascarpone: a triple-cream cheese made from crème fraîche (sour cream). Milky-white in color and easily spread. Smells like milk and cream when fresh. Used in various Lombardy region dishes of Italy. Sometimes used instead of butter to thicken and enrich sauces.",
+        "Havarti: buttery aroma, can be sharp in stronger varieties (much like Swiss). Taste is buttery, somewhat sweet to very sweet, slightly acidic. Typically aged about three months. When older becomes more salty and tastes like hazelnut. Softens quickly at room temperature."
+      ],
+      "serving_piece": "Staub Cast Iron (Hot) on white napkin-lined salad plate",
+      "portion": [
+        {
+          "ingredient": "Campanelle Pasta",
+          "amount": "6 oz"
+        },
+        {
+          "ingredient": "Lobster Meat",
+          "amount": "2 oz"
+        },
+        {
+          "ingredient": "Heavy Cream",
+          "amount": "2 oz"
+        },
+        {
+          "ingredient": "Cheese Sauce",
+          "amount": "10 oz"
+        },
+        {
+          "ingredient": "Grated White Cheddar",
+          "amount": "1 oz"
+        },
+        {
+          "ingredient": "Toasted Buttered Breadcrumbs",
+          "amount": "1½ oz"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Large Serving Spoon"
+        }
+      ],
+      "production_time": "6-8 minutes",
+      "station": "Sauté",
+      "variants": {},
+      "image": "images/dishes/lobster-mac-cheese.jpg"
+    },
+    {
+      "name": "Parmesan Truffle Fries",
+      "section": "Sides — For the Table",
+      "page": 36,
+      "price": 13,
+      "calories": 460,
+      "description": "French fries, fried until golden brown and tossed in finely grated Grana Padano, kosher salt, crisp parsley and White Truffle Oil.",
+      "talking_points": [
+        "Truffle Oil: high quality olive oil infused with the flavor of either white or black truffles. Generally not used in cooking — heat adulterates the flavors. Added after a dish is prepared.",
+        "White Truffle: comes from the Langhe area of the Piedmont region in northern Italy (most famously around the city of Alba). Produces a scent that mimics a male pig sex hormone — historically female pigs were used to find truffles in Europe. Today dogs are preferred since they can be trained to just find truffles (sows eat them as soon as they find them)."
+      ],
+      "serving_piece": "Parchment Lined Black Wire Basket",
+      "portion": [
+        {
+          "ingredient": "Fries",
+          "amount": "16 oz",
+          "prep": "Lunch Side 6 oz"
+        },
+        {
+          "ingredient": "White Truffle Oil",
+          "amount": "2 Tbsp"
+        },
+        {
+          "ingredient": "Grana Padano",
+          "amount": "2½ Tbsp",
+          "prep": "grated"
+        },
+        {
+          "ingredient": "Fried Parsley Leaves",
+          "amount": "2½ Tbsp"
+        }
+      ],
+      "production_time": "3-5 minutes — Serve immediately",
+      "station": "Cold",
+      "variants": {},
+      "image": "images/dishes/parmesan-truffle-fries.jpg"
+    },
+    {
+      "name": "Au Gratin Potatoes",
+      "section": "Sides — For the Table",
+      "page": 36,
+      "price": 15,
+      "calories": 420,
+      "description": "Classic combination of scalloped potatoes, cheese and cream baked in a shallow casserole, with a crisp topping of fried potatoes and fried onions. Sliced potatoes layered with heavy cream, garlic, Swiss cheese, Grana Padano cheese, and Vermont White Cheddar, finished with a crisp topping of fried potatoes and fried onions.",
+      "serving_piece": "(Warm) All-Clad Two Handled Pan on white napkin-lined oval plate – Full Order; (Warm) Small Relish Dish on white napkin-lined small oval plate – Small Order",
+      "portion": [
+        {
+          "ingredient": "Full Order",
+          "amount": "14 oz per serving"
+        },
+        {
+          "ingredient": "Small Order",
+          "amount": "7 oz per serving"
+        },
+        {
+          "ingredient": "Ingredients",
+          "prep": "Sliced Potatoes, 2% Milk, Heavy Cream, Dehydrated Cheddar Cheese, Kosher Salt, Fresh Ground Black Pepper, Fresh Garlic, Roasted Garlic, Swiss Cheese, Grana Padano Cheese, Butter, Heavy Cream"
+        },
+        {
+          "ingredient": "Crispy Topping",
+          "amount": "3 oz",
+          "prep": "fried potatoes and onions"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Chopped parsley",
+          "amount": "1 tsp"
+        }
+      ],
+      "to_bring": [
+        "Large Serving Spoon – Full Order",
+        "Soup Spoon – Small Order",
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "15 minutes",
+      "station": "Sauté",
+      "variants": {},
+      "image": "images/dishes/au-gratin-potatoes.jpg"
+    },
+    {
+      "name": "Creamed Spinach",
+      "section": "Sides — For the Table",
+      "page": 37,
+      "price": 14,
+      "calories": 400,
+      "description": "Capital Grille's classic Creamed Spinach side dish has a rich creamy texture with a hint of nutmeg and a big spinach flavor. Chopped fresh spinach is blended with our house made béchamel sauce and served in a hot two handled pan.",
+      "talking_points": [
+        "Béchamel (bay-shah-MEHL): classic French white sauce made with cream, butter and flour. Our béchamel is a blend of creamy white sauce with garlic, shallots and nutmeg.",
+        "Nutmeg: flavor and aroma are delicately warm, spicy and sweet. Excellent in baked goods, milk- or cream-based preparations, fruits and vegetables — particularly potatoes, spinach and squash."
+      ],
+      "serving_piece": "ALL-CLAD Two Handled Pan (Warm) – Full Order; Small Relish Dish (Warm) – Small Order",
+      "portion": [
+        {
+          "ingredient": "Spinach (Full)",
+          "amount": "9 oz"
+        },
+        {
+          "ingredient": "Béchamel (Full)",
+          "amount": "9 oz"
+        },
+        {
+          "ingredient": "Spinach (Small)",
+          "amount": "5 oz"
+        },
+        {
+          "ingredient": "Béchamel (Small)",
+          "amount": "5 oz"
+        }
+      ],
+      "to_bring": [
+        "Large Serving Spoon – Full Order",
+        "Soup Spoon – Small Order"
+      ],
+      "production_time": "3 minutes",
+      "station": "Sauté",
+      "variants": {},
+      "image": "images/dishes/creamed-spinach.jpg"
+    },
+    {
+      "name": "Soy Glazed Brussels Sprouts",
+      "section": "Sides — For the Table",
+      "page": 37,
+      "price": 14,
+      "calories": 590,
+      "menu_name": "Soy Glazed Brussels Sprouts with Bacon",
+      "description": "Crispy Brussels sprouts tossed with bacon lardons and a soy hoisin glaze.",
+      "talking_points": [
+        "Brussels Sprouts: a cultivar in the Gemmifera group of cabbages (Brassica oleracea), grown for its edible buds. Typically 2.5-4 cm in diameter and look like miniature cabbages. Long popular in Brussels, Belgium, and may have originated there.",
+        "Lardon: a large strip or cube of pork fat used in a wide variety of cuisines to flavor savory foods and salads.",
+        "Soy Glaze ingredients: Hoisin sauce, dark soy, honey, sambal sauce, lime and water"
+      ],
+      "serving_piece": "ALL-CLAD Two Handled Pan (Warm) – Full Order; Small Relish Dish (Warm) – Small Order",
+      "portion": [
+        {
+          "ingredient": "Brussels sprouts",
+          "amount": "14 oz"
+        },
+        {
+          "ingredient": "Bacon lardons",
+          "amount": "2 oz"
+        },
+        {
+          "ingredient": "Soy glaze",
+          "amount": "1 oz"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Scallions"
+        }
+      ],
+      "to_bring": [
+        "Large Serving Spoon – Full Order",
+        "Soup Spoon – Small Order"
+      ],
+      "production_time": "6-8 minutes",
+      "station": "Sauté",
+      "variants": {},
+      "image": "images/dishes/soy-glazed-brussels-sprouts.jpg"
+    },
+    {
+      "name": "Grilled Asparagus with Lemon Mosto",
+      "section": "Sides — For the Table",
+      "page": 38,
+      "price": 14,
+      "calories": 80,
+      "description": "A large order of freshly grilled asparagus spears, drizzled with Lemon Oil and finished with Fleur de Sel.",
+      "talking_points": [
+        "Lemon Oil: fresh lemons submerged in extra virgin olive oil to release the natural lemon oil and flavor the olive oil.",
+        "Fleur de Sel ('Flower of salt' in French): hand-harvested sea salt collected by workers who scrape only the top layer before it sinks to the bottom of large salt pans. Traditional French Fleur de sel is collected off the coast of Brittany."
+      ],
+      "serving_piece": "11\" Small Rectangle Plate",
+      "portion": [
+        {
+          "ingredient": "Asparagus",
+          "amount": "8 oz"
+        },
+        {
+          "ingredient": "Lemon Mosto",
+          "amount": "½ tsp"
+        },
+        {
+          "ingredient": "Fleur de Sel",
+          "amount": "1/8 tsp"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Grilled Half Lemon"
+        },
+        {
+          "ingredient": "Serving Tongs"
+        }
+      ],
+      "production_time": "3-5 minutes",
+      "station": "Cold",
+      "variants": {},
+      "image": "images/dishes/grilled-asparagus-lemon-mosto.jpg"
+    },
+    {
+      "name": "Sam's Mashed Potatoes",
+      "section": "Sides — For the Table",
+      "page": 38,
+      "price": 14,
+      "calories": 460,
+      "description": "Red Bliss Potatoes, hand-mashed, skin-on with cream, butter and salt.",
+      "notes": [
+        "Who is Sam? Sam is Ned Grace's Grandfather. Ned is the founder of The Capital Grille."
+      ],
+      "serving_piece": "ALL-CLAD Two Handled Pan (Warm) – Full Order; Small Relish Dish (Warm) – Small Order",
+      "portion": [
+        {
+          "ingredient": "Mashed Red Potatoes (Full)",
+          "amount": "16-18 oz"
+        },
+        {
+          "ingredient": "Mashed Red Potatoes (Small)",
+          "amount": "9 oz per serving"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Chopped Parsley"
+        },
+        {
+          "ingredient": "Large Serving Spoon – Full Order"
+        },
+        {
+          "ingredient": "Soup Spoon – Small Order"
+        }
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "Available on the line",
+      "station": "Sauté",
+      "variants": {},
+      "image": "images/dishes/sams-mashed-potatoes.jpg"
+    },
+    {
+      "name": "Roasted Wild Mushrooms",
+      "section": "Sides — For the Table",
+      "page": 39,
+      "price": 15,
+      "calories": 280,
+      "description": "A blend of Portabella, Oyster, Shiitake and Cremini mushrooms oven roasted with herb infused extra virgin olive oil, salt and pepper finished with garlic butter. The mushrooms pair beautifully with all of our steaks and chops.",
+      "talking_points": [
+        "Infused Oil: blend of extra virgin olive oil, kosher salt, pepper, freshly chopped garlic, rosemary and thyme — a pesto-like consistency.",
+        "Shiitake (shee-TAH-kay): originally from Japan and Korea, now cultivated in the United States. Meaty flesh with full-bodied (some say steak-like), woodsy flavor. Stems are extremely tough and usually removed.",
+        "Oyster Mushrooms: fan-shaped, grow both wild and cultivated in close clusters, often on rotting tree trunks. Raw flavor is fairly robust and slightly peppery; becomes much milder when cooked."
+      ],
+      "serving_piece": "ALL-CLAD Two Handled Pan (Warm) – Full Order; Small Relish Dish (Warm) – Small Order",
+      "portion": [
+        {
+          "ingredient": "Mushrooms",
+          "amount": "12 oz",
+          "prep": "Portabella, Cremini, Shiitake & Oyster"
+        },
+        {
+          "ingredient": "Infused Oil",
+          "amount": "2 oz"
+        },
+        {
+          "ingredient": "Garlic Butter",
+          "amount": "1 oz"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Large Serving Spoon – Full Order"
+        },
+        {
+          "ingredient": "Soup Spoon – Small Order"
+        }
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "6-8 minutes",
+      "station": "Sauté",
+      "variants": {},
+      "image": "images/dishes/roasted-wild-mushrooms.jpg"
+    },
+    {
+      "name": "Creamed Corn with Bacon",
+      "section": "Sides — For the Table",
+      "page": 39,
+      "price": 15,
+      "calories": 360,
+      "description": "Sautéed summer corn cut fresh off the cob, finished with bacon and corn-infused cream.",
+      "serving_piece": "ALL-CLAD Two Handled Pan (Warm) – Full Order; Small Relish Dish (Warm) – Small Order",
+      "portion": [
+        {
+          "ingredient": "Fresh Corn Kernels",
+          "amount": "10 oz"
+        },
+        {
+          "ingredient": "Bacon Fat",
+          "amount": "½ oz"
+        },
+        {
+          "ingredient": "Infused Sweet Cream",
+          "amount": "2 oz"
+        },
+        {
+          "ingredient": "Whole Butter",
+          "amount": "¾ oz"
+        },
+        {
+          "ingredient": "Kosher Salt",
+          "amount": "½ tsp"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Sliced Chives"
+        }
+      ],
+      "to_bring": [
+        "Fresh cracked pepper",
+        "Large Serving Spoon – Full Order",
+        "Soup Spoon – Small Order"
+      ],
+      "production_time": "10 minutes",
+      "station": "Sauté",
+      "variants": {},
+      "image": "images/dishes/creamed-corn-bacon.jpg"
+    },
+    {
+      "name": "Sautéed Spinach with Garlic Confit",
+      "section": "Sides — For the Table",
+      "page": 40,
+      "price": 13,
+      "calories": 60,
+      "description": "Fresh baby spinach sautéed with garlic infused oil and garlic confit.",
+      "talking_points": [
+        "Infused Oil: blend of extra virgin olive, thyme, salt and garlic.",
+        "Confit: generic term for various kinds of food immersed in a substance for both flavor and preservation, most often its own fat. One of the oldest ways to preserve food."
+      ],
+      "serving_piece": "ALL-CLAD Two Handled Pan (Warm) – Full Order; Small Relish Dish (Warm) – Small Order",
+      "portion": [
+        {
+          "ingredient": "Baby Spinach Leaves",
+          "amount": "12 oz"
+        },
+        {
+          "ingredient": "Garlic Infused Olive Oil",
+          "amount": "1 Tbsp"
+        },
+        {
+          "ingredient": "Garlic Confit",
+          "amount": "2 oz"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Large Serving Fork – Full Order"
+        },
+        {
+          "ingredient": "Soup Spoon – Small Order"
+        }
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "3-5 minutes",
+      "station": "Sauté",
+      "variants": {},
+      "image": "images/dishes/sauteed-spinach-garlic-confit.jpg"
+    },
+    {
+      "name": "One Pound Baked Potato",
+      "section": "Sides — For the Table",
+      "page": 40,
+      "price": null,
+      "calories": null,
+      "description": "Our fresh, salt-crusted baked potatoes are accompanied by chives, sour cream, crisp bacon and butter.",
+      "notes": [
+        "Not available in half portions. This item is not listed on our menu but is frequently requested by our guests."
+      ],
+      "serving_piece": "ALL-CLAD Two Handled Pan (Warm); White napkin lined Small Rectangle Plate",
+      "portion": [
+        {
+          "ingredient": "Potato",
+          "amount": "Salt Crusted 14-18 oz"
+        },
+        {
+          "ingredient": "Salted Butter",
+          "prep": "on a B&B"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Sliced Chives",
+          "amount": "2 oz",
+          "prep": "in ramekin"
+        },
+        {
+          "ingredient": "Sour Cream",
+          "amount": "2 oz",
+          "prep": "in ramekin"
+        },
+        {
+          "ingredient": "Crisp Bacon",
+          "amount": "2 oz",
+          "prep": "in ramekin"
+        }
+      ],
+      "to_bring": [
+        "Fresh Cracked Pepper"
+      ],
+      "production_time": "3 minutes",
+      "station": "Sauté",
+      "variants": {}
+    },
+    {
+      "name": "The Capital Grille Cheesecake (with Fresh Berries)",
+      "section": "Desserts",
+      "page": 41,
+      "price": null,
+      "calories": null,
+      "description": "Our house made cheesecake, made with Ricotta and cream cheese, is very creamy and much lighter than the traditional N.Y. style cheesecake. Served with a caramelized sugar top and fresh seasonal berries.",
+      "talking_points": [
+        "Ricotta (ri-KAHT-tuh): rich fresh cheese, slightly grainy but smoother than cottage cheese. White, moist, slightly sweet flavor. The word 'ricotta' means 'recooked' — the cheese is made by heating the whey from another cooked cheese. Popular in Italian savory preparations like lasagna and manicotti, and desserts like cheesecake.",
+        "Cheesecake Crust ingredients: Nilla Wafers, Clarified Butter, Granulated Sugar",
+        "Strawberry Sauce: Pureed Strawberries"
+      ],
+      "serving_piece": "Salad Plate (Room Temperature)",
+      "portion": [
+        {
+          "ingredient": "Cheesecake",
+          "amount": "1 ea"
+        },
+        {
+          "ingredient": "Strawberry Sauce",
+          "amount": "2 oz"
+        },
+        {
+          "ingredient": "Mixed Berries",
+          "amount": "2 oz"
+        },
+        {
+          "ingredient": "Sugar in the Raw",
+          "amount": "1 tbsp",
+          "prep": "caramelized on top"
+        },
+        {
+          "ingredient": "Mint Sprig",
+          "amount": "1"
+        },
+        {
+          "ingredient": "Powdered Sugar",
+          "prep": "rim plate"
+        }
+      ],
+      "to_bring": [
+        "Salad Fork Framed",
+        "Share Plates if applicable",
+        "Serving Spoon or Fork if applicable"
+      ],
+      "production_time": "5-8 minutes",
+      "station": "Pantry",
+      "variants": {},
+      "image": "images/dishes/capital-grille-cheesecake.jpg"
+    },
+    {
+      "name": "Classic Crème Brûlée (with Seasonal Berries)",
+      "section": "Desserts",
+      "page": 41,
+      "price": null,
+      "calories": null,
+      "description": "Crème Brûlée is a lightly baked custard with a caramelized sugar glazed top, made in house and served chilled with seasonal berries.",
+      "talking_points": [
+        "Crème Brûlée (krehm broo-LAY): literal translation is 'burnt cream'. A chilled, stirred custard sprinkled with brown or granulated sugar just before serving. The caramelized topping becomes brittle, creating a delicious flavor and textural contrast to the smooth, creamy custard beneath."
+      ],
+      "serving_piece": "Oval ramekin with doily lined Salad Plate",
+      "portion": [
+        {
+          "ingredient": "Crème Brûlée",
+          "amount": "1"
+        },
+        {
+          "ingredient": "Sugar in the Raw",
+          "amount": "1 Tbsp"
+        },
+        {
+          "ingredient": "Raspberries",
+          "amount": "3 ea (½ oz)"
+        },
+        {
+          "ingredient": "Blueberries",
+          "amount": "3 ea (½ oz)"
+        },
+        {
+          "ingredient": "Blackberries",
+          "amount": "3 ea (½ oz)"
+        },
+        {
+          "ingredient": "Powdered Sugar",
+          "prep": "rim plate"
+        },
+        {
+          "ingredient": "Strawberry Fan",
+          "amount": "1"
+        },
+        {
+          "ingredient": "Mint Sprig",
+          "amount": "1"
+        }
+      ],
+      "to_bring": [
+        "Teaspoon Framed",
+        "Share Plates if applicable",
+        "Serving Spoon or Fork if applicable"
+      ],
+      "production_time": "5-8 minutes",
+      "station": "Pantry",
+      "variants": {},
+      "image": "images/dishes/classic-creme-brulee.jpg"
+    },
+    {
+      "name": "Coconut Cream Pie",
+      "section": "Desserts",
+      "page": 42,
+      "price": null,
+      "calories": null,
+      "description": "Our house made crust layered with coconut cream, followed by sweetened whipped cream, finished by drizzling with caramel rum sauce, sprinkling toasted coconut curls and served with a coconut cookie.",
+      "talking_points": [
+        "Caramel rum sauce is made with sweetened condensed milk, heavy cream and dark rum."
+      ],
+      "serving_piece": "Salad Plate (Room Temperature)",
+      "portion": [
+        {
+          "ingredient": "Coconut Pie",
+          "amount": "1"
+        },
+        {
+          "ingredient": "Pastry Cream",
+          "amount": "3 oz"
+        },
+        {
+          "ingredient": "Whipped Cream",
+          "amount": "2 oz"
+        },
+        {
+          "ingredient": "Coconut Cookie",
+          "amount": "1 each"
+        },
+        {
+          "ingredient": "Coconut Curls",
+          "amount": "1 oz",
+          "prep": "toasted"
+        },
+        {
+          "ingredient": "Caramel Rum Sauce",
+          "amount": "1 oz"
+        },
+        {
+          "ingredient": "Powdered Sugar",
+          "prep": "rim plate"
+        }
+      ],
+      "to_bring": [
+        "Salad Fork Framed",
+        "Share Plates if applicable",
+        "Serving Spoon or Fork if applicable"
+      ],
+      "production_time": "5-8 minutes",
+      "station": "Pantry",
+      "variants": {},
+      "image": "images/dishes/coconut-cream-pie.jpg"
+    },
+    {
+      "name": "Flourless Chocolate Espresso Cake",
+      "section": "Desserts",
+      "page": 42,
+      "price": null,
+      "calories": null,
+      "description": "Made in house, the flourless chocolate espresso cake is a dense, rich chocolate cake served with fresh raspberries and whipped cream.",
+      "notes": [
+        "This dessert is gluten free."
+      ],
+      "serving_piece": "Tear Drop Plate (Room Temperature)",
+      "portion": [
+        {
+          "ingredient": "Espresso Cake",
+          "amount": "1 piece",
+          "prep": "Room Temperature"
+        },
+        {
+          "ingredient": "Cocoa Powder",
+          "amount": "1/8 tsp"
+        },
+        {
+          "ingredient": "Whipped Cream",
+          "amount": "1 1/3 oz"
+        },
+        {
+          "ingredient": "Mint Sprig"
+        },
+        {
+          "ingredient": "Raspberries",
+          "amount": "5"
+        }
+      ],
+      "to_bring": [
+        "Salad Fork Framed",
+        "Share Plates if applicable",
+        "Serving Spoon or Fork if applicable"
+      ],
+      "production_time": "3-5 minutes",
+      "station": "Pantry",
+      "variants": {},
+      "image": "images/dishes/flourless-chocolate-espresso-cake.jpg"
+    },
+    {
+      "name": "Strawberries and Cream with Crème Anglaise and Biscotti",
+      "section": "Desserts",
+      "page": 43,
+      "price": null,
+      "calories": null,
+      "description": "Fresh strawberries with Crème Anglaise served with almond Biscotti.",
+      "serving_piece": "Room Temperature Silver goblet on doily lined B&B",
+      "portion": [
+        {
+          "ingredient": "Strawberries",
+          "amount": "1.5 cups",
+          "prep": "halved"
+        },
+        {
+          "ingredient": "Crème Anglaise",
+          "amount": "2 oz"
+        },
+        {
+          "ingredient": "Mint Sprig"
+        },
+        {
+          "ingredient": "Biscotti"
+        }
+      ],
+      "to_bring": [
+        "Frame with Teaspoon"
+      ],
+      "production_time": "3-5 minutes",
+      "station": "Pantry",
+      "variants": {},
+      "image": "images/dishes/strawberries-cream-creme-anglaise.jpg"
+    },
+    {
+      "name": "Warm Apple Tarte",
+      "section": "Desserts",
+      "page": 43,
+      "price": null,
+      "calories": null,
+      "description": "A warm apple tarte, finished with silky miso butterscotch and a scoop of toasted almond and honey ice cream.",
+      "serving_piece": "Room Temperature 10\" Round Plate",
+      "portion": [
+        {
+          "ingredient": "Warm Apple Tarte Prep",
+          "amount": "1 each"
+        },
+        {
+          "ingredient": "Toasted Almond Honey Ice Cream (Muse Gelato)",
+          "amount": "3 oz (Green Scoop)"
+        },
+        {
+          "ingredient": "Miso Butterscotch",
+          "amount": "1 oz"
+        }
+      ],
+      "to_bring": [
+        "Salad Fork and Spoon Framed",
+        "Share Plates if applicable",
+        "Serving Spoon or Fork if applicable"
+      ],
+      "production_time": "3-5 minutes",
+      "station": "Pantry",
+      "variants": {},
+      "image": "images/dishes/warm-apple-tarte.jpg"
+    },
+    {
+      "name": "Celebration Dessert Platter",
+      "section": "Desserts",
+      "page": 44,
+      "price": null,
+      "calories": null,
+      "description": "Our pastry chef has prepared individual portions of our cheesecake and Flourless Chocolate Espresso Cake.",
+      "talking_points": [
+        "Espresso Cake: very dense, moist chocolate cake served with raspberries.",
+        "Cheesecake: made with Ricotta and cream cheese, very creamy and lighter than traditional N.Y. style. Served with caramelized sugar top, strawberry purée and fresh seasonal berries."
+      ],
+      "serving_piece": "Room Temperature Rectangle Plate stenciled with Brilliance Noir Candle placed in the Chocolate Espresso Cake",
+      "portion": [
+        {
+          "ingredient": "Individual Cheesecake",
+          "amount": "1 each"
+        },
+        {
+          "ingredient": "Sugar in the Raw",
+          "amount": "2 tsp"
+        },
+        {
+          "ingredient": "Mixed Berries"
+        },
+        {
+          "ingredient": "Strawberry Sauce",
+          "amount": "1 Tbsp"
+        },
+        {
+          "ingredient": "Mint Sprig"
+        },
+        {
+          "ingredient": "Individual Espresso Cake",
+          "amount": "1 each"
+        },
+        {
+          "ingredient": "Cocoa Powder",
+          "amount": "1/8 tsp"
+        },
+        {
+          "ingredient": "Whipped Cream",
+          "amount": "¼ oz"
+        },
+        {
+          "ingredient": "Raspberries",
+          "amount": "3"
+        },
+        {
+          "ingredient": "Celebratory message",
+          "prep": "Happy Birthday; Congratulations; The Capital Grille logo on plate"
+        }
+      ],
+      "to_bring": [
+        "Salad Fork Framed",
+        "Serve with 2 Serving Spoons – 1 for each dessert",
+        "Share Plates"
+      ],
+      "production_time": "3-5 minutes",
+      "station": "Pantry",
+      "variants": {}
+    },
+    {
+      "name": "Birthday Dessert Platter",
+      "section": "Desserts",
+      "page": 44,
+      "price": null,
+      "calories": null,
+      "description": "1 regular sized Crème Brûlée — a lightly baked custard with a caramelized sugar glazed top, made in house and served chilled with seasonal berries.",
+      "talking_points": [
+        "Crème Brûlée (krehm broo-LAY): literal translation is 'burnt cream'. A chilled, stirred custard sprinkled with brown or granulated sugar just before serving. The caramelized topping becomes brittle, creating a delicious flavor and textural contrast to the smooth, creamy custard beneath."
+      ],
+      "serving_piece": "Room Temperature Rectangle Plate stenciled with Birthday Note",
+      "portion": [
+        {
+          "ingredient": "Crème Brûlée",
+          "amount": "1"
+        },
+        {
+          "ingredient": "Sugar in the Raw",
+          "amount": "1 Tbsp"
+        },
+        {
+          "ingredient": "Raspberries",
+          "amount": "3 ea (½ oz)"
+        },
+        {
+          "ingredient": "Blueberries",
+          "amount": "3 ea (½ oz)"
+        },
+        {
+          "ingredient": "Blackberries",
+          "amount": "3 ea (½ oz)"
+        },
+        {
+          "ingredient": "Powdered Sugar",
+          "prep": "rim plate"
+        },
+        {
+          "ingredient": "Strawberry Fan",
+          "amount": "1"
+        },
+        {
+          "ingredient": "Mint Sprig"
+        }
+      ],
+      "to_bring": [
+        "Salad Fork Framed",
+        "Serve with 2 Serving Spoons – 1 for each dessert",
+        "Share Plates"
+      ],
+      "production_time": "3-5 minutes",
+      "station": "Pantry",
+      "variants": {}
+    }
+  ],
+  "capital_hours": [
+    {
+      "name": "Caesar Salad Bites",
+      "section": "Capital Hours",
+      "page": 45,
+      "price": null,
+      "calories": null,
+      "description": "A bite-sized twist on the classic Caesar. Crisp, toasted brioche croutons serve as the base for a finely chopped Caesar salad, offering bold, familiar flavors in a refined, shareable format. Each bite delivers the creamy tang of Caesar dressing, the crunch of fresh greens, and the richness of aged cheese by finishing with grated Grana Padano.",
+      "serving_piece": "Room Temperature Large Oval Plate",
+      "portion": [
+        {
+          "ingredient": "Caesar Bite Croutons",
+          "amount": "5 ea"
+        },
+        {
+          "ingredient": "Whole Butter",
+          "amount": "1 fl oz",
+          "prep": "Melted"
+        },
+        {
+          "ingredient": "Romaine Lettuce",
+          "amount": "1 wt oz",
+          "prep": "Chopped ¼\" x ¼\""
+        },
+        {
+          "ingredient": "Grana Padano",
+          "amount": "0.4 wt oz",
+          "prep": "Broken Flakes, ¼\" x ¼\""
+        },
+        {
+          "ingredient": "Caesar Dressing",
+          "amount": "2 tsp + 1½ fl oz"
+        }
+      ],
+      "variants": {},
+      "image": "images/dishes/caesar-salad-bites.jpg"
+    },
+    {
+      "name": "Cast Iron Garlic Shrimp",
+      "section": "Capital Hours",
+      "page": 45,
+      "price": null,
+      "calories": null,
+      "description": "Jumbo shrimp sautéed in a rich garlic and lemon butter, creating a vibrant, savory flavor with a bright citrus finish. The shrimp are served over toasted ciabatta, which soaks up the buttery sauce and adds a satisfying crunch beneath each bite. Fresh herbs and grape tomatoes bring a touch of freshness, making this dish both bold and balanced.",
+      "serving_piece": "Room Temperature Black Staub Dish",
+      "portion": [
+        {
+          "ingredient": "Shrimp U12",
+          "amount": "5 ea",
+          "prep": "Tails Removed"
+        },
+        {
+          "ingredient": "Seasoning Salt",
+          "amount": "1 tsp"
+        },
+        {
+          "ingredient": "Clarified Butter",
+          "amount": "½ fl oz"
+        },
+        {
+          "ingredient": "Extra Virgin Olive Oil",
+          "amount": "2 Tbsp + 2 tsp"
+        },
+        {
+          "ingredient": "Garlic Confit",
+          "amount": "1 Black Scoop"
+        },
+        {
+          "ingredient": "50/50 Wine Water Mix",
+          "amount": "2 fl oz"
+        },
+        {
+          "ingredient": "Fresh Basil",
+          "amount": "1 Tbsp",
+          "prep": "1/8\" julienne"
+        },
+        {
+          "ingredient": "Lemon Juice",
+          "amount": "½ Lemon",
+          "prep": "Fresh Squeezed"
+        },
+        {
+          "ingredient": "Grape Tomatoes",
+          "amount": "1 Green Scoop",
+          "prep": "halved"
+        },
+        {
+          "ingredient": "Garlic Butter",
+          "amount": "1 Purple Scoop"
+        },
+        {
+          "ingredient": "Ciabatta Toast",
+          "amount": "5 ea"
+        },
+        {
+          "ingredient": "Grana Padano Cheese",
+          "amount": "1 Tbsp",
+          "prep": "micro plane"
+        },
+        {
+          "ingredient": "Grilled Lemon Half",
+          "amount": "1 ea"
+        }
+      ],
+      "variants": {},
+      "image": "images/dishes/cast-iron-garlic-shrimp.jpg"
+    },
+    {
+      "name": "Mushroom Truffle Arancini",
+      "section": "Capital Hours",
+      "page": 46,
+      "price": null,
+      "calories": null,
+      "description": "Crispy on the outside and creamy within, these golden risotto bites are a blend of porcini and shiitake mushrooms, Grana Padano and white cheddar cheese, and a hint of truffle for a rich, savory flavor.",
+      "serving_piece": "Room Temperature Black Staub Dish",
+      "portion": [
+        {
+          "ingredient": "Mushroom Truffle Arancini Batch",
+          "amount": "5 ea"
+        },
+        {
+          "ingredient": "Truffle Aioli",
+          "amount": "1 fl oz Black Scoop"
+        },
+        {
+          "ingredient": "Grana Padano Cheese",
+          "amount": "1 Tbsp",
+          "prep": "micro planed"
+        },
+        {
+          "ingredient": "Chives",
+          "amount": "½ tsp",
+          "prep": "Fine Sliced 1/16\""
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Finely Sliced Chives"
+        }
+      ],
+      "variants": {},
+      "image": "images/dishes/mushroom-truffle-arancini.jpg"
+    },
+    {
+      "name": "Oysters Casino",
+      "section": "Capital Hours",
+      "page": 46,
+      "price": null,
+      "calories": null,
+      "description": "Broiled with savory toppings and finished with crisp panko breadcrumbs, squeeze of lemon and grated Grana Padano so each bite is rich, briny and perfectly balanced. A warm and indulgent preparation that enhances the Oysters' natural flavor without overpowering it.",
+      "serving_piece": "Room Temperature Black Staub Dish",
+      "portion": [
+        {
+          "ingredient": "Oysters, East Coast",
+          "amount": "2 ea"
+        },
+        {
+          "ingredient": "Casino Mix",
+          "amount": "2 Tbsp"
+        },
+        {
+          "ingredient": "Panko Breadcrumbs",
+          "amount": "2 tsp"
+        },
+        {
+          "ingredient": "Lemon Juice",
+          "amount": "2 tsp",
+          "prep": "Fresh Squeezed"
+        },
+        {
+          "ingredient": "Grana Padano Cheese",
+          "amount": "1 oz",
+          "prep": "micro planed"
+        },
+        {
+          "ingredient": "Chopped Parsley",
+          "amount": "2 tsp"
+        },
+        {
+          "ingredient": "Kosher Salt",
+          "amount": "½ tsp"
+        },
+        {
+          "ingredient": "Black Pepper, cracked",
+          "amount": "1 tsp"
+        },
+        {
+          "ingredient": "Whole Fresh Oregano Sprigs",
+          "amount": "4 ea",
+          "prep": "4\""
+        }
+      ],
+      "variants": {},
+      "image": "images/dishes/oysters-casino.jpg"
+    },
+    {
+      "name": "Petite Filet Sandwiches",
+      "section": "Capital Hours",
+      "page": 47,
+      "price": null,
+      "calories": null,
+      "description": "Two seared filet medallions are served on toasted brioche buns, which offer a soft, buttery texture with a hint of sweetness. A layer of truffle mayo adds rich, aromatic depth, while the red wine onion jam — made from thinly sliced onions slowly caramelized and reduced with cabernet and aged balsamic — brings a delicate sweetness and balanced acidity.",
+      "serving_piece": "Warm Small Oval Plate",
+      "portion": [
+        {
+          "ingredient": "Tournedos",
+          "amount": "2 ea",
+          "prep": "2 wt oz each"
+        },
+        {
+          "ingredient": "Seasoning Salt",
+          "amount": "¼ tsp"
+        },
+        {
+          "ingredient": "Clarified Butter",
+          "amount": "2 tsp"
+        },
+        {
+          "ingredient": "Mini Brioche Buns",
+          "amount": "2 ea"
+        },
+        {
+          "ingredient": "Truffle Aioli",
+          "amount": "2 Tbsp"
+        },
+        {
+          "ingredient": "Red Wine Onion Jam",
+          "amount": "2 Tbsp"
+        },
+        {
+          "ingredient": "Watercress",
+          "amount": "¼ wt oz",
+          "prep": "6-8 leaves"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Pick"
+        }
+      ],
+      "variants": {},
+      "image": "images/dishes/petite-filet-sandwiches.jpg"
+    },
+    {
+      "name": "Porcini-Rubbed Lollipop Lamb Chops",
+      "section": "Capital Hours",
+      "page": 47,
+      "price": null,
+      "calories": null,
+      "description": "Savory porcini rub adds deep, umami-rich flavor with a subtle smokiness. Finished with a touch of black garlic balsamic, which brings a mellow sweetness and tangy depth that complements the richness of the lamb.",
+      "serving_piece": "Warm Small Oval Plate",
+      "portion": [
+        {
+          "ingredient": "Lamb Chops, lollipop",
+          "amount": "2 ea",
+          "prep": "single"
+        },
+        {
+          "ingredient": "Extra Virgin Olive Oil",
+          "amount": "2 tsp + 1 tsp"
+        },
+        {
+          "ingredient": "Porcini Rub",
+          "amount": "1 Tbsp"
+        },
+        {
+          "ingredient": "Black Garlic Balsamic",
+          "amount": "1 tsp",
+          "prep": "purchased"
+        },
+        {
+          "ingredient": "Watercress",
+          "amount": "¼ tsp",
+          "prep": "4-5 leaves"
+        }
+      ],
+      "variants": {},
+      "image": "images/dishes/porcini-lollipop-lamb-chops.jpg"
+    },
+    {
+      "name": "Sliced Dry Aged NY Strip",
+      "section": "Capital Hours",
+      "page": 48,
+      "price": null,
+      "calories": null,
+      "description": "Deep, concentrated flavor from dry aging, enhanced by our signature Kona seasoning, which adds a smoky, savory crust. Served with aji verde — a bright, herb-forward sauce with fresh acidity and vibrant green notes. The sauce brings lift and balance to the richness of the beef, creating a bold yet refreshing pairing.",
+      "serving_piece": "Warm Canoe Plate",
+      "portion": [
+        {
+          "ingredient": "Dry Aged NY Strip",
+          "amount": "5-5½ wt oz",
+          "prep": "1\" x 1½\" x 3\""
+        },
+        {
+          "ingredient": "Extra Virgin Olive Oil",
+          "amount": "2 tsp"
+        },
+        {
+          "ingredient": "Kona Rub",
+          "amount": "2 Tbsp"
+        },
+        {
+          "ingredient": "Aji Verde",
+          "amount": "1 fl oz"
+        },
+        {
+          "ingredient": "Maldon Sea Salt",
+          "amount": "1 pinch"
+        }
+      ],
+      "garnish": [
+        {
+          "ingredient": "Sprinkle of Maldon Sea Salt"
+        }
+      ],
+      "variants": {},
+      "image": "images/dishes/sliced-dry-aged-ny-strip.jpg"
+    }
+  ]
+}
