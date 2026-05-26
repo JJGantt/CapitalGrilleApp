@@ -60,23 +60,6 @@ struct RestockListView: View {
     }
 }
 
-private struct LocationLine: View {
-    let label: String
-    let location: WineLocation?
-
-    var body: some View {
-        HStack(spacing: 6) {
-            Text(label.uppercased())
-                .font(.system(size: 9, weight: .semibold))
-                .tracking(1)
-                .foregroundColor(.cgTextMuted.opacity(0.7))
-            Text(location?.displayString ?? "—")
-                .font(.footnote)
-                .foregroundColor(.cgTextMuted)
-        }
-    }
-}
-
 private struct RestockRow: View {
     let item: RestockItem
     @ObservedObject var wineStore: WineStore
@@ -103,8 +86,12 @@ private struct RestockRow: View {
                     .foregroundColor(.cgText)
                     .lineLimit(2)
                 if wine != nil {
-                    LocationLine(label: "primary", location: primary)
-                    LocationLine(label: "backup",  location: backup)
+                    Text(primary?.displayString ?? "—")
+                        .font(.footnote)
+                        .foregroundColor(.cgTextMuted)
+                    Text(backup?.displayString ?? "—")
+                        .font(.footnote)
+                        .foregroundColor(.cgTextMuted)
                 }
             }
             Spacer()
