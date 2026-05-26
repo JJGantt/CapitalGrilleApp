@@ -455,6 +455,9 @@ struct ContentView: View {
         - After an update, briefly confirm what was set.
         """
 
+        // Mac path takes a single combined string; Direct API uses split for caching.
+        let combinedSystem = systemStable + "\n\n" + systemDynamic
+
         let updateTool = AnthropicTool(
             name: "update_wine_locations",
             description: "Set the primary or backup location for one or more wines. The 'area' must be one of the existing areas. 'row' must be back/front/top/bottom. 'column' is any integer (positive, zero, or negative — negatives are valid for bottles sitting to the left of the main row). When the user lists multiple wines in sequence on the same row, batch them all into one call with auto-incrementing columns.",
@@ -622,7 +625,7 @@ struct ContentView: View {
         if Backend.current == .mac {
             do {
                 let answer = try await MacClient.ask(
-                    question: question, history: history, systemPrompt: system, mode: "wine",
+                    question: question, history: history, systemPrompt: combinedSystem, mode: "wine",
                     sessionId: sessionId,
                     onActivity: activityHandler
                 )
@@ -677,7 +680,7 @@ struct ContentView: View {
     @ViewBuilder
     var aiResultsContent: some View {
             VStack(alignment: .leading, spacing: 12) {
-                if aiHistory.isEmpty && aiError == nil {
+                if aiHistory.isEmpty && aiError == nil && pendingQuestion == nil {
                     VStack(spacing: 6) {
                         Image(systemName: "sparkles")
                             .font(.title)
