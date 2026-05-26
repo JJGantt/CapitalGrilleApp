@@ -103,16 +103,9 @@ private struct WineRowView: View {
                         .foregroundColor(.cgText)
                         .multilineTextAlignment(.leading)
                         .lineLimit(2)
-                    if let loc = location?.displayString {
-                        HStack(spacing: 4) {
-                            Image(systemName: "mappin.circle.fill")
-                                .font(.caption2)
-                                .foregroundColor(.cgAccent.opacity(0.7))
-                            Text(loc)
-                                .font(.caption)
-                                .foregroundColor(.cgTextMuted)
-                        }
-                    }
+                    Text(location?.displayString ?? "—")
+                        .font(.footnote)
+                        .foregroundColor(.cgTextMuted)
                 }
                 Spacer()
                 Image(systemName: "chevron.right")
