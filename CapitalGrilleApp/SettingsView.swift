@@ -13,27 +13,18 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("AI Backend") {
+                Section("Backend") {
                     Picker("Backend", selection: $backend) {
-                        Text("Mac (Max plan)").tag(Backend.mac)
-                        Text("Direct API (paid)").tag(Backend.api)
+                        Text("Mac").tag(Backend.mac)
+                        Text("API").tag(Backend.api)
                     }
-                    .pickerStyle(.inline)
+                    .pickerStyle(.segmented)
                     .labelsHidden()
                     .onChange(of: backend) { new in Backend.current = new }
-                    Text(backend == .mac
-                         ? "Routes through claude -p on your Mac via Tailscale. Consumes Max plan credits. Requires the Mac to be reachable."
-                         : "Hits the Anthropic API directly with the key in Secrets.swift. Spends API credits.")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
                 }
 
-                Section("Wine Areas") {
-                    if wineStore.areas.isEmpty {
-                        Text("No areas yet. Add one below.")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    } else {
+                Section("Areas") {
+                    if !wineStore.areas.isEmpty {
                         ForEach(wineStore.areas) { area in
                             HStack {
                                 Text(area.name)
@@ -58,11 +49,17 @@ struct SettingsView: View {
                         }
                     }
                     HStack {
-                        TextField("New area name", text: $newAreaName)
+                        TextField("New area", text: $newAreaName)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.words)
-                        Button("Add") { Task { await add() } }
-                            .disabled(newAreaName.trimmingCharacters(in: .whitespaces).isEmpty || busy)
+                            .onSubmit { Task { await add() } }
+                        Button(action: { Task { await add() } }) {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.title3)
+                                .foregroundColor(.accentColor)
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(newAreaName.trimmingCharacters(in: .whitespaces).isEmpty || busy)
                     }
                 }
 
