@@ -225,13 +225,21 @@ struct ContentView: View {
                 menuListView
             }
 
-            // Bottom toolbar: settings (left) + clear conversation (right, AI mode only)
+            // Bottom toolbar: settings + chat-history toggle + clear (in chat with history)
             HStack {
                 Button(action: { showSettings = true }) {
                     Image(systemName: "gearshape")
                         .font(.title3)
                         .foregroundColor(.cgTextMuted)
                         .padding(10)
+                }
+                if !aiHistory.isEmpty {
+                    Button(action: { withAnimation { showAIResults.toggle() } }) {
+                        Image(systemName: showAIResults ? "bubble.left.fill" : "bubble.left")
+                            .font(.title3)
+                            .foregroundColor(showAIResults ? .cgAccent : .cgTextMuted)
+                            .padding(10)
+                    }
                 }
                 Spacer()
                 if showAIResults && !aiHistory.isEmpty {
