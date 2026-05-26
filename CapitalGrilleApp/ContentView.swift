@@ -122,6 +122,7 @@ struct ContentView: View {
             .onChange(of: section) { _ in
                 if showAIResults { withAnimation { showAIResults = false } }
             }
+            .onChange(of: searchText) { _ in autoSwitchForSearch() }
             .padding(.horizontal, 12)
             .padding(.top, 6)
             .padding(.bottom, 8)
@@ -277,6 +278,37 @@ struct ContentView: View {
                 }
             }
         }
+    }
+
+    /// When the user types a search, jump to whichever tab has the most matches.
+    /// Stays put if the current tab has the most (or if there are no matches anywhere).
+    private func autoSwitchForSearch() {
+        let q = searchText.lowercased().trimmingCharacters(in: .whitespaces)
+        guard !q.isEmpty else { return }
+
+        let foodCount: Int = {
+            guard let menu = store.menu else { return 0 }
+            return MenuGroup.allCases.reduce(0) { acc, g in
+                acc + g.dishes(from: menu).filter { matches(dish: $0, query: q) }.count
+            }
+        }()
+        let wineCount = wineStore.categories.flatMap(\.wines).filter {
+            $0.name.lowercased().contains(q)
+            || $0.tasting_notes.lowercased().contains(q)
+            || $0.food_pairing.lowercased().contains(q)
+        }.count
+        let liquorCount = wineStore.liquors.filter {
+            ($0.name ?? "").lowercased().contains(q)
+        }.count
+
+        let counts: [(TopSection, Int)] = [(.food, foodCount), (.wine, wineCount), (.liquor, liquorCount)]
+        guard let best = counts.max(by: { $0.1 < $1.1 }), best.1 > 0 else { return }
+
+        // Stay put if current tab already has matches at the top.
+        let currentCount = counts.first(where: { $0.0 == section })?.1 ?? 0
+        if currentCount == best.1 { return }
+
+        withAnimation { section = best.0 }
     }
 
     func toggleAIMode() {
