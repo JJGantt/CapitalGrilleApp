@@ -103,45 +103,49 @@ struct ContentView: View {
             .padding(.top, 6)
             .padding(.bottom, 8)
 
-            // Top bar: search/AI input + mode toggle
+            // Top bar: search/AI input + mode toggle (search hidden in Restock mode)
             HStack(spacing: 8) {
-                HStack(spacing: 8) {
-                    Image(systemName: aiMode ? "sparkles" : "magnifyingglass")
-                        .foregroundColor(aiMode ? .cgAccent : .cgTextMuted)
-                    if aiMode {
-                        TextField("Ask the menu…", text: $aiInput)
-                            .submitLabel(.send)
-                            .onSubmit { askAI() }
-                            .disabled(aiBusy)
-                    } else {
-                        TextField(section == .wine ? "Search wines…" : "Search dishes, ingredients…", text: $searchText)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-                            .submitLabel(.search)
-                    }
-                    if aiMode {
-                        if aiBusy {
-                            ProgressView().progressViewStyle(.circular).scaleEffect(0.8)
+                if aiMode || section != .restock {
+                    HStack(spacing: 8) {
+                        Image(systemName: aiMode ? "sparkles" : "magnifyingglass")
+                            .foregroundColor(aiMode ? .cgAccent : .cgTextMuted)
+                        if aiMode {
+                            TextField("Ask the menu…", text: $aiInput)
+                                .submitLabel(.send)
+                                .onSubmit { askAI() }
+                                .disabled(aiBusy)
                         } else {
-                            Button(action: askAI) {
-                                Image(systemName: "arrow.up.circle.fill")
-                                    .font(.title2)
-                                    .foregroundColor(aiInput.trimmingCharacters(in: .whitespaces).isEmpty ? .cgBorder : .cgAccent)
-                            }
-                            .disabled(aiInput.trimmingCharacters(in: .whitespaces).isEmpty)
+                            TextField(section == .wine ? "Search wines…" : "Search dishes, ingredients…", text: $searchText)
+                                .textInputAutocapitalization(.never)
+                                .autocorrectionDisabled()
+                                .submitLabel(.search)
                         }
-                    } else if !searchText.isEmpty {
-                        Button(action: { searchText = "" }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.cgTextMuted)
+                        if aiMode {
+                            if aiBusy {
+                                ProgressView().progressViewStyle(.circular).scaleEffect(0.8)
+                            } else {
+                                Button(action: askAI) {
+                                    Image(systemName: "arrow.up.circle.fill")
+                                        .font(.title2)
+                                        .foregroundColor(aiInput.trimmingCharacters(in: .whitespaces).isEmpty ? .cgBorder : .cgAccent)
+                                }
+                                .disabled(aiInput.trimmingCharacters(in: .whitespaces).isEmpty)
+                            }
+                        } else if !searchText.isEmpty {
+                            Button(action: { searchText = "" }) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(.cgTextMuted)
+                            }
                         }
                     }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 10)
+                    .background(Color.cgCard)
+                    .clipShape(Capsule())
+                    .overlay(Capsule().stroke(aiMode ? Color.cgAccent : Color.cgBorder, lineWidth: aiMode ? 1.5 : 1))
+                } else {
+                    Spacer()
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 10)
-                .background(Color.cgCard)
-                .clipShape(Capsule())
-                .overlay(Capsule().stroke(aiMode ? Color.cgAccent : Color.cgBorder, lineWidth: aiMode ? 1.5 : 1))
 
                 Button(action: toggleAIMode) {
                     Image(systemName: aiMode ? "xmark.circle.fill" : "sparkles")

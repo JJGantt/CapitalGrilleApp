@@ -16,9 +16,19 @@ struct RestockListView: View {
                 ScrollView {
                     LazyVStack(spacing: 0) {
                         ForEach(restockStore.items) { item in
-                            RestockRow(item: item, wineStore: wineStore) {
-                                Task { try? await restockStore.remove(item.product_id) }
-                            }
+                            RestockRow(item: item, wineStore: wineStore,
+                                onChangeQty: { newQty in
+                                    Task {
+                                        try? await restockStore.apply([[
+                                            "product_id": item.product_id,
+                                            "product_kind": item.product_kind,
+                                            "quantity": newQty
+                                        ]])
+                                    }
+                                },
+                                onRemove: {
+                                    Task { try? await restockStore.remove(item.product_id) }
+                                })
                             Divider().background(Color.cgBorder.opacity(0.3))
                                 .padding(.leading, 76)
                         }
@@ -53,6 +63,7 @@ struct RestockListView: View {
 private struct RestockRow: View {
     let item: RestockItem
     @ObservedObject var wineStore: WineStore
+    let onChangeQty: (Int) -> Void
     let onRemove: () -> Void
 
     private var wine: Wine? {
@@ -82,12 +93,31 @@ private struct RestockRow: View {
                     .foregroundColor(.cgTextMuted)
             }
             Spacer()
-            Text("×\(item.quantity)")
-                .font(.system(.title3, design: .serif))
-                .foregroundColor(.cgAccent)
+            HStack(spacing: 8) {
+                Button(action: { onChangeQty(item.quantity - 1) }) {
+                    Image(systemName: "minus.circle.fill")
+                        .font(.title3)
+                        .foregroundColor(.cgTextMuted)
+                }
+                .buttonStyle(.plain)
+
+                Text("\(item.quantity)")
+                    .font(.system(.title3, design: .serif))
+                    .foregroundColor(.cgAccent)
+                    .frame(minWidth: 22)
+
+                Button(action: { onChangeQty(item.quantity + 1) }) {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title3)
+                        .foregroundColor(.cgAccent)
+                }
+                .buttonStyle(.plain)
+            }
             Button(action: onRemove) {
-                Image(systemName: "xmark.circle.fill")
+                Image(systemName: "xmark")
+                    .font(.footnote)
                     .foregroundColor(.cgTextMuted.opacity(0.6))
+                    .padding(.leading, 4)
             }
             .buttonStyle(.plain)
         }
