@@ -208,6 +208,17 @@ struct ContentView: View {
             }
             return "(menu unavailable)"
         }()
+        let system = """
+        You are a quick reference assistant for The Capital Grille bartender/server training. Below is the complete menu data (JSON) — dishes, prices, ingredients, portions, prep, talking points, etc. Use this to answer questions accurately.
+
+        Be concise — 1-3 sentences unless the user asks for a list or detail. If a question can be answered from the data, do so. If not, say so plainly rather than guessing.
+
+        MENU DATA:
+        \(json)
+        """
+        if Backend.current == .mac {
+            return try await MacClient.ask(question: question, history: history, systemPrompt: system, mode: "food")
+        }
         return try await AnthropicClient.chat(question: question, history: history, menuJSON: json)
     }
 
@@ -234,6 +245,8 @@ struct ContentView: View {
         let winesJSON = (try? String(data: enc.encode(wines), encoding: .utf8)) ?? "[]"
         let areasJSON = (try? String(data: JSONSerialization.data(withJSONObject: areas), encoding: .utf8)) ?? "[]"
 
+        let toolName = Backend.current == .mac ? "mcp__wine__update_wine_locations" : "update_wine_locations"
+        let areaTool = Backend.current == .mac ? "mcp__wine__edit_areas" : "edit_areas"
         let system = """
         You help a bartender track The Capital Grille wine bottle locations behind the bar and in stockrooms.
 
@@ -245,10 +258,10 @@ struct ContentView: View {
 
         Rules:
         - For lookup questions ("where is X?", "what's similar to Y?"), answer in plain text using the data above. Be concise.
-        - For setting locations ("Santa Margherita goes back 3", "I'm reading off the back of bar top reds: A, B, C"), call update_wine_locations with a batched list. When the user reads off a sequence, the column auto-increments starting at 1.
+        - For setting locations ("Santa Margherita goes back 3", "I'm reading off the back of bar top reds: A, B, C"), call \(toolName) with a batched list. When the user reads off a sequence, the column auto-increments starting at 1.
         - Row enum: "back" / "front" for bar areas, "top" / "bottom" for coolers. Match the user's wording.
-        - Fuzzy-match area names (e.g. "red wine area" → "Bar Top Reds"). If no existing area is a clear match, ask which one they mean — do NOT call edit_areas to make a new one unless the user explicitly asks to add an area.
-        - After running update_wine_locations, briefly confirm what was set ("Set 4 wines on back of Bar Top Reds.").
+        - Fuzzy-match area names (e.g. "red wine area" → "Bar Top Reds"). If no existing area is a clear match, ask which one they mean — do NOT call \(areaTool) to make a new one unless the user explicitly asks to add an area.
+        - After running the update, briefly confirm what was set ("Set 4 wines on back of Bar Top Reds.").
         """
 
         let updateTool = AnthropicTool(
@@ -325,6 +338,12 @@ struct ContentView: View {
             }
         )
 
+        if Backend.current == .mac {
+            let answer = try await MacClient.ask(question: question, history: history, systemPrompt: system, mode: "wine")
+            // Pick up any tool-driven changes the Mac applied.
+            await wineStore.refreshFromSupabase()
+            return answer
+        }
         return try await AnthropicClient.chatWithTools(
             question: question,
             history: history,

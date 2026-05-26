@@ -79,6 +79,7 @@
 		941C67190F4F8259215FF2D9 /* capital-grille-cheesecake.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 86C3992ADFB9F246AFDD5F09 /* capital-grille-cheesecake.jpg */; };
 		959D8BEDC2EDC785896ABC07 /* cast-iron-garlic-shrimp.jpg in Resources */ = {isa = PBXBuildFile; fileRef = F3747B4D8C562C37B710A6CE /* cast-iron-garlic-shrimp.jpg */; };
 		9774523B5B3A5BC72252E850 /* moet-chandon-imperial.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3C78F0C47F429929FB43D452 /* moet-chandon-imperial.jpg */; };
+		985419D5A333D461D407D8BC /* MacClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933AAF0B70269A99F4C8E5C1 /* MacClient.swift */; };
 		9B1F12B178E3E9D027A4B85E /* oysters-rockefeller.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4A41F7752E672E337770B353 /* oysters-rockefeller.jpg */; };
 		9E10B94BD03C02AA37A99C65 /* seared-salmon-couscous.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 0C09DDDF3A205BFE12228A7B /* seared-salmon-couscous.jpg */; };
 		9EC8616F1FEEEB431FC348BA /* creamed-corn-bacon.jpg in Resources */ = {isa = PBXBuildFile; fileRef = FCB3E1834960E6DD1D73D3F4 /* creamed-corn-bacon.jpg */; };
@@ -186,6 +187,7 @@
 		8DE9D0EA9D24D293C6BDC8EB /* chicken-fingerling-lunch.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "chicken-fingerling-lunch.jpg"; sourceTree = "<group>"; };
 		8EA77BCB0B4B1E89E9426771 /* field-greens-salad.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "field-greens-salad.jpg"; sourceTree = "<group>"; };
 		8FED0E52040B23CAE43F7B13 /* substance-cabernet.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "substance-cabernet.jpg"; sourceTree = "<group>"; };
+		933AAF0B70269A99F4C8E5C1 /* MacClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacClient.swift; sourceTree = "<group>"; };
 		955F351299175ED53105B74E /* AnthropicClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnthropicClient.swift; sourceTree = "<group>"; };
 		95CB6EC47BF001D6E64DAC9B /* nueskes-bacon.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "nueskes-bacon.jpg"; sourceTree = "<group>"; };
 		95E42233E5254383CC0C0692 /* sliced-filet-mignon-lunch.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "sliced-filet-mignon-lunch.jpg"; sourceTree = "<group>"; };
@@ -370,6 +372,7 @@
 				0C0B94A55C469A3D68F7B47D /* ContentView.swift */,
 				5D07AA2E87FCCF3A1EEA64AD /* DishDetailView.swift */,
 				89D9170925ED4254C8ED825E /* food-menu.json */,
+				933AAF0B70269A99F4C8E5C1 /* MacClient.swift */,
 				4337C689418114168D2AE628 /* MenuModels.swift */,
 				AABD75C5CCAAB3E8ED816858 /* Secrets.swift */,
 				4E196F9EEBE6ED0B2FD4A6F1 /* Secrets.swift.example */,
@@ -563,6 +566,7 @@
 				216DCF44A3B686451577F66C /* CapitalGrilleApp.swift in Sources */,
 				1EDEF66955001A65ED60CA0F /* ContentView.swift in Sources */,
 				A06F857C8B67DA6DB3762897 /* DishDetailView.swift in Sources */,
+				985419D5A333D461D407D8BC /* MacClient.swift in Sources */,
 				B5A3C6C2324E8B2EE980A291 /* MenuModels.swift in Sources */,
 				BBB8DBF92E457BFF7570BD43 /* Secrets.swift in Sources */,
 				540FEDAA8739B614543FF2A3 /* SupabaseClient.swift in Sources */,
