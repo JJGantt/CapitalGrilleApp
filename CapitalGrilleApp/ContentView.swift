@@ -46,7 +46,8 @@ struct ContentView: View {
     @State private var selectedDish: Dish?
     @State private var selectedWine: Wine?
     @State private var showSettings = false
-    @State private var aiMode = false
+    @State private var aiMode = true        // AI is the default field mode
+    @State private var showAIResults = false  // chat overlay visibility
     @State private var aiInput = ""
     @State private var aiHistory: [QAExchange] = []
     @State private var aiBusy = false
@@ -117,7 +118,7 @@ struct ContentView: View {
             }
             .pickerStyle(.segmented)
             .onChange(of: section) { _ in
-                if aiMode { withAnimation { aiMode = false } }
+                if showAIResults { withAnimation { showAIResults = false } }
             }
             .padding(.horizontal, 12)
             .padding(.top, 6)
@@ -188,15 +189,24 @@ struct ContentView: View {
                             .foregroundColor(.green)
                             .padding(8)
                     }
-                } else {
-                    Button(action: { withAnimation { aiMode.toggle() } }) {
-                        Image(systemName: aiMode ? "xmark.circle.fill" : "sparkles")
-                            .font(.title3)
-                            .foregroundColor(aiMode ? .cgTextMuted : .cgAccent)
-                            .padding(8)
-                    }
+                } else if aiMode {
+                    // Mic for voice-AI; magnifying glass to switch to search mode.
                     Button(action: { Task { await voice.start() } }) {
                         Image(systemName: "mic.fill")
+                            .font(.title3)
+                            .foregroundColor(.cgAccent)
+                            .padding(8)
+                    }
+                    Button(action: { withAnimation { aiMode = false } }) {
+                        Image(systemName: "magnifyingglass")
+                            .font(.title3)
+                            .foregroundColor(.cgTextMuted)
+                            .padding(8)
+                    }
+                } else {
+                    // In search mode, button switches back to AI.
+                    Button(action: { withAnimation { aiMode = true } }) {
+                        Image(systemName: "sparkles")
                             .font(.title3)
                             .foregroundColor(.cgAccent)
                             .padding(8)
@@ -206,7 +216,7 @@ struct ContentView: View {
             .padding(.horizontal, 12)
             .padding(.bottom, 8)
 
-            if aiMode {
+            if showAIResults {
                 aiResultsView
             } else if section == .wine {
                 WineListView(store: wineStore, searchText: searchText) { wine in
@@ -229,8 +239,8 @@ struct ContentView: View {
                         .padding(10)
                 }
                 Spacer()
-                if aiMode && !aiHistory.isEmpty {
-                    Button(action: { withAnimation { aiHistory.removeAll(); aiError = nil } }) {
+                if showAIResults && !aiHistory.isEmpty {
+                    Button(action: { withAnimation { aiHistory.removeAll(); aiError = nil; showAIResults = false } }) {
                         Image(systemName: "trash")
                             .font(.title3)
                             .foregroundColor(.cgTextMuted)
@@ -262,7 +272,6 @@ struct ContentView: View {
         if voice.isRecording {
             let q = voice.stop().trimmingCharacters(in: .whitespacesAndNewlines)
             guard !q.isEmpty else { return }
-            withAnimation { aiMode = true }
             askAI(question: q)
         } else {
             Task { await voice.start() }
@@ -282,6 +291,7 @@ struct ContentView: View {
         aiError = nil
         aiActivity = nil
         aiInput = ""
+        withAnimation { showAIResults = true }
 
         Task {
             do {
