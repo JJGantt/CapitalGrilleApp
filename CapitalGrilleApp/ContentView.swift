@@ -165,10 +165,7 @@ struct ContentView: View {
                     selectedWine = wine
                 }
             } else if section == .liquor {
-                Text("—")
-                    .font(.title3)
-                    .foregroundColor(.cgTextMuted)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                LiquorListView(wineStore: wineStore)
             } else if section == .restock {
                 RestockListView(restockStore: restockStore, wineStore: wineStore)
             } else {
@@ -266,6 +263,16 @@ struct ContentView: View {
         let toolName = Backend.current == .mac ? "mcp__wine__update_wine_locations" : "update_wine_locations"
         let areaTool = Backend.current == .mac ? "mcp__wine__edit_areas" : "edit_areas"
         let restockTool = Backend.current == .mac ? "mcp__wine__update_restock" : "update_restock"
+        let addProductTool = Backend.current == .mac ? "mcp__wine__add_product" : "add_product"
+
+        // Liquors snapshot from Supabase products (kind=liquor)
+        let liquorsCtx = wineStore.liquors.map { row -> [String: Any] in
+            var d: [String: Any] = ["id": row.id, "name": row.name ?? row.id]
+            if let s = row.primary.displayString { d["primary"] = s }
+            if let s = row.backup.displayString  { d["backup"]  = s }
+            return d
+        }
+        let liquorsJSON = (try? String(data: JSONSerialization.data(withJSONObject: liquorsCtx), encoding: .utf8)) ?? "[]"
 
         // Current restock list snapshot
         let restockCtx = restockStore.items.map { item -> [String: Any] in
@@ -283,6 +290,9 @@ struct ContentView: View {
         WINES (id, name, current primary/backup location):
         \(winesJSON)
 
+        LIQUORS (id, name, locations) — empty until you start adding them:
+        \(liquorsJSON)
+
         EXISTING WINE AREAS (use ONLY these names — never invent new ones):
         \(areasJSON)
 
@@ -295,6 +305,11 @@ struct ContentView: View {
         - For items that don't match any real product (oranges, lemons, lime juice, ice, paper towels...), add as free-text: product_kind: "misc", product_id: a kebab-case slug of the name (e.g. "oranges", "lime-juice"), AND set the name field to the human-readable string ("Oranges", "Lime juice").
         - Match aggressively against real products when the user's phrasing plausibly refers to one. If it's clearly not in the product list, free-text. If it's ambiguous, ASK rather than guessing.
         - Batch multiple items in one call when the user lists them in sequence.
+
+        Catalog rules:
+        - To register a NEW bottle (wine or liquor) so it can be referenced later, call \(addProductTool) with id (kebab-case slug), name, kind, and any locations the user mentions.
+        - Only call add_product when the user is explicitly cataloging a bottle. For one-off restock entries that don't need a catalog row, use \(restockTool) with product_kind 'misc' instead.
+        - There is no delete tool. If the user asks to delete a product, tell them to remove it manually in Supabase.
 
         Wine-location rules:
         - For lookups ("where is X?", "what's similar to Y?"), answer in plain text from the WINES data.
@@ -343,6 +358,39 @@ struct ContentView: View {
                 let updates = (input["updates"] as? [[String: Any]]) ?? []
                 let ids = try await wineStore.updateLocations(updates)
                 return "Updated \(ids.count) wine(s): \(ids.joined(separator: ", "))"
+            }
+        )
+
+        let addProductDef = AnthropicTool(
+            name: "add_product",
+            description: "Create a new product in the catalog (wine, liquor, soda). Use when the user explicitly registers a new bottle. id is a kebab-case slug; location fields are all optional.",
+            inputSchema: [
+                "type": "object",
+                "properties": [
+                    "id":              ["type": "string"],
+                    "name":            ["type": "string"],
+                    "kind":            ["type": "string", "enum": ["wine","liquor","soda"]],
+                    "primary_area":    ["type": "string"],
+                    "primary_row":     ["type": "string", "enum": ["back","front","top","bottom"]],
+                    "primary_column":  ["type": "integer"],
+                    "backup_area":     ["type": "string"],
+                    "backup_row":      ["type": "string", "enum": ["back","front","top","bottom"]],
+                    "backup_column":   ["type": "integer"]
+                ],
+                "required": ["id","name","kind"]
+            ],
+            handler: { input in
+                var row: [String: Any] = [
+                    "id": (input["id"] as? String) ?? "",
+                    "name": (input["name"] as? String) ?? "",
+                    "kind": (input["kind"] as? String) ?? "wine"
+                ]
+                for k in ["primary_area","primary_row","primary_column","backup_area","backup_row","backup_column"] {
+                    if let v = input[k] { row[k] = v }
+                }
+                try await SupabaseClient.shared.upsert(path: "wines", body: [row], onConflict: "id")
+                await wineStore.refreshFromSupabase()
+                return "Added \(row["kind"] ?? "?") '\(row["name"] ?? "?")'."
             }
         )
 
@@ -417,7 +465,7 @@ struct ContentView: View {
             question: question,
             history: history,
             system: system,
-            tools: [updateTool, areasTool, restockToolDef]
+            tools: [updateTool, areasTool, restockToolDef, addProductDef]
         )
     }
 

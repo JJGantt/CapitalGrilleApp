@@ -45,6 +45,8 @@ struct WineLocation: Codable, Equatable {
 
 struct WineRow: Codable, Identifiable {
     let id: String
+    var name: String?
+    var kind: String?
     var primary_area: String?
     var primary_row: String?
     var primary_column: Int?
@@ -101,6 +103,13 @@ final class WineStore: ObservableObject {
 
     func backupLocation(for wineId: String) -> WineLocation? {
         locations[wineId]?.backup
+    }
+
+    /// All products with kind == "liquor", sorted by name.
+    var liquors: [WineRow] {
+        locations.values
+            .filter { ($0.kind ?? "") == "liquor" }
+            .sorted { ($0.name ?? "") < ($1.name ?? "") }
     }
 
     // MARK: - Mutations (Supabase)
