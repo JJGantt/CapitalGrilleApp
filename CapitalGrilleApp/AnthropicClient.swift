@@ -49,7 +49,8 @@ struct AnthropicClient {
     static func chatWithTools(question: String,
                               history: [(question: String, answer: String)],
                               system: String,
-                              tools: [AnthropicTool]) async throws -> String {
+                              tools: [AnthropicTool],
+                              onActivity: (@MainActor (String?) -> Void)? = nil) async throws -> String {
         let apiKey = Secrets.anthropicAPIKey
         guard apiKey.hasPrefix("sk-ant") else { throw AnthropicError.noAPIKey }
 
@@ -90,6 +91,13 @@ struct AnthropicClient {
                       let name = block["name"] as? String else { continue }
                 let input = (block["input"] as? [String: Any]) ?? [:]
 
+                // Surface to UI before executing.
+                if let onActivity {
+                    let inputJSON = (try? String(data: JSONSerialization.data(withJSONObject: input, options: [.prettyPrinted]), encoding: .utf8)) ?? "{}"
+                    let activity = "\(name)(\(inputJSON))"
+                    await MainActor.run { onActivity(activity) }
+                }
+
                 let resultText: String
                 let isError: Bool
                 if let tool = tools.first(where: { $0.name == name }) {
@@ -113,6 +121,10 @@ struct AnthropicClient {
                 ])
             }
             messages.append(["role": "user", "content": toolResults])
+        }
+        // Clear activity once we're returning the final answer.
+        if let onActivity {
+            await MainActor.run { onActivity(nil) }
         }
         return collectedText.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
     }

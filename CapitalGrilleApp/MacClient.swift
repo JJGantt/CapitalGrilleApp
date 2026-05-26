@@ -30,7 +30,14 @@ struct MacClient {
     static func ask(question: String,
                     history: [(question: String, answer: String)],
                     systemPrompt: String,
-                    mode: String) async throws -> String {
+                    mode: String,
+                    onActivity: (@MainActor (String?) -> Void)? = nil) async throws -> String {
+        // Stream by default if a handler is provided, otherwise use the simple endpoint.
+        if onActivity != nil {
+            return try await askStream(question: question, history: history,
+                                       systemPrompt: systemPrompt, mode: mode,
+                                       onActivity: onActivity!)
+        }
         var req = URLRequest(url: baseURL.appendingPathComponent("/ask"))
         req.httpMethod = "POST"
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -54,6 +61,61 @@ struct MacClient {
             throw MacError.decode
         }
         return answer.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private static func askStream(question: String,
+                                  history: [(question: String, answer: String)],
+                                  systemPrompt: String,
+                                  mode: String,
+                                  onActivity: @escaping @MainActor (String?) -> Void) async throws -> String {
+        var req = URLRequest(url: baseURL.appendingPathComponent("/ask/stream"))
+        req.httpMethod = "POST"
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.timeoutInterval = 120
+
+        let body: [String: Any] = [
+            "question": question,
+            "history": history.map { ["question": $0.question, "answer": $0.answer] },
+            "system_prompt": systemPrompt,
+            "mode": mode
+        ]
+        req.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (bytes, resp) = try await URLSession.shared.bytes(for: req)
+        guard let http = resp as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+            throw MacError.http((resp as? HTTPURLResponse)?.statusCode ?? -1, "")
+        }
+
+        var finalAnswer = ""
+        var textBuf = ""
+        for try await line in bytes.lines {
+            guard line.hasPrefix("data: ") else { continue }
+            let payload = String(line.dropFirst("data: ".count))
+            guard let data = payload.data(using: .utf8),
+                  let ev = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let type = ev["type"] as? String else { continue }
+            switch type {
+            case "tool_use":
+                let name = (ev["name"] as? String) ?? ""
+                let input = ev["input"] ?? [:]
+                let inputJSON = (try? String(data: JSONSerialization.data(withJSONObject: input, options: [.prettyPrinted]), encoding: .utf8)) ?? "{}"
+                let activity = "\(name)(\(inputJSON))"
+                await MainActor.run { onActivity(activity) }
+            case "text_delta":
+                if let txt = ev["text"] as? String { textBuf += txt }
+            case "done":
+                if let a = ev["answer"] as? String, !a.isEmpty {
+                    finalAnswer = a
+                } else {
+                    finalAnswer = textBuf
+                }
+            case "error":
+                throw MacError.http(500, (ev["message"] as? String) ?? "stream error")
+            default: break
+            }
+        }
+        await MainActor.run { onActivity(nil) }
+        return finalAnswer.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     /// Best-effort liveness check.

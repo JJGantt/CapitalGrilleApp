@@ -37,6 +37,7 @@ struct ContentView: View {
     @State private var aiHistory: [QAExchange] = []
     @State private var aiBusy = false
     @State private var aiError: String?
+    @State private var aiActivity: String?
 
     struct QAExchange: Identifiable {
         let id = UUID()
@@ -256,6 +257,7 @@ struct ContentView: View {
         let history = aiHistory.map { (question: $0.question, answer: $0.answer) }
         aiBusy = true
         aiError = nil
+        aiActivity = nil
         aiInput = ""
 
         Task {
@@ -264,11 +266,13 @@ struct ContentView: View {
                 await MainActor.run {
                     aiHistory.append(QAExchange(question: question, answer: answer))
                     aiBusy = false
+                    aiActivity = nil
                 }
             } catch {
                 await MainActor.run {
                     aiError = error.localizedDescription
                     aiBusy = false
+                    aiActivity = nil
                 }
             }
         }
@@ -522,8 +526,15 @@ struct ContentView: View {
             }
         )
 
+        let activityHandler: @MainActor (String?) -> Void = { activity in
+            self.aiActivity = activity
+        }
+
         if Backend.current == .mac {
-            let answer = try await MacClient.ask(question: question, history: history, systemPrompt: system, mode: "wine")
+            let answer = try await MacClient.ask(
+                question: question, history: history, systemPrompt: system, mode: "wine",
+                onActivity: activityHandler
+            )
             await wineStore.refreshFromSupabase()
             await restockStore.refresh()
             return answer
@@ -532,7 +543,8 @@ struct ContentView: View {
             question: question,
             history: history,
             system: system,
-            tools: [updateTool, areasTool, restockToolDef, addProductDef, deleteProductDef]
+            tools: [updateTool, areasTool, restockToolDef, addProductDef, deleteProductDef],
+            onActivity: activityHandler
         )
     }
 
@@ -551,6 +563,22 @@ struct ContentView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.top, 60)
+                }
+                if aiBusy, let activity = aiActivity {
+                    HStack(alignment: .top, spacing: 6) {
+                        Image(systemName: "wrench.and.screwdriver.fill")
+                            .foregroundColor(.cgAccent.opacity(0.7))
+                            .font(.caption)
+                        Text(activity)
+                            .font(.system(.caption, design: .monospaced))
+                            .foregroundColor(.cgTextMuted)
+                            .textSelection(.enabled)
+                    }
+                    .padding(10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.cgCard.opacity(0.6))
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.cgBorder.opacity(0.6), lineWidth: 1))
                 }
                 ForEach(aiHistory) { ex in
                     VStack(alignment: .leading, spacing: 8) {
