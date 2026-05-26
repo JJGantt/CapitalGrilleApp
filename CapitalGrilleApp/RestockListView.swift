@@ -60,6 +60,23 @@ struct RestockListView: View {
     }
 }
 
+private struct LocationLine: View {
+    let label: String
+    let location: WineLocation?
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Text(label.uppercased())
+                .font(.system(size: 9, weight: .semibold))
+                .tracking(1)
+                .foregroundColor(.cgTextMuted.opacity(0.7))
+            Text(location?.displayString ?? "—")
+                .font(.footnote)
+                .foregroundColor(.cgTextMuted)
+        }
+    }
+}
+
 private struct RestockRow: View {
     let item: RestockItem
     @ObservedObject var wineStore: WineStore
@@ -70,14 +87,8 @@ private struct RestockRow: View {
         wineStore.categories.flatMap(\.wines).first { $0.id == item.product_id }
     }
 
-    /// Prefer backup (where to grab from stock). Fall back to primary if backup
-    /// isn't set yet so the user sees the bottle's known position somewhere.
-    private var displayLocation: WineLocation? {
-        let row = wineStore.locations[item.product_id]
-        let backup = row?.backup
-        if backup?.area != nil { return backup }
-        return row?.primary
-    }
+    private var primary: WineLocation? { wineStore.locations[item.product_id]?.primary }
+    private var backup:  WineLocation? { wineStore.locations[item.product_id]?.backup  }
 
     var body: some View {
         HStack(spacing: 12) {
@@ -92,9 +103,8 @@ private struct RestockRow: View {
                     .foregroundColor(.cgText)
                     .lineLimit(2)
                 if wine != nil {
-                    Text(displayLocation?.displayString ?? "—")
-                        .font(.footnote)
-                        .foregroundColor(.cgTextMuted)
+                    LocationLine(label: "primary", location: primary)
+                    LocationLine(label: "backup",  location: backup)
                 }
             }
             Spacer()
