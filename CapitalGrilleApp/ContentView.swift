@@ -263,6 +263,20 @@ struct ContentView: View {
         return "sparkles"
     }
 
+    /// Parse markdown so **bold**, *italic*, lists, etc. render properly.
+    /// Falls back to plain text if parsing fails.
+    private func renderMarkdown(_ source: String) -> AttributedString {
+        if let attr = try? AttributedString(
+            markdown: source,
+            options: AttributedString.MarkdownParsingOptions(
+                interpretedSyntax: .inlineOnlyPreservingWhitespace
+            )
+        ) {
+            return attr
+        }
+        return AttributedString(source)
+    }
+
     private func primaryAIButtonTap() {
         if voice.isRecording {
             let q = voice.stop().trimmingCharacters(in: .whitespacesAndNewlines)
@@ -672,7 +686,7 @@ struct ContentView: View {
                             Image(systemName: "sparkles")
                                 .foregroundColor(.cgAccent)
                                 .font(.callout)
-                            Text(ex.answer)
+                            Text(renderMarkdown(ex.answer))
                                 .font(.callout)
                                 .foregroundColor(.cgText)
                                 .textSelection(.enabled)
