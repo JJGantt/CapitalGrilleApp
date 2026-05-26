@@ -171,6 +171,7 @@
 		6CD9CEC76D5BC70EF491F6D6 /* tuna-tartare.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "tuna-tartare.jpg"; sourceTree = "<group>"; };
 		6DE7AAEB4DB9075D2C6E16D3 /* caviar-onion-dip.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "caviar-onion-dip.jpg"; sourceTree = "<group>"; };
 		706432D6F6226F0B4C4F0E15 /* signature-cheeseburger.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "signature-cheeseburger.jpg"; sourceTree = "<group>"; };
+		71554734948F61C28E503185 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		737DD2408301B9EAD272AD3A /* pan-seared-sea-bass.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "pan-seared-sea-bass.jpg"; sourceTree = "<group>"; };
 		76C629C0271FFA68762B92BD /* creamed-spinach.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "creamed-spinach.jpg"; sourceTree = "<group>"; };
 		773235C61DF55539529B6F0E /* gorgonzola-crusted-strip.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "gorgonzola-crusted-strip.jpg"; sourceTree = "<group>"; };
@@ -374,6 +375,7 @@
 				0C0B94A55C469A3D68F7B47D /* ContentView.swift */,
 				5D07AA2E87FCCF3A1EEA64AD /* DishDetailView.swift */,
 				89D9170925ED4254C8ED825E /* food-menu.json */,
+				71554734948F61C28E503185 /* Info.plist */,
 				933AAF0B70269A99F4C8E5C1 /* MacClient.swift */,
 				4337C689418114168D2AE628 /* MenuModels.swift */,
 				AABD75C5CCAAB3E8ED816858 /* Secrets.swift */,
@@ -589,11 +591,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Capital Grille";
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleDarkContent;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_FILE = CapitalGrilleApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -675,11 +673,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Capital Grille";
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleDarkContent;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_FILE = CapitalGrilleApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
