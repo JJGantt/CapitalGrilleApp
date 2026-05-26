@@ -5,7 +5,7 @@ import Foundation
 struct SupabaseClient {
     static let shared = SupabaseClient()
 
-    private let baseURL = URL(string: "https://felyggqjjhltwokdfhop.supabase.co/rest/v1/")!
+    private let baseURL = "https://felyggqjjhltwokdfhop.supabase.co/rest/v1/"
 
     enum SBError: Error, LocalizedError {
         case http(Int, String)
@@ -17,7 +17,10 @@ struct SupabaseClient {
     }
 
     private func request(_ path: String, method: String, body: Data? = nil, prefer: String? = nil) -> URLRequest {
-        var req = URLRequest(url: baseURL.appendingPathComponent(path))
+        // Concatenate as a string — appendingPathComponent percent-encodes `?` and `&`,
+        // which breaks PostgREST query strings like `wines?id=eq.X`.
+        let url = URL(string: baseURL + path)!
+        var req = URLRequest(url: url)
         req.httpMethod = method
         req.setValue(Secrets.supabaseKey, forHTTPHeaderField: "apikey")
         req.setValue("Bearer \(Secrets.supabaseKey)", forHTTPHeaderField: "Authorization")
