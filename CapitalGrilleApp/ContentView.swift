@@ -104,8 +104,7 @@ struct ContentView: View {
                     Image(systemName: aiMode ? "sparkles" : "magnifyingglass")
                         .foregroundColor(aiMode ? .cgAccent : .cgTextMuted)
                     if aiMode {
-                        TextField("Ask the menu…", text: $aiInput, axis: .vertical)
-                            .lineLimit(1...3)
+                        TextField("Ask the menu…", text: $aiInput)
                             .submitLabel(.send)
                             .onSubmit { askAI() }
                             .disabled(aiBusy)
