@@ -26,7 +26,7 @@ struct AnthropicTool {
 }
 
 struct AnthropicClient {
-    static let model = "claude-haiku-4-5"
+    static let model = "claude-sonnet-4-6"
     static let endpoint = URL(string: "https://api.anthropic.com/v1/messages")!
     static let version = "2023-06-01"
 
