@@ -125,21 +125,23 @@ struct ContentView: View {
             .padding(.bottom, 8)
 
             // Top bar: search OR AI input OR live voice transcript, + ✨/mic button
-            HStack(spacing: 8) {
+            HStack(alignment: .top, spacing: 8) {
                 if voice.isRecording {
-                    HStack(spacing: 8) {
+                    HStack(alignment: .top, spacing: 8) {
                         PulsingMic()
+                            .padding(.top, 2)
                         Text(voice.transcript.isEmpty ? "Listening…" : voice.transcript)
                             .font(.body)
                             .foregroundColor(.cgText)
-                            .lineLimit(2)
-                        Spacer()
+                            .lineLimit(6, reservesSpace: false)
+                            .truncationMode(.head)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .padding(.horizontal, 12)
                     .padding(.vertical, 10)
                     .background(Color.cgCard)
-                    .clipShape(Capsule())
-                    .overlay(Capsule().stroke(Color.green.opacity(0.7), lineWidth: 1.5))
+                    .clipShape(RoundedRectangle(cornerRadius: 22))
+                    .overlay(RoundedRectangle(cornerRadius: 22).stroke(Color.green.opacity(0.7), lineWidth: 1.5))
                 } else if aiMode || section != .restock {
                     HStack(spacing: 8) {
                         Image(systemName: aiMode ? "sparkles" : "magnifyingglass")
