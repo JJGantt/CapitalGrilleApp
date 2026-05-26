@@ -192,6 +192,15 @@ struct ContentView: View {
                         withAnimation { aiMode.toggle() }
                     }
                 })
+
+                if aiMode && !voice.isRecording {
+                    Button(action: { withAnimation { aiMode = false } }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title3)
+                            .foregroundColor(.cgTextMuted)
+                            .padding(8)
+                    }
+                }
             }
             .padding(.horizontal, 12)
             .padding(.bottom, 8)
