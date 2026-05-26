@@ -26,35 +26,79 @@ final class RestockStore: ObservableObject {
     }
 
     /// Upsert items; quantity == 0 deletes the row.
+    /// Optimistic: mutates local state synchronously, then writes to Supabase async.
+    /// On failure, refreshes from Supabase to restore truth.
     func apply(_ updates: [[String: Any]]) async throws {
+        // Synchronous local mutation — SwiftUI picks this up immediately.
         for u in updates {
             guard let pid = u["product_id"] as? String,
                   let qty = u["quantity"] as? Int else { continue }
             if qty <= 0 {
-                try await SupabaseClient.shared.delete(path: "restock_items?product_id=eq.\(pid)")
-            } else {
-                let kind = (u["product_kind"] as? String) ?? "wine"
-                var row: [String: Any] = ["product_id": pid, "product_kind": kind, "quantity": qty]
-                if let name = u["name"] as? String, !name.isEmpty {
-                    row["name"] = name
-                }
-                try await SupabaseClient.shared.upsert(
-                    path: "restock_items",
-                    body: [row],
-                    onConflict: "product_id"
+                items.removeAll { $0.product_id == pid }
+            } else if let idx = items.firstIndex(where: { $0.product_id == pid }) {
+                let existing = items[idx]
+                items[idx] = RestockItem(
+                    product_id: existing.product_id,
+                    product_kind: existing.product_kind,
+                    quantity: qty,
+                    name: (u["name"] as? String) ?? existing.name,
+                    added_at: existing.added_at
                 )
+            } else {
+                items.append(RestockItem(
+                    product_id: pid,
+                    product_kind: (u["product_kind"] as? String) ?? "wine",
+                    quantity: qty,
+                    name: u["name"] as? String,
+                    added_at: nil
+                ))
             }
         }
-        await refresh()
+
+        // Background network writes.
+        do {
+            for u in updates {
+                guard let pid = u["product_id"] as? String,
+                      let qty = u["quantity"] as? Int else { continue }
+                if qty <= 0 {
+                    try await SupabaseClient.shared.delete(path: "restock_items?product_id=eq.\(pid)")
+                } else {
+                    let kind = (u["product_kind"] as? String) ?? "wine"
+                    var row: [String: Any] = ["product_id": pid, "product_kind": kind, "quantity": qty]
+                    if let name = u["name"] as? String, !name.isEmpty {
+                        row["name"] = name
+                    }
+                    try await SupabaseClient.shared.upsert(
+                        path: "restock_items",
+                        body: [row],
+                        onConflict: "product_id"
+                    )
+                }
+            }
+        } catch {
+            // Network failed — re-sync to truth so the UI stops lying.
+            await refresh()
+            throw error
+        }
     }
 
     func remove(_ productId: String) async throws {
-        try await SupabaseClient.shared.delete(path: "restock_items?product_id=eq.\(productId)")
-        await refresh()
+        items.removeAll { $0.product_id == productId }
+        do {
+            try await SupabaseClient.shared.delete(path: "restock_items?product_id=eq.\(productId)")
+        } catch {
+            await refresh()
+            throw error
+        }
     }
 
     func clearAll() async throws {
-        try await SupabaseClient.shared.delete(path: "restock_items?product_id=neq.__none__")
-        await refresh()
+        items.removeAll()
+        do {
+            try await SupabaseClient.shared.delete(path: "restock_items?product_id=neq.__none__")
+        } catch {
+            await refresh()
+            throw error
+        }
     }
 }
