@@ -54,6 +54,7 @@ struct ContentView: View {
     @State private var aiBusy = false
     @State private var aiError: String?
     @State private var aiActivity: String?
+    @State private var pendingQuestion: String?
 
     struct QAExchange: Identifiable {
         let id = UUID()
@@ -318,6 +319,7 @@ struct ContentView: View {
         aiError = nil
         aiActivity = nil
         aiInput = ""
+        pendingQuestion = question
         withAnimation { showAIResults = true }
 
         Task {
@@ -325,12 +327,14 @@ struct ContentView: View {
                 let answer = try await askAnything(question: question, history: history)
                 await MainActor.run {
                     aiHistory.append(QAExchange(question: question, answer: answer))
+                    pendingQuestion = nil
                     aiBusy = false
                     aiActivity = nil
                 }
             } catch {
                 await MainActor.run {
                     aiError = error.localizedDescription
+                    pendingQuestion = nil
                     aiBusy = false
                     aiActivity = nil
                 }
@@ -678,6 +682,30 @@ struct ContentView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.top, 60)
+                }
+                if let pending = pendingQuestion {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(alignment: .top, spacing: 6) {
+                            Image(systemName: "person.crop.circle.fill")
+                                .foregroundColor(.cgTextMuted)
+                                .font(.callout)
+                            Text(pending)
+                                .font(.callout)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.cgText)
+                        }
+                        HStack(alignment: .center, spacing: 6) {
+                            Image(systemName: "sparkles")
+                                .foregroundColor(.cgAccent)
+                                .font(.callout)
+                            ProgressView().progressViewStyle(.circular).scaleEffect(0.7)
+                        }
+                    }
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.cgCard)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.cgBorder, lineWidth: 1))
                 }
                 if aiBusy, let activity = aiActivity {
                     HStack(alignment: .top, spacing: 6) {
