@@ -215,6 +215,12 @@ struct ContentView: View {
                 }
 
                 if voice.isRecording {
+                    Button(action: { _ = voice.stop() }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title3)
+                            .foregroundColor(.cgTextMuted)
+                            .padding(8)
+                    }
                     Button(action: primaryAIButtonTap) {
                         Image(systemName: "arrow.up.circle.fill")
                             .font(.title3)
