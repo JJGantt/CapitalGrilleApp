@@ -57,7 +57,7 @@ struct Dish: Codable, Identifiable, Hashable {
         serving_piece = try c.decodeIfPresent(String.self, forKey: .serving_piece)
         portion = try c.decodeIfPresent([Ingredient].self, forKey: .portion)
         // garnish can be array of Ingredient OR a single string
-        if let arr = try? c.decodeIfPresent([Ingredient].self, forKey: .garnish), arr != nil {
+        if let arr = try? c.decode([Ingredient].self, forKey: .garnish) {
             garnish = arr
         } else if let str = try? c.decode(String.self, forKey: .garnish) {
             garnish = [Ingredient(ingredient: str, amount: nil, prep: nil)]
