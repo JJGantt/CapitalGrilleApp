@@ -200,16 +200,10 @@ struct ContentView: View {
         aiError = nil
         let asked = q
         aiInput = ""
-        let currentSection = section
 
         Task {
             do {
-                let answer: String
-                if currentSection == .wine {
-                    answer = try await askWine(question: asked, history: history)
-                } else {
-                    answer = try await askFood(question: asked, history: history)
-                }
+                let answer = try await askAnything(question: asked, history: history)
                 await MainActor.run {
                     aiHistory.append(QAExchange(question: asked, answer: answer))
                     aiBusy = false
@@ -223,33 +217,17 @@ struct ContentView: View {
         }
     }
 
-    private func askFood(question: String, history: [(question: String, answer: String)]) async throws -> String {
-        guard let menu = store.menu else { return "Menu not loaded." }
-        let json: String = {
+    @MainActor
+    private func askAnything(question: String, history: [(question: String, answer: String)]) async throws -> String {
+        // Always send food menu + wine list + areas. The model decides what's relevant.
+        let menuJSON: String = {
+            guard let menu = store.menu else { return "(menu unavailable)" }
             let enc = JSONEncoder()
             enc.outputFormatting = [.prettyPrinted]
-            if let data = try? enc.encode(menu), let s = String(data: data, encoding: .utf8) {
-                return s
-            }
+            if let data = try? enc.encode(menu), let s = String(data: data, encoding: .utf8) { return s }
             return "(menu unavailable)"
         }()
-        let system = """
-        You are a quick reference assistant for The Capital Grille bartender/server training. Below is the complete menu data (JSON) — dishes, prices, ingredients, portions, prep, talking points, etc. Use this to answer questions accurately.
 
-        Be concise — 1-3 sentences unless the user asks for a list or detail. If a question can be answered from the data, do so. If not, say so plainly rather than guessing.
-
-        MENU DATA:
-        \(json)
-        """
-        if Backend.current == .mac {
-            return try await MacClient.ask(question: question, history: history, systemPrompt: system, mode: "food")
-        }
-        return try await AnthropicClient.chat(question: question, history: history, menuJSON: json)
-    }
-
-    @MainActor
-    private func askWine(question: String, history: [(question: String, answer: String)]) async throws -> String {
-        // Snapshot wines + locations + areas as a JSON context for the model.
         struct WineCtx: Encodable {
             let id: String
             let name: String
@@ -264,7 +242,6 @@ struct ContentView: View {
             }
         }
         let areas = wineStore.areas.map(\.name)
-
         let enc = JSONEncoder()
         enc.outputFormatting = [.prettyPrinted]
         let winesJSON = (try? String(data: enc.encode(wines), encoding: .utf8)) ?? "[]"
@@ -273,20 +250,25 @@ struct ContentView: View {
         let toolName = Backend.current == .mac ? "mcp__wine__update_wine_locations" : "update_wine_locations"
         let areaTool = Backend.current == .mac ? "mcp__wine__edit_areas" : "edit_areas"
         let system = """
-        You help a bartender track The Capital Grille wine bottle locations behind the bar and in stockrooms.
+        You are a quick reference assistant for The Capital Grille bartender/server training. You answer questions about both food and wine, and can update wine bottle locations behind the bar.
+
+        Be concise — 1-3 sentences unless a list is needed.
+
+        FOOD MENU DATA:
+        \(menuJSON)
 
         WINES (id, name, current primary/backup location):
         \(winesJSON)
 
-        EXISTING AREAS (you MUST pick from these when setting an area — do NOT invent new area names):
+        EXISTING WINE AREAS (use ONLY these names — never invent new ones):
         \(areasJSON)
 
-        Rules:
-        - For lookup questions ("where is X?", "what's similar to Y?"), answer in plain text using the data above. Be concise.
-        - For setting locations ("Santa Margherita goes back 3", "I'm reading off the back of bar top reds: A, B, C"), call \(toolName) with a batched list. When the user reads off a sequence, the column auto-increments starting at 1.
-        - Row enum: "back" / "front" for bar areas, "top" / "bottom" for coolers. Match the user's wording.
-        - Fuzzy-match area names (e.g. "red wine area" → "Bar Top Reds"). If no existing area is a clear match, ask which one they mean — do NOT call \(areaTool) to make a new one unless the user explicitly asks to add an area.
-        - After running the update, briefly confirm what was set ("Set 4 wines on back of Bar Top Reds.").
+        Wine-location rules:
+        - For lookups ("where is X?", "what's similar to Y?"), answer in plain text from the WINES data.
+        - For setting locations ("Santa Margherita goes back 3", "I'm reading off back of bar top reds: A, B, C"), call \(toolName) with a batched updates array. When the user reads off a sequence, auto-increment column starting at 1.
+        - Row enum: back/front for bar areas, top/bottom for coolers. Match the user's wording.
+        - Fuzzy-match area names against the EXISTING WINE AREAS list. If no clear match, ask. Never call \(areaTool) to add an area unless the user explicitly asks for that.
+        - After an update, briefly confirm what was set.
         """
 
         let updateTool = AnthropicTool(
@@ -365,7 +347,6 @@ struct ContentView: View {
 
         if Backend.current == .mac {
             let answer = try await MacClient.ask(question: question, history: history, systemPrompt: system, mode: "wine")
-            // Pick up any tool-driven changes the Mac applied.
             await wineStore.refreshFromSupabase()
             return answer
         }
@@ -386,7 +367,7 @@ struct ContentView: View {
                         Image(systemName: "sparkles")
                             .font(.title)
                             .foregroundColor(.cgAccent.opacity(0.5))
-                        Text("Ask anything about the menu")
+                        Text("Ask anything")
                             .font(.callout)
                             .foregroundColor(.cgTextMuted)
                     }
