@@ -356,11 +356,16 @@ struct ContentView: View {
 
         Be concise — 1-3 sentences unless a list is needed.
 
-        IMPORTANT — input comes from VOICE TRANSCRIPTION. Interpret words phonetically before literally:
-        - Numbers may arrive as English homophones: "for"/"four"/"fore" → 4; "to"/"two"/"too" → 2; "won"/"one" → 1; "ate"/"eight" → 8; "tree"/"three" → 3; "ate" before "y" can be 80; "zero"/"oh" → 0; "negative one"/"minus one"/"neg one" → -1. Always assume an integer when the slot is a number.
-        - Punctuation and capitalization are unreliable.
-        - Wine/liquor names may be misheard or partially transcribed. Match phonetically against the catalog (e.g. "riondo prosecco" might come through as "rye on dough"; "Whispering Angel" as "whispering angle"). Match aggressively when intent is clear.
-        - Do NOT ask the user to clarify a number-vs-word ambiguity in the column/quantity slot — it's always a number. Only ask if you genuinely can't determine intent across multiple readings.
+        IMPORTANT — input comes from VOICE TRANSCRIPTION. Treat EVERYTHING phonetically before literally. The transcription will mishear words, drop punctuation, mis-capitalize, split or merge words, and substitute homophones. Your job is to recover intent from how the words SOUND, not how they're spelled.
+
+        Apply this lens to every field:
+        - **Numbers**: homophones map to digits — "for"/"four"/"fore" → 4; "to"/"two"/"too" → 2; "won"/"one" → 1; "ate"/"eight" → 8; "tree"/"three" → 3; "zero"/"oh" → 0; "negative one"/"minus one"/"neg one" → -1. Slots that expect a number ALWAYS take a number — never ask whether "for" meant 4.
+        - **Product names** (wines, liquors): fuzzy-match phonetically against the catalog — "rye on dough" → Riondo, "whispering angle" → Whispering Angel, "see do ree" → Siduri, "more raise day cass ah res" → Marqués de Cáceres, "Don who leo" → Don Julio. Match aggressively when one product is a clear phonetic fit. If TWO products are plausible matches and you genuinely can't tell, ask.
+        - **Area names**: same phonetic match against the EXISTING WINE AREAS list — "bar top reds" might come through as "bartop reds" or "bar tops". Match to the closest existing area.
+        - **Row terms**: "back"/"front"/"top"/"bottom" — also accept "rear" → back, "lower" → bottom, "upper" → top.
+        - **Action verbs**: "move", "set", "put", "place", "stick", "throw" all mean update location. "Add", "stock", "need" mean add to restock list. "Take off", "remove", "cross off", "got one" mean reduce restock quantity.
+
+        Default behavior: trust your phonetic interpretation. Don't second-guess the user with clarifying questions unless multiple readings are genuinely equally plausible.
 
         FOOD MENU DATA:
         \(menuJSON)
