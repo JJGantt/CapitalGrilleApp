@@ -425,6 +425,13 @@ struct ContentView: View {
         - Only call add_product when the user is explicitly cataloging a bottle. For one-off restock entries that don't need a catalog row, use \(restockTool) with product_kind 'misc' instead.
         - To remove a product call \(deleteProductTool). This is a soft delete — the data is preserved. Wines are readonly and cannot be deleted by you; if the user tries, explain and suggest they remove it manually in Supabase.
 
+        Tool disambiguation (READ CAREFULLY — common mistake):
+        - "Set/change/move/put the [primary|backup] location of X to ..." → \(toolName) (NEVER update_restock).
+        - Any phrase mentioning "primary", "backup", "row", "column", "back/front/top/bottom" with an area name → \(toolName).
+        - "Add/I need X to the restock list", "two of these", "out of X" → \(restockTool).
+        - If the user is RELOCATING a bottle (specifying where it sits), it's update_wine_locations — quantity is irrelevant.
+        - If the user is asking you to REMEMBER they need more of something, it's update_restock.
+
         Wine-location rules:
         - For lookups ("where is X?", "what's similar to Y?"), answer in plain text from the WINES data.
         - For setting locations ("Santa Margherita goes back 3", "I'm reading off back of bar top reds: A, B, C"), call \(toolName) with a batched updates array. When the user reads off a sequence, auto-increment column starting at 1.
