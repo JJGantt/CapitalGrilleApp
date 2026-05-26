@@ -1,9 +1,20 @@
 import Foundation
 
-/// Sends Q&A requests to the Mac (via Tailscale) where `claude -p` runs the model
-/// and consumes Max-plan credits instead of API spend.
+/// Sends Q&A requests to the Mac where `claude -p` runs the model and consumes
+/// Max-plan credits instead of API spend.
+///
+/// Real device → Tailscale (works from anywhere on cellular/WiFi).
+/// Simulator → localhost on the same Mac. Same server, same MCP, same code path —
+/// only the network hop differs. Simulator-via-Tailscale hangs in sandboxed iOS
+/// processes; this avoids that.
 struct MacClient {
-    static let baseURL = URL(string: "http://100.106.101.57:8766")!
+    static let baseURL: URL = {
+#if targetEnvironment(simulator)
+        return URL(string: "http://127.0.0.1:8766")!
+#else
+        return URL(string: "http://100.106.101.57:8766")!
+#endif
+    }()
 
     enum MacError: LocalizedError {
         case http(Int, String)
