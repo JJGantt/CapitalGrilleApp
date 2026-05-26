@@ -26,7 +26,7 @@ struct AnthropicTool {
 }
 
 struct AnthropicClient {
-    static let model = "claude-sonnet-4-6"
+    static var model: String { AIModel.current.rawValue }
     static let endpoint = URL(string: "https://api.anthropic.com/v1/messages")!
     static let version = "2023-06-01"
 
@@ -141,7 +141,7 @@ struct AnthropicClient {
                              tools: [AnthropicTool],
                              messages: [[String: Any]]) async throws -> CallResponse {
         var body: [String: Any] = [
-            "model": model,
+            "model": Self.model,
             "max_tokens": 1024,
             "system": system,
             "messages": messages

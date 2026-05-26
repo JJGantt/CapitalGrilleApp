@@ -4,6 +4,7 @@ struct SettingsView: View {
     @ObservedObject var wineStore: WineStore
     @Environment(\.dismiss) var dismiss
     @State private var backend: Backend = Backend.current
+    @State private var model: AIModel = AIModel.current
     @State private var newAreaName: String = ""
     @State private var renameTarget: WineArea?
     @State private var renameValue: String = ""
@@ -21,6 +22,17 @@ struct SettingsView: View {
                     .pickerStyle(.segmented)
                     .labelsHidden()
                     .onChange(of: backend) { new in Backend.current = new }
+                }
+
+                Section("Model") {
+                    Picker("Model", selection: $model) {
+                        ForEach(AIModel.allCases) { m in
+                            Text(m.label).tag(m)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                    .onChange(of: model) { new in AIModel.current = new }
                 }
 
                 Section("Areas") {

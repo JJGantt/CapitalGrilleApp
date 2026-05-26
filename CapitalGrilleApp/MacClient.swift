@@ -47,7 +47,8 @@ struct MacClient {
             "question": question,
             "history": history.map { ["question": $0.question, "answer": $0.answer] },
             "system_prompt": systemPrompt,
-            "mode": mode
+            "mode": mode,
+            "model": AIModel.current.rawValue
         ]
         req.httpBody = try JSONSerialization.data(withJSONObject: body)
 
@@ -77,7 +78,8 @@ struct MacClient {
             "question": question,
             "history": history.map { ["question": $0.question, "answer": $0.answer] },
             "system_prompt": systemPrompt,
-            "mode": mode
+            "mode": mode,
+            "model": AIModel.current.rawValue
         ]
         req.httpBody = try JSONSerialization.data(withJSONObject: body)
 
@@ -140,5 +142,28 @@ enum Backend: String, CaseIterable {
             return Backend(rawValue: raw) ?? .mac
         }
         set { UserDefaults.standard.set(newValue.rawValue, forKey: "backend") }
+    }
+}
+
+enum AIModel: String, CaseIterable, Identifiable {
+    case haiku  = "claude-haiku-4-5"
+    case sonnet = "claude-sonnet-4-6"
+    case opus   = "claude-opus-4-7"
+
+    var id: String { rawValue }
+    var label: String {
+        switch self {
+        case .haiku:  return "Haiku"
+        case .sonnet: return "Sonnet"
+        case .opus:   return "Opus"
+        }
+    }
+
+    static var current: AIModel {
+        get {
+            let raw = UserDefaults.standard.string(forKey: "model") ?? AIModel.sonnet.rawValue
+            return AIModel(rawValue: raw) ?? .sonnet
+        }
+        set { UserDefaults.standard.set(newValue.rawValue, forKey: "model") }
     }
 }
