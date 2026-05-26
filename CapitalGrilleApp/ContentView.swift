@@ -50,6 +50,7 @@ struct ContentView: View {
     @State private var showAIResults = false  // chat overlay visibility
     @State private var aiInput = ""
     @State private var aiHistory: [QAExchange] = []
+    @State private var aiSessionId: String = UUID().uuidString
     @State private var aiBusy = false
     @State private var aiError: String?
     @State private var aiActivity: String?
@@ -243,7 +244,12 @@ struct ContentView: View {
                 }
                 Spacer()
                 if showAIResults && !aiHistory.isEmpty {
-                    Button(action: { withAnimation { aiHistory.removeAll(); aiError = nil; showAIResults = false } }) {
+                    Button(action: { withAnimation {
+                        aiHistory.removeAll()
+                        aiError = nil
+                        showAIResults = false
+                        aiSessionId = UUID().uuidString   // server starts a fresh session next time
+                    } }) {
                         Image(systemName: "trash")
                             .font(.title3)
                             .foregroundColor(.cgTextMuted)
@@ -602,10 +608,13 @@ struct ContentView: View {
             self.aiActivity = activity
         }
 
+        let sessionId = aiSessionId
+
         if Backend.current == .mac {
             do {
                 let answer = try await MacClient.ask(
                     question: question, history: history, systemPrompt: system, mode: "wine",
+                    sessionId: sessionId,
                     onActivity: activityHandler
                 )
                 await wineStore.refreshFromSupabase()

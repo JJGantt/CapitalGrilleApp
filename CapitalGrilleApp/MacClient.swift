@@ -31,11 +31,13 @@ struct MacClient {
                     history: [(question: String, answer: String)],
                     systemPrompt: String,
                     mode: String,
+                    sessionId: String,
                     onActivity: (@MainActor (String?) -> Void)? = nil) async throws -> String {
         // Stream by default if a handler is provided, otherwise use the simple endpoint.
         if onActivity != nil {
             return try await askStream(question: question, history: history,
                                        systemPrompt: systemPrompt, mode: mode,
+                                       sessionId: sessionId,
                                        onActivity: onActivity!)
         }
         var req = URLRequest(url: baseURL.appendingPathComponent("/ask"))
@@ -48,7 +50,8 @@ struct MacClient {
             "history": history.map { ["question": $0.question, "answer": $0.answer] },
             "system_prompt": systemPrompt,
             "mode": mode,
-            "model": AIModel.current.rawValue
+            "model": AIModel.current.rawValue,
+            "session_id": sessionId
         ]
         req.httpBody = try JSONSerialization.data(withJSONObject: body)
 
@@ -68,6 +71,7 @@ struct MacClient {
                                   history: [(question: String, answer: String)],
                                   systemPrompt: String,
                                   mode: String,
+                                  sessionId: String,
                                   onActivity: @escaping @MainActor (String?) -> Void) async throws -> String {
         var req = URLRequest(url: baseURL.appendingPathComponent("/ask/stream"))
         req.httpMethod = "POST"
@@ -79,7 +83,8 @@ struct MacClient {
             "history": history.map { ["question": $0.question, "answer": $0.answer] },
             "system_prompt": systemPrompt,
             "mode": mode,
-            "model": AIModel.current.rawValue
+            "model": AIModel.current.rawValue,
+            "session_id": sessionId
         ]
         req.httpBody = try JSONSerialization.data(withJSONObject: body)
 
