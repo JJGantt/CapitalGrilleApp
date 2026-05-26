@@ -515,7 +515,7 @@ Current shuffled run for live drilling, grouped in fives:
 
 ### DeLille Cellars, Chaleur Blanc
 - Tasting Notes: Offering hints of tropical fruit, peaches and lemon zest and on the palate, characteristic grapefruit and honeysuckle flavors.
-- Food Pairing: Shellfish, roasted poultry, and fresh seafood flavors
+- Food Pairing: Shellfish, roasted poultry, and fresh seafood
 
 ### KB by Knight's Bridge, Chardonnay
 - Tasting Notes: The nose is complex, forward and pure with hints of stone fruit, grilled almonds, Meyer lemon and toasted oak. On the palate the wine delivers the perfect balance of flavor, richness and structure.

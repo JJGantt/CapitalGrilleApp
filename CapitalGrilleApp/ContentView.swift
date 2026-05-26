@@ -13,11 +13,20 @@ extension Color {
 
 // MARK: - Content View
 
+enum TopSection: String, CaseIterable, Identifiable {
+    case food = "Food"
+    case wine = "Wine"
+    var id: String { rawValue }
+}
+
 struct ContentView: View {
     @StateObject private var store = MenuStore()
+    @StateObject private var wineStore = WineStore()
     @State private var searchText = ""
+    @State private var section: TopSection = .food
 
     @State private var selectedDish: Dish?
+    @State private var selectedWine: Wine?
     @State private var aiMode = false
     @State private var aiInput = ""
     @State private var aiHistory: [QAExchange] = []
@@ -49,13 +58,42 @@ struct ContentView: View {
                         }
                 }
             }
+            .fullScreenCover(item: $selectedWine) { wine in
+                NavigationStack {
+                    WineDetailView(wine: wine, store: wineStore)
+                        .toolbar {
+                            ToolbarItem(placement: .topBarLeading) {
+                                Button(action: { selectedWine = nil }) {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "chevron.left")
+                                        Text("Back")
+                                    }
+                                    .foregroundColor(.cgAccent)
+                                }
+                            }
+                        }
+                }
+            }
             .onAppear {
                 if store.menu == nil { store.load() }
+                if wineStore.categories.isEmpty { wineStore.loadBundle() }
+                Task { await wineStore.refreshFromSupabase() }
             }
     }
 
     var mainContent: some View {
         VStack(spacing: 0) {
+            // Top: Food / Wine segmented control
+            Picker("Section", selection: $section) {
+                ForEach(TopSection.allCases) { s in
+                    Text(s.rawValue).tag(s)
+                }
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal, 12)
+            .padding(.top, 6)
+            .padding(.bottom, 8)
+
             // Top bar: search/AI input + mode toggle
             HStack(spacing: 8) {
                 HStack(spacing: 8) {
@@ -68,7 +106,7 @@ struct ContentView: View {
                             .onSubmit { askAI() }
                             .disabled(aiBusy)
                     } else {
-                        TextField("Search dishes, ingredients…", text: $searchText)
+                        TextField(section == .wine ? "Search wines…" : "Search dishes, ingredients…", text: $searchText)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                             .submitLabel(.search)
@@ -109,6 +147,10 @@ struct ContentView: View {
 
             if aiMode {
                 aiResultsView
+            } else if section == .wine {
+                WineListView(store: wineStore, searchText: searchText) { wine in
+                    selectedWine = wine
+                }
             } else {
                 menuListView
             }

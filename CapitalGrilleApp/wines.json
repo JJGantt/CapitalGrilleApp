@@ -1,0 +1,194 @@
+{
+  "categories": [
+    {
+      "name": "Sparkling & Rosé",
+      "wines": [
+        {
+          "id": "riondo-prosecco",
+          "name": "Riondo, Prosecco",
+          "image": "riondo-prosecco",
+          "tasting_notes": "Persistent bubbles and slight hint of sweetness up front with a clean dry finish. Notes of lime, lemon zest, white flowers, and almond.",
+          "food_pairing": "Seafood, fresh salads, & prosciutto"
+        },
+        {
+          "id": "schramsberg-mirabelle",
+          "name": "Schramsberg, Mirabelle, Blanc de Blancs",
+          "image": "schramsberg-mirabelle",
+          "tasting_notes": "Chardonnay-based sparkling wine that is dry and crisp. Vibrant, fruitful and focused with bright aromas of Meyer lemon, golden apple and marzipan.",
+          "food_pairing": "Oysters, shellfish, citrus-driven salads, & light fried dishes"
+        },
+        {
+          "id": "moet-chandon-imperial",
+          "name": "Moët & Chandon, Impérial, Champagne",
+          "image": "moet-chandon-imperial",
+          "tasting_notes": "Aromas of green apple, citrus, and white flowers with hints of brioche and almond. Fresh and elegant, with creamy texture, crisp acidity, and a mineral finish.",
+          "food_pairing": "Oysters, light poultry, and creamy & buttery dishes"
+        },
+        {
+          "id": "whispering-angel",
+          "name": "d'Esclans, Whispering Angel, Rosé",
+          "image": "whispering-angel",
+          "tasting_notes": "Pretty pale pink color with notes of tart fresh fruit and spring flowers. In the mouth, the acidity is refreshing; a great elegance and a nice balance dominate, with a saline finish.",
+          "food_pairing": "Seafood & fresh salads"
+        }
+      ]
+    },
+    {
+      "name": "White Wine",
+      "wines": [
+        {
+          "id": "hess-shirtail-chardonnay",
+          "name": "Hess 'Shirtail Ranches', Chardonnay",
+          "image": "hess-shirtail-chardonnay",
+          "tasting_notes": "Grilled pineapple, lemon zest, and a touch of oak. Balanced acidity and sweetness with flavors of peaches and golden delicious apples.",
+          "food_pairing": "Roasted chicken & grilled seafood"
+        },
+        {
+          "id": "delille-chaleur-blanc",
+          "name": "DeLille Cellars, Chaleur Blanc",
+          "image": "delille-chaleur-blanc",
+          "tasting_notes": "Offering hints of tropical fruit, peaches and lemon zest and on the palate, characteristic grapefruit and honeysuckle flavors.",
+          "food_pairing": "Shellfish, roasted poultry, and fresh seafood"
+        },
+        {
+          "id": "kb-knights-bridge-chardonnay",
+          "name": "KB by Knight's Bridge, Chardonnay",
+          "image": "kb-knights-bridge-chardonnay",
+          "tasting_notes": "The nose is complex, forward and pure with hints of stone fruit, grilled almonds, Meyer lemon and toasted oak. On the palate the wine delivers the perfect balance of flavor, richness and structure.",
+          "food_pairing": "Rich seafood, roasted chicken, & creamy or nut-accented dishes"
+        },
+        {
+          "id": "diatom-chardonnay",
+          "name": "Diatom by Brewer-Clifton, Chardonnay",
+          "image": "diatom-chardonnay",
+          "tasting_notes": "Opens with aromas of lemon, citrus blossom, and wet sand. The palate is precise and balanced with flavors of saline and white peach.",
+          "food_pairing": "Shellfish, tartare, simple grilled fish, and fresh salads"
+        },
+        {
+          "id": "casa-lunardi-pinot-grigio",
+          "name": "Casa Lunardi, Pinot Grigio",
+          "image": "casa-lunardi-pinot-grigio",
+          "tasting_notes": "Light body and crisp with whispers of tropical fruit and crisp citrus notes. Its low aromatics and refreshing character make it ideal on its own as an aperitif or with seafood, shellfish and salads.",
+          "food_pairing": "Seafood, shellfish, and fresh salads"
+        },
+        {
+          "id": "santa-margherita-pinot-grigio",
+          "name": "Santa Margherita, Pinot Grigio",
+          "image": "santa-margherita-pinot-grigio",
+          "tasting_notes": "Medium bodied with a hint of sweetness (though a dry wine). This is a bolder, richer Pinot Grigio than the more straight forward Sartori.",
+          "food_pairing": "Seafood, grilled chicken, and fresh salads"
+        },
+        {
+          "id": "sa-prum-essence-riesling",
+          "name": "SA Prüm, 'Essence', Riesling",
+          "image": "sa-prum-essence-riesling",
+          "tasting_notes": "A nice low alcohol of 10–10.5% allows for a light easy drinking wine with just the right amount of sweetness to balance the crunchy slate-like minerality. Notes of fresh white flowers, white peach, and citrus zest dominate.",
+          "food_pairing": "Spicy dishes, shellfish, and fresh salads"
+        },
+        {
+          "id": "peter-yealands-sauvignon-blanc",
+          "name": "Peter Yealands, Sauvignon Blanc",
+          "image": "peter-yealands-sauvignon-blanc",
+          "tasting_notes": "The New Zealand Sauvignon Blanc is noted for its tropical fruits and intense citrus characteristics.",
+          "food_pairing": "Salads, poultry, raw oysters, and delicate seafood"
+        }
+      ]
+    },
+    {
+      "name": "Red Wine",
+      "wines": [
+        {
+          "id": "substance-cabernet",
+          "name": "Substance, Cabernet Sauvignon",
+          "image": "substance-cabernet",
+          "tasting_notes": "Brooding dense currants, mouth filling fruit and tannins, and a layered long finish.",
+          "food_pairing": "Steak, cheese, & pepper"
+        },
+        {
+          "id": "route-stock-cabernet",
+          "name": "Route Stock Cellars, Napa, Cabernet Sauvignon",
+          "image": "route-stock-cabernet",
+          "tasting_notes": "The aromas of this wine are very classic Napa Valley, with notes of dark black fruit, cedar, cocoa, and dusty plum.",
+          "food_pairing": "Dry-aged steaks"
+        },
+        {
+          "id": "fisher-unity-cabernet",
+          "name": "Fisher, 'Unity', Cabernet Sauvignon",
+          "image": "fisher-unity-cabernet",
+          "tasting_notes": "Ripe and well balanced style of Cabernet with moderated new oak influence and noticeable tannins.",
+          "food_pairing": "Dry-aged steaks & lamb"
+        },
+        {
+          "id": "orin-swift-palermo",
+          "name": "Orin Swift, Palermo, Cabernet Sauvignon",
+          "image": "orin-swift-palermo",
+          "tasting_notes": "A powerfully full bodied wine with ripe black and blue fruit flavors, tobacco and espresso, full but round tannins.",
+          "food_pairing": "Steaks & mushroom"
+        },
+        {
+          "id": "terrazas-altos-malbec",
+          "name": "Terrazas, 'Altos', Malbec",
+          "image": "terrazas-altos-malbec",
+          "tasting_notes": "Medium bodied with medium tannins and acidity. Intense floral and fruity notes with flavors of cedar, smoke, and blackberries. Its style sits somewhere between a Merlot and Cabernet.",
+          "food_pairing": "Steaks, lamb, & highly spiced dishes"
+        },
+        {
+          "id": "robert-hall-merlot",
+          "name": "Robert Hall, Merlot",
+          "image": "robert-hall-merlot",
+          "tasting_notes": "A plush Merlot with blueberry and plum flavors, violets and soft tannins.",
+          "food_pairing": "Filet Mignon"
+        },
+        {
+          "id": "edna-valley-pinot-noir",
+          "name": "Edna Valley Vineyard, Pinot Noir",
+          "image": "edna-valley-pinot-noir",
+          "tasting_notes": "Rich in style and light on the palate. Hints of cherry, mineral and bay leaf aromas with a silky mouthfeel.",
+          "food_pairing": "Roasted chicken, salmon, and mushroom"
+        },
+        {
+          "id": "siduri-slh-pinot-noir",
+          "name": "Siduri, Santa Lucia Highlands, Pinot Noir",
+          "image": "siduri-slh-pinot-noir",
+          "tasting_notes": "Layered with raspberry, violet, and turned-earth aromatics & a palate of black plum, blueberry, and anise, this delivers vibrant freshness, supple depth, and a smooth, structured finish.",
+          "food_pairing": "Salmon, roasted poultry, and herbaceous dishes"
+        },
+        {
+          "id": "walt-la-brisa-pinot-noir",
+          "name": "Walt, La Brisa, Pinot Noir",
+          "image": "walt-la-brisa-pinot-noir",
+          "tasting_notes": "Rich in style and light on the palate. Hints of cherry, mineral and bay leaf aromas with a silky mouthfeel.",
+          "food_pairing": "Salmon, roasted poultry, and herbaceous dishes"
+        },
+        {
+          "id": "marques-de-caceres-reserva",
+          "name": "Marqués De Cáceres, Reserva",
+          "image": "marques-de-caceres-reserva",
+          "tasting_notes": "Deep ruby color with intense aromas of ripe cherries and toasted vanilla. Rich and elegant with a long-lasting finish.",
+          "food_pairing": "Lamb"
+        },
+        {
+          "id": "antinori-guado-al-tasso",
+          "name": "Antinori, Guado Al Tasso, Cabernet Sauvignon/Merlot",
+          "image": "antinori-guado-al-tasso",
+          "tasting_notes": "Ripe red berry fruit, licorice and cassis with fresh menthol notes and cedar notes.",
+          "food_pairing": "Steak & pork"
+        },
+        {
+          "id": "red-schooner-transit-3",
+          "name": "Red Schooner by Caymus, Transit 3, Australia",
+          "image": "red-schooner-transit-3",
+          "tasting_notes": "Aromas of ripe blackberry, dark cherry, and plum with hints of cocoa and spice. Rich and velvety on the palate, offering layered dark fruit, soft tannins, and a long, smooth finish.",
+          "food_pairing": "Ribeye & richly spiced dishes"
+        },
+        {
+          "id": "the-prisoner-red-blend",
+          "name": "The Prisoner, California, Red Blend",
+          "image": "the-prisoner-red-blend",
+          "tasting_notes": "Hints of blackberry, vanilla, roasted fig, raspberry, and pomegranate.",
+          "food_pairing": "Dry aged steak & lamb"
+        }
+      ]
+    }
+  ]
+}
