@@ -33,6 +33,10 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Lets you ask questions and add items by voice.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Transcribes your voice into questions for the assistant.</string>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UIStatusBarStyle</key>

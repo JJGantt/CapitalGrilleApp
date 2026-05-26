@@ -25,6 +25,7 @@ struct ContentView: View {
     @StateObject private var store = MenuStore()
     @StateObject private var wineStore = WineStore()
     @StateObject private var restockStore = RestockStore()
+    @StateObject private var voice = VoiceRecorder()
     @State private var searchText = ""
     @State private var section: TopSection = .food
 
@@ -104,9 +105,24 @@ struct ContentView: View {
             .padding(.top, 6)
             .padding(.bottom, 8)
 
-            // Top bar: search/AI input + mode toggle (search hidden in Restock mode)
+            // Top bar: search OR AI input OR live voice transcript, + ✨/mic/X button
             HStack(spacing: 8) {
-                if aiMode || section != .restock {
+                if voice.isRecording {
+                    HStack(spacing: 8) {
+                        Image(systemName: "waveform")
+                            .foregroundColor(.red)
+                        Text(voice.transcript.isEmpty ? "Listening…" : voice.transcript)
+                            .font(.body)
+                            .foregroundColor(.cgText)
+                            .lineLimit(2)
+                        Spacer()
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 10)
+                    .background(Color.cgCard)
+                    .clipShape(Capsule())
+                    .overlay(Capsule().stroke(Color.red.opacity(0.6), lineWidth: 1.5))
+                } else if aiMode || section != .restock {
                     HStack(spacing: 8) {
                         Image(systemName: aiMode ? "sparkles" : "magnifyingglass")
                             .foregroundColor(aiMode ? .cgAccent : .cgTextMuted)
@@ -148,12 +164,17 @@ struct ContentView: View {
                     Spacer()
                 }
 
-                Button(action: toggleAIMode) {
-                    Image(systemName: aiMode ? "xmark.circle.fill" : "sparkles")
+                Button(action: primaryAIButtonTap) {
+                    Image(systemName: primaryAIButtonIcon)
                         .font(.title3)
-                        .foregroundColor(aiMode ? .cgTextMuted : .cgAccent)
+                        .foregroundColor(voice.isRecording ? .red : (aiMode ? .cgTextMuted : .cgAccent))
                         .padding(8)
                 }
+                .simultaneousGesture(LongPressGesture().onEnded { _ in
+                    if !voice.isRecording && !aiMode {
+                        withAnimation { aiMode = true }
+                    }
+                })
             }
             .padding(.horizontal, 12)
             .padding(.bottom, 8)
@@ -205,20 +226,43 @@ struct ContentView: View {
         }
     }
 
+    private var primaryAIButtonIcon: String {
+        if voice.isRecording { return "stop.circle.fill" }
+        if aiMode { return "xmark.circle.fill" }
+        return "sparkles"
+    }
+
+    private func primaryAIButtonTap() {
+        if voice.isRecording {
+            let q = voice.stop().trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !q.isEmpty else { return }
+            withAnimation { aiMode = true }
+            askAI(question: q)
+        } else if aiMode {
+            toggleAIMode()
+        } else {
+            Task { await voice.start() }
+        }
+    }
+
     func askAI() {
         let q = aiInput.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !q.isEmpty, !aiBusy else { return }
+        guard !q.isEmpty else { return }
+        askAI(question: q)
+    }
+
+    func askAI(question: String) {
+        guard !aiBusy else { return }
         let history = aiHistory.map { (question: $0.question, answer: $0.answer) }
         aiBusy = true
         aiError = nil
-        let asked = q
         aiInput = ""
 
         Task {
             do {
-                let answer = try await askAnything(question: asked, history: history)
+                let answer = try await askAnything(question: question, history: history)
                 await MainActor.run {
-                    aiHistory.append(QAExchange(question: asked, answer: answer))
+                    aiHistory.append(QAExchange(question: question, answer: answer))
                     aiBusy = false
                 }
             } catch {

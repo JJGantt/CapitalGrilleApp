@@ -20,6 +20,8 @@ targets:
         UILaunchScreen: {}
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
+        NSMicrophoneUsageDescription: Lets you ask questions and add items by voice.
+        NSSpeechRecognitionUsageDescription: Transcribes your voice into questions for the assistant.
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
           NSExceptionDomains:

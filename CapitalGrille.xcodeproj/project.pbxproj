@@ -62,6 +62,7 @@
 		556F5013EC496FA07CD0051F /* lobster-bisque.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E5395EEB085013FA2B488205 /* lobster-bisque.jpg */; };
 		5AF75FD9A4E71908DF8531D2 /* seared-salmon-avocado.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CA0D0663DAB64054D9618A96 /* seared-salmon-avocado.jpg */; };
 		5B00454C3B68F2B6F9E52F63 /* oysters-on-the-half-shell.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8B3933FE6BDBF44243AC37B2 /* oysters-on-the-half-shell.jpg */; };
+		5EC7C655B2D7702C1CC05BAC /* VoiceRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 256959A09E9AD87FD6E3C4E1 /* VoiceRecorder.swift */; };
 		6163159DB099D97745965805 /* field-greens-salad.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8EA77BCB0B4B1E89E9426771 /* field-greens-salad.jpg */; };
 		61E3E1671FEDB95D3BC11B6D /* the-prisoner-red-blend.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 1F4D82FBA4D55315E030F733 /* the-prisoner-red-blend.jpg */; };
 		69C8ED14C6C2C57767F8F357 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1972A7C98F3E3B5549D5CF8 /* SettingsView.swift */; };
@@ -149,6 +150,7 @@
 		1F4D82FBA4D55315E030F733 /* the-prisoner-red-blend.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "the-prisoner-red-blend.jpg"; sourceTree = "<group>"; };
 		20B0EE07D7D69494BB7D0337 /* orin-swift-palermo.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "orin-swift-palermo.jpg"; sourceTree = "<group>"; };
 		2121D56C9BAD13E6905337C0 /* LiquorListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquorListView.swift; sourceTree = "<group>"; };
+		256959A09E9AD87FD6E3C4E1 /* VoiceRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceRecorder.swift; sourceTree = "<group>"; };
 		27439FA0842BC7256173AFA6 /* classic-creme-brulee.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "classic-creme-brulee.jpg"; sourceTree = "<group>"; };
 		2A40AA294F30B5EF8ACE25CD /* SupabaseClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseClient.swift; sourceTree = "<group>"; };
 		2B5F59C5B5E75A437209076B /* lobster-crab-cake.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "lobster-crab-cake.jpg"; sourceTree = "<group>"; };
@@ -391,6 +393,7 @@
 				4E196F9EEBE6ED0B2FD4A6F1 /* Secrets.swift.example */,
 				E1972A7C98F3E3B5549D5CF8 /* SettingsView.swift */,
 				2A40AA294F30B5EF8ACE25CD /* SupabaseClient.swift */,
+				256959A09E9AD87FD6E3C4E1 /* VoiceRecorder.swift */,
 				5FF91A7710F08B1C33D1101F /* WineDetailView.swift */,
 				0C502125F038A23F3D73460C /* WineListView.swift */,
 				D62B664BD58B0ADB14148543 /* WineModels.swift */,
@@ -588,6 +591,7 @@
 				BBB8DBF92E457BFF7570BD43 /* Secrets.swift in Sources */,
 				69C8ED14C6C2C57767F8F357 /* SettingsView.swift in Sources */,
 				540FEDAA8739B614543FF2A3 /* SupabaseClient.swift in Sources */,
+				5EC7C655B2D7702C1CC05BAC /* VoiceRecorder.swift in Sources */,
 				8D08D44896A96ABE0CC8C4F5 /* WineDetailView.swift in Sources */,
 				14A95D26F6B72236B2FC11C0 /* WineListView.swift in Sources */,
 				068369D1516B4CC7445CFFED /* WineModels.swift in Sources */,
