@@ -27,6 +27,7 @@ struct ContentView: View {
 
     @State private var selectedDish: Dish?
     @State private var selectedWine: Wine?
+    @State private var showSettings = false
     @State private var aiMode = false
     @State private var aiInput = ""
     @State private var aiHistory: [QAExchange] = []
@@ -57,6 +58,9 @@ struct ContentView: View {
                             }
                         }
                 }
+            }
+            .sheet(isPresented: $showSettings) {
+                SettingsView(wineStore: wineStore)
             }
             .fullScreenCover(item: $selectedWine) { wine in
                 NavigationStack {
@@ -154,6 +158,27 @@ struct ContentView: View {
             } else {
                 menuListView
             }
+
+            // Bottom toolbar: settings (left) + clear conversation (right, AI mode only)
+            HStack {
+                Button(action: { showSettings = true }) {
+                    Image(systemName: "gearshape")
+                        .font(.title3)
+                        .foregroundColor(.cgTextMuted)
+                        .padding(10)
+                }
+                Spacer()
+                if aiMode && !aiHistory.isEmpty {
+                    Button(action: { withAnimation { aiHistory.removeAll(); aiError = nil } }) {
+                        Image(systemName: "trash")
+                            .font(.title3)
+                            .foregroundColor(.cgTextMuted)
+                            .padding(10)
+                    }
+                }
+            }
+            .padding(.horizontal, 8)
+            .padding(.bottom, 4)
         }
     }
 

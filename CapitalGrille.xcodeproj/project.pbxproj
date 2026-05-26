@@ -64,6 +64,7 @@
 		5B00454C3B68F2B6F9E52F63 /* oysters-on-the-half-shell.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8B3933FE6BDBF44243AC37B2 /* oysters-on-the-half-shell.jpg */; };
 		6163159DB099D97745965805 /* field-greens-salad.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8EA77BCB0B4B1E89E9426771 /* field-greens-salad.jpg */; };
 		61E3E1671FEDB95D3BC11B6D /* the-prisoner-red-blend.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 1F4D82FBA4D55315E030F733 /* the-prisoner-red-blend.jpg */; };
+		69C8ED14C6C2C57767F8F357 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1972A7C98F3E3B5549D5CF8 /* SettingsView.swift */; };
 		6CB9657ACCD4A93F04B19CE0 /* coconut-cream-pie.jpg in Resources */ = {isa = PBXBuildFile; fileRef = AB39F0844FF96F577F6AD07C /* coconut-cream-pie.jpg */; };
 		6E87EEB0B2A75AEF821D5A40 /* substance-cabernet.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8FED0E52040B23CAE43F7B13 /* substance-cabernet.jpg */; };
 		713E07CB4883E1793D7AB90F /* orin-swift-palermo.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 20B0EE07D7D69494BB7D0337 /* orin-swift-palermo.jpg */; };
@@ -226,6 +227,7 @@
 		D62B664BD58B0ADB14148543 /* WineModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WineModels.swift; sourceTree = "<group>"; };
 		D9B31AA6412F0ECA6575E4E6 /* siduri-slh-pinot-noir.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "siduri-slh-pinot-noir.jpg"; sourceTree = "<group>"; };
 		DB2111CE25AF609ED13A6532 /* CapitalGrilleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapitalGrilleApp.swift; sourceTree = "<group>"; };
+		E1972A7C98F3E3B5549D5CF8 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		E1AEDB6614C31577220CD523 /* mushroom-truffle-arancini.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "mushroom-truffle-arancini.jpg"; sourceTree = "<group>"; };
 		E5395EEB085013FA2B488205 /* lobster-bisque.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "lobster-bisque.jpg"; sourceTree = "<group>"; };
 		E7A09FED99FCDE98478D6D6B /* cold-shellfish-platter.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "cold-shellfish-platter.jpg"; sourceTree = "<group>"; };
@@ -376,6 +378,7 @@
 				4337C689418114168D2AE628 /* MenuModels.swift */,
 				AABD75C5CCAAB3E8ED816858 /* Secrets.swift */,
 				4E196F9EEBE6ED0B2FD4A6F1 /* Secrets.swift.example */,
+				E1972A7C98F3E3B5549D5CF8 /* SettingsView.swift */,
 				2A40AA294F30B5EF8ACE25CD /* SupabaseClient.swift */,
 				5FF91A7710F08B1C33D1101F /* WineDetailView.swift */,
 				0C502125F038A23F3D73460C /* WineListView.swift */,
@@ -569,6 +572,7 @@
 				985419D5A333D461D407D8BC /* MacClient.swift in Sources */,
 				B5A3C6C2324E8B2EE980A291 /* MenuModels.swift in Sources */,
 				BBB8DBF92E457BFF7570BD43 /* Secrets.swift in Sources */,
+				69C8ED14C6C2C57767F8F357 /* SettingsView.swift in Sources */,
 				540FEDAA8739B614543FF2A3 /* SupabaseClient.swift in Sources */,
 				8D08D44896A96ABE0CC8C4F5 /* WineDetailView.swift in Sources */,
 				14A95D26F6B72236B2FC11C0 /* WineListView.swift in Sources */,
