@@ -254,7 +254,7 @@ struct ContentView: View {
 
     private var primaryAIButtonIcon: String {
         if voice.isRecording { return "arrow.up.circle.fill" }
-        return "sparkles"
+        return "mic.fill"
     }
 
     private func primaryAIButtonTap() {
