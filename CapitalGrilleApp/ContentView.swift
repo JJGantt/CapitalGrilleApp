@@ -126,8 +126,36 @@ struct ContentView: View {
             .padding(.top, 6)
             .padding(.bottom, 8)
 
-            // Top bar: search OR AI input OR live voice transcript, + ✨/mic button
-            HStack(alignment: .top, spacing: 8) {
+            // Content first, takes remaining space; input bar pinned below it.
+            contentArea
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            inputBar
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+        }
+    }
+
+    @ViewBuilder
+    var contentArea: some View {
+        if showAIResults {
+            aiResultsView
+        } else if section == .wine {
+            WineListView(store: wineStore, searchText: searchText) { wine in
+                selectedWine = wine
+            }
+        } else if section == .liquor {
+            LiquorListView(wineStore: wineStore)
+        } else if section == .restock {
+            RestockListView(restockStore: restockStore, wineStore: wineStore)
+        } else {
+            menuListView
+        }
+    }
+
+    var inputBar: some View {
+        VStack(spacing: 6) {
+        HStack(alignment: .top, spacing: 8) {
                 if voice.isRecording {
                     HStack(alignment: .top, spacing: 8) {
                         PulsingMic()
@@ -210,22 +238,6 @@ struct ContentView: View {
                     }
                 }
             }
-            .padding(.horizontal, 12)
-            .padding(.bottom, 8)
-
-            if showAIResults {
-                aiResultsView
-            } else if section == .wine {
-                WineListView(store: wineStore, searchText: searchText) { wine in
-                    selectedWine = wine
-                }
-            } else if section == .liquor {
-                LiquorListView(wineStore: wineStore)
-            } else if section == .restock {
-                RestockListView(restockStore: restockStore, wineStore: wineStore)
-            } else {
-                menuListView
-            }
 
             // Bottom toolbar: settings + chat-history toggle + clear (in chat with history)
             HStack {
@@ -233,14 +245,14 @@ struct ContentView: View {
                     Image(systemName: "gearshape")
                         .font(.title3)
                         .foregroundColor(.cgTextMuted)
-                        .padding(10)
+                        .padding(8)
                 }
                 if !aiHistory.isEmpty {
                     Button(action: { withAnimation { showAIResults.toggle() } }) {
                         Image(systemName: showAIResults ? "bubble.left.fill" : "bubble.left")
                             .font(.title3)
                             .foregroundColor(showAIResults ? .cgAccent : .cgTextMuted)
-                            .padding(10)
+                            .padding(8)
                     }
                 }
                 Spacer()
@@ -249,17 +261,15 @@ struct ContentView: View {
                         aiHistory.removeAll()
                         aiError = nil
                         showAIResults = false
-                        aiSessionId = UUID().uuidString   // server starts a fresh session next time
+                        aiSessionId = UUID().uuidString
                     } }) {
                         Image(systemName: "trash")
                             .font(.title3)
                             .foregroundColor(.cgTextMuted)
-                            .padding(10)
+                            .padding(8)
                     }
                 }
             }
-            .padding(.horizontal, 8)
-            .padding(.bottom, 4)
         }
     }
 
@@ -671,10 +681,19 @@ struct ContentView: View {
 
     @ViewBuilder
     var aiResultsView: some View {
-        ScrollView {
-            aiResultsContent
+        ScrollViewReader { proxy in
+            ScrollView {
+                aiResultsContent
+                Color.clear.frame(height: 1).id("bottomAnchor")
+            }
+            .scrollDismissesKeyboard(.immediately)
+            .onChange(of: aiHistory.count) { _ in
+                withAnimation { proxy.scrollTo("bottomAnchor", anchor: .bottom) }
+            }
+            .onChange(of: pendingQuestion) { _ in
+                withAnimation { proxy.scrollTo("bottomAnchor", anchor: .bottom) }
+            }
         }
-        .scrollDismissesKeyboard(.immediately)
     }
 
     @ViewBuilder
@@ -691,30 +710,6 @@ struct ContentView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.top, 60)
-                }
-                if let pending = pendingQuestion {
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack(alignment: .top, spacing: 6) {
-                            Image(systemName: "person.crop.circle.fill")
-                                .foregroundColor(.cgTextMuted)
-                                .font(.callout)
-                            Text(pending)
-                                .font(.callout)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.cgText)
-                        }
-                        HStack(alignment: .center, spacing: 6) {
-                            Image(systemName: "sparkles")
-                                .foregroundColor(.cgAccent)
-                                .font(.callout)
-                            ProgressView().progressViewStyle(.circular).scaleEffect(0.7)
-                        }
-                    }
-                    .padding(12)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.cgCard)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.cgBorder, lineWidth: 1))
                 }
                 if aiBusy, let activity = aiActivity {
                     HStack(alignment: .top, spacing: 6) {
@@ -751,6 +746,30 @@ struct ContentView: View {
                                 .font(.callout)
                                 .foregroundColor(.cgText)
                                 .textSelection(.enabled)
+                        }
+                    }
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.cgCard)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.cgBorder, lineWidth: 1))
+                }
+                if let pending = pendingQuestion {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(alignment: .top, spacing: 6) {
+                            Image(systemName: "person.crop.circle.fill")
+                                .foregroundColor(.cgTextMuted)
+                                .font(.callout)
+                            Text(pending)
+                                .font(.callout)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.cgText)
+                        }
+                        HStack(alignment: .center, spacing: 6) {
+                            Image(systemName: "sparkles")
+                                .foregroundColor(.cgAccent)
+                                .font(.callout)
+                            ProgressView().progressViewStyle(.circular).scaleEffect(0.7)
                         }
                     }
                     .padding(12)
