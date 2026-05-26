@@ -21,6 +21,7 @@ targets:
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true
           NSExceptionDomains:
             "100.106.101.57":
               NSExceptionAllowsInsecureHTTPLoads: true
