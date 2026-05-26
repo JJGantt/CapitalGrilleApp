@@ -189,26 +189,19 @@ struct ContentView: View {
                             .foregroundColor(.green)
                             .padding(8)
                     }
-                } else if aiMode {
-                    // Mic for voice-AI; magnifying glass to switch to search mode.
+                } else {
+                    // Mic always available — destination depends on current mode.
                     Button(action: { Task { await voice.start() } }) {
                         Image(systemName: "mic.fill")
                             .font(.title3)
                             .foregroundColor(.cgAccent)
                             .padding(8)
                     }
-                    Button(action: { withAnimation { aiMode = false } }) {
-                        Image(systemName: "magnifyingglass")
+                    // Toggle between AI and search modes.
+                    Button(action: { withAnimation { aiMode.toggle() } }) {
+                        Image(systemName: aiMode ? "magnifyingglass" : "sparkles")
                             .font(.title3)
-                            .foregroundColor(.cgTextMuted)
-                            .padding(8)
-                    }
-                } else {
-                    // In search mode, button switches back to AI.
-                    Button(action: { withAnimation { aiMode = true } }) {
-                        Image(systemName: "sparkles")
-                            .font(.title3)
-                            .foregroundColor(.cgAccent)
+                            .foregroundColor(aiMode ? .cgTextMuted : .cgAccent)
                             .padding(8)
                     }
                 }
@@ -272,7 +265,11 @@ struct ContentView: View {
         if voice.isRecording {
             let q = voice.stop().trimmingCharacters(in: .whitespacesAndNewlines)
             guard !q.isEmpty else { return }
-            askAI(question: q)
+            if aiMode {
+                askAI(question: q)
+            } else {
+                searchText = q
+            }
         } else {
             Task { await voice.start() }
         }
