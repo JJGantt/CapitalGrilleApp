@@ -70,8 +70,13 @@ private struct RestockRow: View {
         wineStore.categories.flatMap(\.wines).first { $0.id == item.product_id }
     }
 
-    private var backupLocation: WineLocation? {
-        wineStore.locations[item.product_id]?.backup
+    /// Prefer backup (where to grab from stock). Fall back to primary if backup
+    /// isn't set yet so the user sees the bottle's known position somewhere.
+    private var displayLocation: WineLocation? {
+        let row = wineStore.locations[item.product_id]
+        let backup = row?.backup
+        if backup?.area != nil { return backup }
+        return row?.primary
     }
 
     var body: some View {
@@ -87,7 +92,7 @@ private struct RestockRow: View {
                     .foregroundColor(.cgText)
                     .lineLimit(2)
                 if wine != nil {
-                    Text(backupLocation?.displayString ?? "—")
+                    Text(displayLocation?.displayString ?? "—")
                         .font(.footnote)
                         .foregroundColor(.cgTextMuted)
                 }
