@@ -1,5 +1,19 @@
 import SwiftUI
 
+// MARK: - Pulsing mic indicator
+
+struct PulsingMic: View {
+    @State private var pulse = false
+    var body: some View {
+        Image(systemName: "mic.fill")
+            .foregroundColor(.green)
+            .scaleEffect(pulse ? 1.15 : 0.95)
+            .opacity(pulse ? 1.0 : 0.6)
+            .animation(.easeInOut(duration: 0.7).repeatForever(autoreverses: true), value: pulse)
+            .onAppear { pulse = true }
+    }
+}
+
 // MARK: - Theme colors
 
 extension Color {
@@ -102,16 +116,18 @@ struct ContentView: View {
                 }
             }
             .pickerStyle(.segmented)
+            .onChange(of: section) { _ in
+                if aiMode { withAnimation { aiMode = false } }
+            }
             .padding(.horizontal, 12)
             .padding(.top, 6)
             .padding(.bottom, 8)
 
-            // Top bar: search OR AI input OR live voice transcript, + ✨/mic/X button
+            // Top bar: search OR AI input OR live voice transcript, + ✨/mic button
             HStack(spacing: 8) {
                 if voice.isRecording {
                     HStack(spacing: 8) {
-                        Image(systemName: "waveform")
-                            .foregroundColor(.red)
+                        PulsingMic()
                         Text(voice.transcript.isEmpty ? "Listening…" : voice.transcript)
                             .font(.body)
                             .foregroundColor(.cgText)
@@ -122,7 +138,7 @@ struct ContentView: View {
                     .padding(.vertical, 10)
                     .background(Color.cgCard)
                     .clipShape(Capsule())
-                    .overlay(Capsule().stroke(Color.red.opacity(0.6), lineWidth: 1.5))
+                    .overlay(Capsule().stroke(Color.green.opacity(0.7), lineWidth: 1.5))
                 } else if aiMode || section != .restock {
                     HStack(spacing: 8) {
                         Image(systemName: aiMode ? "sparkles" : "magnifyingglass")
@@ -168,12 +184,12 @@ struct ContentView: View {
                 Button(action: primaryAIButtonTap) {
                     Image(systemName: primaryAIButtonIcon)
                         .font(.title3)
-                        .foregroundColor(voice.isRecording ? .red : (aiMode ? .cgTextMuted : .cgAccent))
+                        .foregroundColor(voice.isRecording ? .green : .cgAccent)
                         .padding(8)
                 }
                 .simultaneousGesture(LongPressGesture().onEnded { _ in
-                    if !voice.isRecording && !aiMode {
-                        withAnimation { aiMode = true }
+                    if !voice.isRecording {
+                        withAnimation { aiMode.toggle() }
                     }
                 })
             }
@@ -228,8 +244,7 @@ struct ContentView: View {
     }
 
     private var primaryAIButtonIcon: String {
-        if voice.isRecording { return "stop.circle.fill" }
-        if aiMode { return "xmark.circle.fill" }
+        if voice.isRecording { return "arrow.up.circle.fill" }
         return "sparkles"
     }
 
@@ -239,8 +254,6 @@ struct ContentView: View {
             guard !q.isEmpty else { return }
             withAnimation { aiMode = true }
             askAI(question: q)
-        } else if aiMode {
-            toggleAIMode()
         } else {
             Task { await voice.start() }
         }
