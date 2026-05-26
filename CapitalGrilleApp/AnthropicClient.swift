@@ -33,7 +33,7 @@ struct AnthropicClient {
     // MARK: - Food (no tools)
 
     static func chat(question: String, history: [(question: String, answer: String)], menuJSON: String) async throws -> String {
-        let system = """
+        let systemStable = """
         You are a quick reference assistant for The Capital Grille bartender/server training. Below is the complete menu data (JSON) — dishes, prices, ingredients, portions, prep, talking points, etc. Use this to answer questions accurately.
 
         Be concise — 1-3 sentences unless the user asks for a list or detail. If a question can be answered from the data, do so. If not, say so plainly rather than guessing.
@@ -41,14 +41,15 @@ struct AnthropicClient {
         MENU DATA:
         \(menuJSON)
         """
-        return try await chatWithTools(question: question, history: history, system: system, tools: [])
+        return try await chatWithTools(question: question, history: history, systemStable: systemStable, systemDynamic: "", tools: [])
     }
 
     // MARK: - General multi-turn with optional tools
 
     static func chatWithTools(question: String,
                               history: [(question: String, answer: String)],
-                              system: String,
+                              systemStable: String,
+                              systemDynamic: String,
                               tools: [AnthropicTool],
                               onActivity: (@MainActor (String?) -> Void)? = nil) async throws -> String {
         let apiKey = Secrets.anthropicAPIKey
@@ -66,7 +67,7 @@ struct AnthropicClient {
         // Cap at a reasonable number of turns to avoid infinite loops.
         var collectedText: [String] = []
         for _ in 0..<6 {
-            let response = try await call(apiKey: apiKey, system: system, tools: tools, messages: messages)
+            let response = try await call(apiKey: apiKey, systemStable: systemStable, systemDynamic: systemDynamic, tools: tools, messages: messages)
 
             // Capture any plain-text blocks before/after tool_use.
             for block in response.content {
@@ -137,13 +138,27 @@ struct AnthropicClient {
     }
 
     private static func call(apiKey: String,
-                             system: String,
+                             systemStable: String,
+                             systemDynamic: String,
                              tools: [AnthropicTool],
                              messages: [[String: Any]]) async throws -> CallResponse {
+        // Split system into two blocks: stable prefix (cached) + dynamic suffix.
+        // Cache hits drop input token rate-limit cost dramatically.
+        let systemBlocks: [[String: Any]] = [
+            [
+                "type": "text",
+                "text": systemStable,
+                "cache_control": ["type": "ephemeral"]
+            ],
+            [
+                "type": "text",
+                "text": systemDynamic
+            ]
+        ]
         var body: [String: Any] = [
             "model": Self.model,
             "max_tokens": 1024,
-            "system": system,
+            "system": systemBlocks,
             "messages": messages
         ]
         if !tools.isEmpty {

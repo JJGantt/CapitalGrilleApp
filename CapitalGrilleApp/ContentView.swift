@@ -392,7 +392,8 @@ struct ContentView: View {
             ["product_id": item.product_id, "quantity": item.quantity]
         }
         let restockJSON = (try? String(data: JSONSerialization.data(withJSONObject: restockCtx), encoding: .utf8)) ?? "[]"
-        let system = """
+        // STABLE prefix (rules + food menu + tool definitions) — cacheable for the Direct API path.
+        let systemStable = """
         You are a quick reference assistant for The Capital Grille bartender/server training. You answer questions about both food and wine, and can update wine bottle locations behind the bar.
 
         Be concise — 1-3 sentences unless a list is needed.
@@ -411,7 +412,10 @@ struct ContentView: View {
 
         FOOD MENU DATA:
         \(menuJSON)
+        """
 
+        // DYNAMIC part (changes per request) — not cached.
+        let systemDynamic = """
         WINES (id, name, current primary/backup location):
         \(winesJSON)
 
@@ -637,7 +641,8 @@ struct ContentView: View {
         return try await AnthropicClient.chatWithTools(
             question: question,
             history: history,
-            system: system,
+            systemStable: systemStable,
+            systemDynamic: systemDynamic,
             tools: [updateTool, areasTool, restockToolDef, addProductDef, deleteProductDef],
             onActivity: activityHandler
         )
