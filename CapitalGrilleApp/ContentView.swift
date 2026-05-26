@@ -181,23 +181,24 @@ struct ContentView: View {
                     Spacer()
                 }
 
-                Button(action: primaryAIButtonTap) {
-                    Image(systemName: primaryAIButtonIcon)
-                        .font(.title3)
-                        .foregroundColor(voice.isRecording ? .green : .cgAccent)
-                        .padding(8)
-                }
-                .simultaneousGesture(LongPressGesture().onEnded { _ in
-                    if !voice.isRecording {
-                        withAnimation { aiMode.toggle() }
-                    }
-                })
-
-                if aiMode && !voice.isRecording {
-                    Button(action: { withAnimation { aiMode = false } }) {
-                        Image(systemName: "xmark.circle.fill")
+                if voice.isRecording {
+                    Button(action: primaryAIButtonTap) {
+                        Image(systemName: "arrow.up.circle.fill")
                             .font(.title3)
-                            .foregroundColor(.cgTextMuted)
+                            .foregroundColor(.green)
+                            .padding(8)
+                    }
+                } else {
+                    Button(action: { withAnimation { aiMode.toggle() } }) {
+                        Image(systemName: aiMode ? "xmark.circle.fill" : "sparkles")
+                            .font(.title3)
+                            .foregroundColor(aiMode ? .cgTextMuted : .cgAccent)
+                            .padding(8)
+                    }
+                    Button(action: { Task { await voice.start() } }) {
+                        Image(systemName: "mic.fill")
+                            .font(.title3)
+                            .foregroundColor(.cgAccent)
                             .padding(8)
                     }
                 }
