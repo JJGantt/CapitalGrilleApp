@@ -1,9 +1,9 @@
 import SwiftUI
 
 struct WineListView: View {
-    @ObservedObject var store: WineStore
+    @ObservedObject var store: BottleStore
     let searchText: String
-    let onTapWine: (Wine) -> Void
+    let onTapWine: (Bottle) -> Void
 
     var body: some View {
         ScrollView {
@@ -14,42 +14,39 @@ struct WineListView: View {
 
     private var content: some View {
         LazyVStack(alignment: .leading, spacing: 12) {
-                if store.categories.isEmpty {
-                    if let err = store.loadError {
-                        Text(err).foregroundColor(.red).padding()
-                    } else {
-                        ProgressView().padding(40)
-                    }
+            if store.bottles.isEmpty {
+                if let err = store.loadError {
+                    Text(err).foregroundColor(.red).padding()
                 } else {
-                    ForEach(filteredCategories()) { cat in
-                        WineCategorySection(category: cat,
-                                            locations: store.locations,
-                                            onTapWine: onTapWine)
-                    }
+                    ProgressView().padding(40)
                 }
+            } else {
+                ForEach(filteredCategories()) { cat in
+                    WineCategorySection(category: cat, onTapWine: onTapWine)
+                }
+            }
         }
         .padding(.horizontal, 12)
         .padding(.bottom, 12)
     }
 
-    private func filteredCategories() -> [WineCategory] {
+    private func filteredCategories() -> [BottleCategory] {
         let q = searchText.lowercased().trimmingCharacters(in: .whitespaces)
-        guard !q.isEmpty else { return store.categories }
-        return store.categories.compactMap { cat in
-            let matched = cat.wines.filter { w in
-                w.name.lowercased().contains(q)
-                || w.tasting_notes.lowercased().contains(q)
-                || w.food_pairing.lowercased().contains(q)
+        guard !q.isEmpty else { return store.wineCategories }
+        return store.wineCategories.compactMap { cat in
+            let matched = cat.bottles.filter { w in
+                w.displayName.lowercased().contains(q)
+                || (w.tasting_notes ?? "").lowercased().contains(q)
+                || (w.food_pairing ?? "").lowercased().contains(q)
             }
-            return matched.isEmpty ? nil : WineCategory(name: cat.name, wines: matched)
+            return matched.isEmpty ? nil : BottleCategory(name: cat.name, bottles: matched)
         }
     }
 }
 
 private struct WineCategorySection: View {
-    let category: WineCategory
-    let locations: [String: WineRow]
-    let onTapWine: (Wine) -> Void
+    let category: BottleCategory
+    let onTapWine: (Bottle) -> Void
     @State private var expanded = true
 
     var body: some View {
@@ -74,11 +71,9 @@ private struct WineCategorySection: View {
             if expanded {
                 VStack(alignment: .leading, spacing: 0) {
                     Divider().background(Color.cgBorder.opacity(0.6))
-                    ForEach(category.wines) { wine in
-                        WineRowView(wine: wine,
-                                    location: locations[wine.id]?.primary,
-                                    onTap: { onTapWine(wine) })
-                        if wine.id != category.wines.last?.id {
+                    ForEach(category.bottles) { wine in
+                        WineRowView(wine: wine, onTap: { onTapWine(wine) })
+                        if wine.id != category.bottles.last?.id {
                             Divider().background(Color.cgBorder.opacity(0.3))
                                 .padding(.leading, 70)
                         }
@@ -94,23 +89,27 @@ private struct WineCategorySection: View {
 }
 
 private struct WineRowView: View {
-    let wine: Wine
-    let location: WineLocation?
+    let wine: Bottle
     let onTap: () -> Void
 
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 12) {
-                WineThumbnail(imageName: wine.image, size: 56)
+                WineThumbnail(urlString: wine.image_url, size: 56)
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(wine.name)
+                    Text(wine.displayName)
                         .font(.system(.body, design: .serif))
                         .foregroundColor(.cgText)
                         .multilineTextAlignment(.leading)
                         .lineLimit(2)
-                    Text(location?.displayString ?? "—")
+                    Text(wine.primary.displayString ?? "—")
                         .font(.footnote)
                         .foregroundColor(.cgTextMuted)
+                    if let s = wine.backup.displayString {
+                        Text(s)
+                            .font(.footnote)
+                            .foregroundColor(.cgTextMuted.opacity(0.75))
+                    }
                 }
                 Spacer()
                 Image(systemName: "chevron.right")
@@ -126,22 +125,14 @@ private struct WineRowView: View {
 }
 
 struct WineThumbnail: View {
-    let imageName: String
+    let urlString: String?
     let size: CGFloat
 
     var body: some View {
-        Group {
-            if let img = loadWineImage(imageName) {
-                Image(uiImage: img)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-            } else {
-                Rectangle().fill(Color.cgBorder.opacity(0.4))
-            }
-        }
-        .frame(width: size, height: size)
-        .background(Color.white)
-        .clipShape(RoundedRectangle(cornerRadius: 4))
-        .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color.cgBorder.opacity(0.6), lineWidth: 1))
+        RemoteImage(urlString: urlString)
+            .frame(width: size, height: size)
+            .background(Color.white)
+            .clipShape(RoundedRectangle(cornerRadius: 4))
+            .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color.cgBorder.opacity(0.6), lineWidth: 1))
     }
 }

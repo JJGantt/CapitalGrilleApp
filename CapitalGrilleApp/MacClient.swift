@@ -33,6 +33,14 @@ struct MacClient {
                     mode: String,
                     sessionId: String,
                     onActivity: (@MainActor (String?) -> Void)? = nil) async throws -> String {
+        #if os(watchOS)
+        // Watch can't reach the Mac directly (no Tailscale on watchOS). Relay
+        // through the paired iPhone via WatchConnectivity.
+        return try await WatchPhoneRelay.shared.relay(
+            question: question, history: history,
+            systemPrompt: systemPrompt, mode: mode, sessionId: sessionId
+        )
+        #else
         // Stream by default if a handler is provided, otherwise use the simple endpoint.
         if onActivity != nil {
             return try await askStream(question: question, history: history,
@@ -40,6 +48,7 @@ struct MacClient {
                                        sessionId: sessionId,
                                        onActivity: onActivity!)
         }
+        #endif
         var req = URLRequest(url: baseURL.appendingPathComponent("/ask"))
         req.httpMethod = "POST"
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -141,12 +150,37 @@ enum Backend: String, CaseIterable {
     case mac = "mac"        // Claude Code on Mac (Max plan credits — free)
     case api = "api"        // Direct Anthropic API (paid)
 
+    var label: String {
+        switch self {
+        case .mac: return "Mac"
+        case .api: return "API"
+        }
+    }
+
+    /// True if this backend goes through the Mac server (vs direct to Anthropic).
+    var usesMacServer: Bool { self == .mac }
+
     static var current: Backend {
         get {
-            let raw = UserDefaults.standard.string(forKey: "backend") ?? Backend.mac.rawValue
+            #if os(watchOS)
+            // Watch can't reach the Mac server (no Tailscale on watchOS), so default
+            // to direct API. User can still switch to Mac to try, with fallback.
+            let key = "backendWatch"
+            let fallback = Backend.api.rawValue
+            #else
+            let key = "backend"
+            let fallback = Backend.mac.rawValue
+            #endif
+            let raw = UserDefaults.standard.string(forKey: key) ?? fallback
             return Backend(rawValue: raw) ?? .mac
         }
-        set { UserDefaults.standard.set(newValue.rawValue, forKey: "backend") }
+        set {
+            #if os(watchOS)
+            UserDefaults.standard.set(newValue.rawValue, forKey: "backendWatch")
+            #else
+            UserDefaults.standard.set(newValue.rawValue, forKey: "backend")
+            #endif
+        }
     }
 }
 

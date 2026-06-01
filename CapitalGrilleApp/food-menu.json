@@ -3055,7 +3055,15 @@
       "price": 23,
       "calories": 760,
       "description": "A plating of the guest's steak of choice broiled to perfection, topped with a Jumbo Lump Crab crumble, and finished with housemade Bearnaise sauce. (This enhancement no longer includes asparagus.) Available for: Filet, Boneless Strip, Ribeye, Bone-In Filet.",
-      "variants": {}
+      "variants": {},
+      "ingredients": {
+        "components": [
+          "guest's choice steak (broiled)",
+          "Jumbo Lump Crab crumble",
+          "housemade Bearnaise sauce"
+        ],
+        "note": "Composite enhancement. Refer to Bearnaise entry for sauce details. No longer includes asparagus."
+      }
     },
     {
       "name": "Kona Crust",
@@ -3064,7 +3072,22 @@
       "price": 4,
       "calories": 280,
       "description": "The guest's choice steak crusted with our house-made Kona Coffee Rub and finished with our Caramelized Shallot Butter.",
-      "variants": {}
+      "variants": {},
+      "ingredients": {
+        "rub": [
+          "sugar",
+          "decaf coffee",
+          "cocoa powder",
+          "Grana Padano",
+          "dry mustard",
+          "garlic",
+          "salt",
+          "pepper"
+        ],
+        "finishing": [
+          "caramelized shallot butter"
+        ]
+      }
     },
     {
       "name": "Porcini Rub",
@@ -3073,7 +3096,20 @@
       "price": 4,
       "calories": 120,
       "description": "The guest's choice steak crusted with our signature porcini mushroom spice rub. When broiled, the rub forms a rich crust that blends with the natural juices of the steak. Finished with 15-year aged balsamic and extra virgin olive oil.",
-      "variants": {}
+      "variants": {},
+      "ingredients": {
+        "rub": [
+          "sugar",
+          "salt",
+          "red pepper flakes",
+          "black pepper",
+          "porcini powder"
+        ],
+        "finishing": [
+          "15-year aged balsamic",
+          "extra virgin olive oil"
+        ]
+      }
     },
     {
       "name": "Gorgonzola Crust",
@@ -3082,7 +3118,16 @@
       "price": 4,
       "calories": 270,
       "description": "A decadent crust of Gorgonzola and Grana Padano Cheeses, finished with cherry cabernet reduction.",
-      "variants": {}
+      "variants": {},
+      "ingredients": {
+        "crust": [
+          "Gorgonzola cheese",
+          "Grana Padano cheese"
+        ],
+        "finishing": [
+          "cherry cabernet reduction"
+        ]
+      }
     },
     {
       "name": "Courvoisier Cream",
@@ -3091,7 +3136,13 @@
       "price": 4,
       "calories": 200,
       "description": "An accompaniment of the rich, housemade Courvoisier Cognac Cream Sauce served on the side in a gooseneck on a lined B&B plate. (This enhancement is not an Au Poivre enhancement. It is only the sauce.)",
-      "variants": {}
+      "variants": {},
+      "ingredients": {
+        "components": [
+          "housemade Courvoisier cognac cream sauce"
+        ],
+        "note": "Cream sauce served on the side; full recipe not detailed in menu."
+      }
     },
     {
       "name": "Bearnaise",
@@ -3100,7 +3151,13 @@
       "price": 4,
       "calories": 550,
       "description": "A 2 oz accompaniment of our housemade Bearnaise Sauce served on the side in a gooseneck on a lined B&B plate.",
-      "variants": {}
+      "variants": {},
+      "ingredients": {
+        "components": [
+          "housemade Bearnaise sauce"
+        ],
+        "note": "2 oz on the side in a gooseneck; full recipe not detailed in menu."
+      }
     },
     {
       "name": "Sushi-Grade Seared Sesame Tuna (Dinner)",

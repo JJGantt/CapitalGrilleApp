@@ -1,35 +1,11 @@
 import Foundation
 import SwiftUI
-import UIKit
 
-// MARK: - Bundled wine data (immutable: name, notes, pairing, image)
+// MARK: - Models
 
-struct WineCategory: Codable, Identifiable {
-    var id: String { name }
-    let name: String
-    let wines: [Wine]
-}
-
-struct Wine: Codable, Identifiable, Hashable {
-    let id: String
-    let name: String
-    let image: String
-    let tasting_notes: String
-    let food_pairing: String
-
-    func hash(into hasher: inout Hasher) { hasher.combine(id) }
-    static func == (lhs: Wine, rhs: Wine) -> Bool { lhs.id == rhs.id }
-}
-
-struct WinesData: Codable {
-    let categories: [WineCategory]
-}
-
-// MARK: - Mutable location data (Supabase)
-
-struct WineLocation: Codable, Equatable {
+struct BottleLocation: Codable, Equatable {
     var area: String?
-    var row: String?     // "back" | "front" | "top" | "bottom"
+    var row: Int?
     var column: Int?
 
     var isEmpty: Bool { area == nil && row == nil && column == nil }
@@ -37,32 +13,49 @@ struct WineLocation: Codable, Equatable {
     var displayString: String? {
         guard let area else { return nil }
         var parts = [area]
-        if let row { parts.append(row) }
-        if let column { parts.append("\(column)") }
+        if let row { parts.append("Row \(row)") }
+        if let column { parts.append("Col \(column)") }
         return parts.joined(separator: " · ")
     }
 }
 
-struct WineRow: Codable, Identifiable {
+struct Bottle: Codable, Identifiable, Hashable {
     let id: String
     var name: String?
     var kind: String?
+    var category: String?
+    var varietal: String?
+    var tasting_notes: String?
+    var food_pairing: String?
+    var image_url: String?
+    var price: Double?
+    var bottle_price: Double?
     var deleted: Bool?
     var readonly: Bool?
     var primary_area: String?
-    var primary_row: String?
+    var primary_row: Int?
     var primary_column: Int?
     var backup_area: String?
-    var backup_row: String?
+    var backup_row: Int?
     var backup_column: Int?
 
-    var primary: WineLocation { .init(area: primary_area, row: primary_row, column: primary_column) }
-    var backup: WineLocation { .init(area: backup_area, row: backup_row, column: backup_column) }
+    var displayName: String { name ?? id }
+    var primary: BottleLocation { .init(area: primary_area, row: primary_row, column: primary_column) }
+    var backup: BottleLocation { .init(area: backup_area, row: backup_row, column: backup_column) }
     var isDeleted: Bool { deleted == true }
     var isReadonly: Bool { readonly == true }
+
+    func hash(into hasher: inout Hasher) { hasher.combine(id) }
+    static func == (lhs: Bottle, rhs: Bottle) -> Bool { lhs.id == rhs.id }
 }
 
-struct WineArea: Codable, Identifiable, Hashable {
+struct BottleCategory: Identifiable {
+    var id: String { name }
+    let name: String
+    let bottles: [Bottle]
+}
+
+struct BottleArea: Codable, Identifiable, Hashable {
     var id: String { name }
     let name: String
 }
@@ -70,113 +63,105 @@ struct WineArea: Codable, Identifiable, Hashable {
 // MARK: - Store
 
 @MainActor
-final class WineStore: ObservableObject {
-    @Published var categories: [WineCategory] = []
-    @Published var locations: [String: WineRow] = [:]   // wine id → row
-    @Published var areas: [WineArea] = []
+final class BottleStore: ObservableObject {
+    @Published var bottles: [String: Bottle] = [:]
+    @Published var areas: [BottleArea] = []
     @Published var loadError: String?
 
-    func loadBundle() {
-        guard let url = Bundle.main.url(forResource: "wines", withExtension: "json") else {
-            loadError = "wines.json not found in bundle"
-            return
+    private static let wineCategoryOrder = ["Sparkling & Rosé", "White Wine", "Red Wine"]
+
+    /// Wines (kind == "wine") grouped by category, in canonical order. Each group sorted by name.
+    var wineCategories: [BottleCategory] {
+        let wines = bottles.values.filter { ($0.kind ?? "wine") == "wine" && !$0.isDeleted }
+        let grouped = Dictionary(grouping: wines, by: { $0.category ?? "Other" })
+        let sortKey: (Bottle, Bottle) -> Bool = { a, b in
+            let av = a.varietal ?? "~"  // nulls sort last
+            let bv = b.varietal ?? "~"
+            if av != bv { return av < bv }
+            return a.displayName < b.displayName
         }
-        do {
-            let data = try Data(contentsOf: url)
-            categories = try JSONDecoder().decode(WinesData.self, from: data).categories
-        } catch {
-            loadError = "Wine decode error: \(error)"
+        let known = Self.wineCategoryOrder.compactMap { name -> BottleCategory? in
+            guard let entries = grouped[name], !entries.isEmpty else { return nil }
+            return BottleCategory(name: name, bottles: entries.sorted(by: sortKey))
+        }
+        let unknownNames = grouped.keys.filter { !Self.wineCategoryOrder.contains($0) }.sorted()
+        let unknown = unknownNames.map { name in
+            BottleCategory(name: name, bottles: grouped[name]!.sorted(by: sortKey))
+        }
+        return known + unknown
+    }
+
+    var liquors: [Bottle] {
+        bottles.values
+            .filter { ($0.kind ?? "") == "liquor" && !$0.isDeleted }
+            .sorted { $0.displayName < $1.displayName }
+    }
+
+    /// Liquors grouped by varietal (Tequila, Bourbon, Vodka, etc.), alphabetical by varietal then name.
+    var liquorCategories: [BottleCategory] {
+        let onlyLiquors = bottles.values.filter { ($0.kind ?? "") == "liquor" && !$0.isDeleted }
+        let grouped = Dictionary(grouping: onlyLiquors, by: { $0.varietal ?? "Other" })
+        return grouped.keys.sorted().map { name in
+            BottleCategory(name: name, bottles: grouped[name]!.sorted { $0.displayName < $1.displayName })
         }
     }
 
     func refreshFromSupabase() async {
         do {
-            async let winesTask: [WineRow] = SupabaseClient.shared.get(path: "wines?select=*&deleted=eq.false")
-            async let areasTask: [WineArea] = SupabaseClient.shared.get(path: "wine_areas?select=*&order=name.asc")
-            let (rows, areaList) = try await (winesTask, areasTask)
-            self.locations = Dictionary(uniqueKeysWithValues: rows.map { ($0.id, $0) })
+            async let bottlesTask: [Bottle] = SupabaseClient.shared.get(path: "bottles?select=*&deleted=eq.false")
+            async let areasTask: [BottleArea] = SupabaseClient.shared.get(path: "bottle_areas?select=*&order=name.asc")
+            let (rows, areaList) = try await (bottlesTask, areasTask)
+            self.bottles = Dictionary(uniqueKeysWithValues: rows.map { ($0.id, $0) })
             self.areas = areaList
         } catch {
             self.loadError = "Supabase fetch failed: \(error.localizedDescription)"
         }
     }
 
-    func location(for wineId: String) -> WineLocation? {
-        locations[wineId]?.primary
-    }
-
-    func backupLocation(for wineId: String) -> WineLocation? {
-        locations[wineId]?.backup
-    }
-
-    /// All products with kind == "liquor", sorted by name.
-    var liquors: [WineRow] {
-        locations.values
-            .filter { ($0.kind ?? "") == "liquor" }
-            .sorted { ($0.name ?? "") < ($1.name ?? "") }
-    }
-
     // MARK: - Mutations (Supabase)
 
-    /// Apply a batch of location updates. Each entry may set primary, backup, or both.
-    /// Pass `NSNull()` (or omit the key) to leave a field unchanged; pass explicit null in JSON
-    /// from the model to clear a field. Returns the list of wine IDs that were updated.
-    func updateLocations(_ updates: [[String: Any]]) async throws -> [String] {
+    /// Apply a batch of location updates against EXISTING bottles only.
+    /// Returns (updated ids, missing ids). Missing ids → caller should suggest add_product.
+    func updateLocations(_ updates: [[String: Any]]) async throws -> (updated: [String], missing: [String]) {
         var updated: [String] = []
+        var missing: [String] = []
         for u in updates {
-            guard let wineId = u["wine_id"] as? String else { continue }
+            guard let bottleId = u["bottle_id"] as? String ?? u["wine_id"] as? String else { continue }
 
             var patch: [String: Any?] = [:]
             if let p = u["primary"] as? [String: Any] {
-                patch["primary_area"]   = p["area"] as? String
-                patch["primary_row"]    = p["row"] as? String
-                patch["primary_column"] = p["column"] as? Int
+                if let v = p["area"]   as? String { patch["primary_area"]   = v }
+                if let v = p["row"]    as? Int    { patch["primary_row"]    = v }
+                if let v = p["column"] as? Int    { patch["primary_column"] = v }
             }
             if let b = u["backup"] as? [String: Any] {
-                patch["backup_area"]   = b["area"] as? String
-                patch["backup_row"]    = b["row"] as? String
-                patch["backup_column"] = b["column"] as? Int
+                if let v = b["area"]   as? String { patch["backup_area"]   = v }
+                if let v = b["row"]    as? Int    { patch["backup_row"]    = v }
+                if let v = b["column"] as? Int    { patch["backup_column"] = v }
             }
             if patch.isEmpty { continue }
 
-            try await SupabaseClient.shared.patch(path: "wines?id=eq.\(wineId)", body: patch)
-            updated.append(wineId)
+            let rows = try await SupabaseClient.shared.patchReturning(path: "bottles?id=eq.\(bottleId)", body: patch)
+            if rows.isEmpty { missing.append(bottleId) } else { updated.append(bottleId) }
         }
-        // Refresh from server so local state reflects truth.
         await refreshFromSupabase()
-        return updated
+        return (updated, missing)
     }
 
     func addArea(_ name: String) async throws {
-        try await SupabaseClient.shared.upsert(path: "wine_areas",
+        try await SupabaseClient.shared.upsert(path: "bottle_areas",
             body: [["name": name]], onConflict: "name")
         await refreshFromSupabase()
     }
 
     func renameArea(_ name: String, to newName: String) async throws {
-        try await SupabaseClient.shared.patch(path: "wine_areas?name=eq.\(name)",
+        try await SupabaseClient.shared.patch(path: "bottle_areas?name=eq.\(name)",
             body: ["name": newName])
         await refreshFromSupabase()
     }
 
     func removeArea(_ name: String) async throws {
-        try await SupabaseClient.shared.delete(path: "wine_areas?name=eq.\(name)")
+        try await SupabaseClient.shared.delete(path: "bottle_areas?name=eq.\(name)")
         await refreshFromSupabase()
     }
-}
-
-// MARK: - Wine image loader
-
-func loadWineImage(_ name: String) -> UIImage? {
-    for ext in ["jpg", "png", "jpeg"] {
-        if let url = Bundle.main.url(forResource: name, withExtension: ext, subdirectory: "wine-bottles"),
-           let img = UIImage(contentsOfFile: url.path) {
-            return img
-        }
-        if let url = Bundle.main.url(forResource: name, withExtension: ext),
-           let img = UIImage(contentsOfFile: url.path) {
-            return img
-        }
-    }
-    return UIImage(named: name)
 }

@@ -2,8 +2,25 @@ import SwiftUI
 
 struct RestockListView: View {
     @ObservedObject var restockStore: RestockStore
-    @ObservedObject var wineStore: WineStore
+    @ObservedObject var bottleStore: BottleStore
     @State private var confirmClear = false
+
+    /// Restock items grouped by the backup-location area of their catalog bottle.
+    /// Items with no matching bottle or no backup area fall into "Other".
+    private var groups: [(area: String, items: [RestockItem])] {
+        var buckets: [String: [RestockItem]] = [:]
+        for item in restockStore.items {
+            let area = bottleStore.bottles[item.product_id]?.backup_area ?? "Other"
+            buckets[area, default: []].append(item)
+        }
+        // Sort area names alphabetically, "Other" always last.
+        let sortedAreas = buckets.keys.sorted { a, b in
+            if a == "Other" { return false }
+            if b == "Other" { return true }
+            return a < b
+        }
+        return sortedAreas.map { ($0, buckets[$0]!.sorted { ($0.name ?? $0.product_id) < ($1.name ?? $1.product_id) }) }
+    }
 
     var body: some View {
         Group {
@@ -14,23 +31,35 @@ struct RestockListView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ScrollView {
-                    LazyVStack(spacing: 0) {
-                        ForEach(restockStore.items) { item in
-                            RestockRow(item: item, wineStore: wineStore,
-                                onChangeQty: { newQty in
-                                    Task {
-                                        try? await restockStore.apply([[
-                                            "product_id": item.product_id,
-                                            "product_kind": item.product_kind,
-                                            "quantity": newQty
-                                        ]])
-                                    }
-                                },
-                                onRemove: {
-                                    Task { try? await restockStore.remove(item.product_id) }
-                                })
-                            Divider().background(Color.cgBorder.opacity(0.3))
-                                .padding(.leading, 76)
+                    LazyVStack(alignment: .leading, spacing: 0) {
+                        ForEach(groups, id: \.area) { group in
+                            Text(group.area.uppercased())
+                                .font(.system(.subheadline, design: .serif))
+                                .tracking(2)
+                                .foregroundColor(.cgAccent)
+                                .padding(.horizontal, 14)
+                                .padding(.top, 18)
+                                .padding(.bottom, 6)
+
+                            ForEach(group.items) { item in
+                                RestockRow(item: item, bottleStore: bottleStore,
+                                    onChangeQty: { newQty in
+                                        Task {
+                                            try? await restockStore.apply([[
+                                                "product_id": item.product_id,
+                                                "product_kind": item.product_kind,
+                                                "quantity": newQty
+                                            ]])
+                                        }
+                                    },
+                                    onRemove: {
+                                        Task { try? await restockStore.remove(item.product_id) }
+                                    })
+                                if item.id != group.items.last?.id {
+                                    Divider().background(Color.cgBorder.opacity(0.3))
+                                        .padding(.leading, 76)
+                                }
+                            }
                         }
 
                         Button(role: .destructive) {
@@ -63,31 +92,27 @@ struct RestockListView: View {
 
 private struct RestockRow: View {
     let item: RestockItem
-    @ObservedObject var wineStore: WineStore
+    @ObservedObject var bottleStore: BottleStore
     let onChangeQty: (Int) -> Void
     let onRemove: () -> Void
 
-    private var wine: Wine? {
-        wineStore.categories.flatMap(\.wines).first { $0.id == item.product_id }
-    }
-    private var primary: WineLocation? { wineStore.locations[item.product_id]?.primary }
-    private var backup:  WineLocation? { wineStore.locations[item.product_id]?.backup  }
+    private var wine: Bottle? { bottleStore.bottles[item.product_id] }
 
     var body: some View {
         HStack(spacing: 12) {
             if let wine {
-                WineThumbnail(imageName: wine.image, size: 56)
+                WineThumbnail(urlString: wine.image_url, size: 56)
             }
             VStack(alignment: .leading, spacing: 3) {
-                Text(wine?.name ?? item.name ?? item.product_id)
+                Text(wine?.displayName ?? item.name ?? item.product_id)
                     .font(.system(.body, design: .serif))
                     .foregroundColor(.cgText)
                     .lineLimit(2)
-                if wine != nil {
-                    Text(primary?.displayString ?? "—")
+                if let wine {
+                    Text(wine.primary.displayString ?? "—")
                         .font(.footnote)
                         .foregroundColor(.cgTextMuted)
-                    Text(backup?.displayString ?? "—")
+                    Text(wine.backup.displayString ?? "—")
                         .font(.footnote)
                         .foregroundColor(.cgTextMuted)
                 }

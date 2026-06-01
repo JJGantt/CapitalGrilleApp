@@ -46,6 +46,15 @@ struct SupabaseClient {
         return resp
     }
 
+    /// PATCH that returns the affected rows as JSON. Useful for detecting "not found" (empty array).
+    func patchReturning(path: String, body: [String: Any?]) async throws -> [[String: Any]] {
+        let clean: [String: Any] = body.mapValues { $0 ?? NSNull() }
+        let data = try JSONSerialization.data(withJSONObject: clean)
+        let (resp, http) = try await URLSession.shared.data(for: request(path, method: "PATCH", body: data, prefer: "return=representation"))
+        try Self.check(http, data: resp)
+        return (try? JSONSerialization.jsonObject(with: resp) as? [[String: Any]]) ?? []
+    }
+
     @discardableResult
     func upsert(path: String, body: [[String: Any]], onConflict: String) async throws -> Data {
         let data = try JSONSerialization.data(withJSONObject: body)

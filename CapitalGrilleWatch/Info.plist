@@ -34,16 +34,12 @@
 		</dict>
 	</dict>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Lets you ask questions and add items by voice.</string>
+	<string>Voice prompts to the AI assistant.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Transcribes your voice into questions for the assistant.</string>
-	<key>UILaunchScreen</key>
-	<dict/>
-	<key>UIStatusBarStyle</key>
-	<string>UIStatusBarStyleDarkContent</string>
-	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-	</array>
+	<string>Transcribes voice prompts for the assistant.</string>
+	<key>WKApplication</key>
+	<true/>
+	<key>WKCompanionAppBundleIdentifier</key>
+	<string>com.jaredgantt.CapitalGrille</string>
 </dict>
 </plist>

@@ -1,37 +1,53 @@
 import SwiftUI
 
 struct WineDetailView: View {
-    let wine: Wine
-    @ObservedObject var store: WineStore
+    let wine: Bottle
+    @ObservedObject var store: BottleStore
+
+    /// Always read the freshest copy from the store so locations updated by the AI
+    /// reflect immediately without re-presenting the view.
+    private var current: Bottle { store.bottles[wine.id] ?? wine }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                // Hero bottle image
                 ZStack {
                     Color.white
-                    if let img = loadWineImage(wine.image) {
-                        Image(uiImage: img)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(maxHeight: 360)
-                    }
+                    RemoteImage(urlString: current.image_url)
+                        .frame(maxHeight: 360)
                 }
                 .frame(height: 360)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.cgBorder, lineWidth: 1))
 
-                Text(wine.name)
-                    .font(.system(.title2, design: .serif))
-                    .foregroundColor(.cgText)
+                HStack(alignment: .firstTextBaseline) {
+                    Text(current.displayName)
+                        .font(.system(.title2, design: .serif))
+                        .foregroundColor(.cgText)
+                    Spacer()
+                    if let price = current.price {
+                        VStack(alignment: .trailing, spacing: 1) {
+                            Text("$\(price, specifier: price.truncatingRemainder(dividingBy: 1) == 0 ? "%.0f" : "%.1f")")
+                                .font(.system(.title3, design: .serif).weight(.semibold))
+                                .foregroundColor(.cgAccent)
+                            if let bottlePrice = current.bottle_price {
+                                Text("$\(bottlePrice, specifier: bottlePrice.truncatingRemainder(dividingBy: 1) == 0 ? "%.0f" : "%.1f") btl")
+                                    .font(.caption)
+                                    .foregroundColor(.cgTextMuted)
+                            }
+                        }
+                    }
+                }
 
-                // Locations
-                LocationCard(title: "Primary", location: store.locations[wine.id]?.primary)
-                LocationCard(title: "Backup",  location: store.locations[wine.id]?.backup)
+                LocationCard(title: "Primary", location: current.primary)
+                LocationCard(title: "Backup",  location: current.backup)
 
-                // Tasting notes
-                infoBlock(title: "Tasting Notes", body: wine.tasting_notes)
-                infoBlock(title: "Food Pairing",  body: wine.food_pairing)
+                if let notes = current.tasting_notes, !notes.isEmpty {
+                    infoBlock(title: "Tasting Notes", body: notes)
+                }
+                if let pairing = current.food_pairing, !pairing.isEmpty {
+                    infoBlock(title: "Food Pairing", body: pairing)
+                }
             }
             .padding(.horizontal, 14)
             .padding(.bottom, 24)
@@ -61,7 +77,7 @@ struct WineDetailView: View {
 
 private struct LocationCard: View {
     let title: String
-    let location: WineLocation?
+    let location: BottleLocation
 
     var body: some View {
         HStack(spacing: 10) {
@@ -73,7 +89,7 @@ private struct LocationCard: View {
                     .font(.caption2.bold())
                     .tracking(1.5)
                     .foregroundColor(.cgTextMuted)
-                if let s = location?.displayString {
+                if let s = location.displayString {
                     Text(s)
                         .font(.system(.callout, design: .serif))
                         .foregroundColor(.cgText)

@@ -1,12 +1,12 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @ObservedObject var wineStore: WineStore
+    @ObservedObject var bottleStore: BottleStore
     @Environment(\.dismiss) var dismiss
     @State private var backend: Backend = Backend.current
     @State private var model: AIModel = AIModel.current
     @State private var newAreaName: String = ""
-    @State private var renameTarget: WineArea?
+    @State private var renameTarget: BottleArea?
     @State private var renameValue: String = ""
     @State private var busy: Bool = false
     @State private var errorMsg: String?
@@ -16,8 +16,9 @@ struct SettingsView: View {
             Form {
                 Section("Backend") {
                     Picker("Backend", selection: $backend) {
-                        Text("Mac").tag(Backend.mac)
-                        Text("API").tag(Backend.api)
+                        ForEach(Backend.allCases, id: \.self) { b in
+                            Text(b.label).tag(b)
+                        }
                     }
                     .pickerStyle(.segmented)
                     .labelsHidden()
@@ -36,8 +37,8 @@ struct SettingsView: View {
                 }
 
                 Section("Areas") {
-                    if !wineStore.areas.isEmpty {
-                        ForEach(wineStore.areas) { area in
+                    if !bottleStore.areas.isEmpty {
+                        ForEach(bottleStore.areas) { area in
                             HStack {
                                 Text(area.name)
                                 Spacer()
@@ -86,7 +87,7 @@ struct SettingsView: View {
                     Button("Done") { dismiss() }
                 }
             }
-            .task { await wineStore.refreshFromSupabase() }
+            .task { await bottleStore.refreshFromSupabase() }
             .alert("Rename area", isPresented: Binding(
                 get: { renameTarget != nil },
                 set: { if !$0 { renameTarget = nil } })) {
@@ -101,7 +102,7 @@ struct SettingsView: View {
         let name = newAreaName.trimmingCharacters(in: .whitespaces)
         guard !name.isEmpty else { return }
         busy = true; errorMsg = nil
-        do { try await wineStore.addArea(name); newAreaName = "" }
+        do { try await bottleStore.addArea(name); newAreaName = "" }
         catch { errorMsg = error.localizedDescription }
         busy = false
     }
@@ -111,7 +112,7 @@ struct SettingsView: View {
         let new = renameValue.trimmingCharacters(in: .whitespaces)
         guard !new.isEmpty, new != target.name else { renameTarget = nil; return }
         busy = true; errorMsg = nil
-        do { try await wineStore.renameArea(target.name, to: new) }
+        do { try await bottleStore.renameArea(target.name, to: new) }
         catch { errorMsg = error.localizedDescription }
         renameTarget = nil
         busy = false
@@ -119,7 +120,7 @@ struct SettingsView: View {
 
     private func remove(area: String) async {
         busy = true; errorMsg = nil
-        do { try await wineStore.removeArea(area) }
+        do { try await bottleStore.removeArea(area) }
         catch { errorMsg = error.localizedDescription }
         busy = false
     }

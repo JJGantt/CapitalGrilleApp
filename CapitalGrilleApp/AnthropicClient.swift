@@ -32,7 +32,8 @@ struct AnthropicClient {
 
     // MARK: - Food (no tools)
 
-    static func chat(question: String, history: [(question: String, answer: String)], menuJSON: String) async throws -> String {
+    static func chat(question: String, history: [(question: String, answer: String)], menuJSON: String,
+                     interactionId: UUID, sessionId: String?) async throws -> String {
         let systemStable = """
         You are a quick reference assistant for The Capital Grille bartender/server training. Below is the complete menu data (JSON) — dishes, prices, ingredients, portions, prep, talking points, etc. Use this to answer questions accurately.
 
@@ -41,7 +42,7 @@ struct AnthropicClient {
         MENU DATA:
         \(menuJSON)
         """
-        return try await chatWithTools(question: question, history: history, systemStable: systemStable, systemDynamic: "", tools: [])
+        return try await chatWithTools(question: question, history: history, systemStable: systemStable, systemDynamic: "", tools: [], interactionId: interactionId, sessionId: sessionId)
     }
 
     // MARK: - General multi-turn with optional tools
@@ -51,6 +52,8 @@ struct AnthropicClient {
                               systemStable: String,
                               systemDynamic: String,
                               tools: [AnthropicTool],
+                              interactionId: UUID,
+                              sessionId: String?,
                               onActivity: (@MainActor (String?) -> Void)? = nil) async throws -> String {
         let apiKey = Secrets.anthropicAPIKey
         guard apiKey.hasPrefix("sk-ant") else { throw AnthropicError.noAPIKey }
@@ -67,7 +70,26 @@ struct AnthropicClient {
         // Cap at a reasonable number of turns to avoid infinite loops.
         var collectedText: [String] = []
         for _ in 0..<6 {
-            let response = try await call(apiKey: apiKey, systemStable: systemStable, systemDynamic: systemDynamic, tools: tools, messages: messages)
+            let started = Date()
+            let response: CallResponse
+            do {
+                response = try await call(apiKey: apiKey, systemStable: systemStable, systemDynamic: systemDynamic, tools: tools, messages: messages)
+            } catch {
+                let latency = Int(Date().timeIntervalSince(started) * 1000)
+                await AppLogger.shared.record(.init(
+                    timestamp: started, interactionId: interactionId, sessionId: sessionId,
+                    backend: "api", kind: "api_error", toolName: nil, input: nil, output: nil,
+                    error: error.localizedDescription, latencyMs: latency,
+                    tokensIn: nil, tokensOut: nil, userInput: nil, finalAnswer: nil))
+                throw error
+            }
+            let latency = Int(Date().timeIntervalSince(started) * 1000)
+            await AppLogger.shared.record(.init(
+                timestamp: started, interactionId: interactionId, sessionId: sessionId,
+                backend: "api", kind: "api_request", toolName: nil, input: nil,
+                output: response.stopReason, error: nil, latencyMs: latency,
+                tokensIn: response.tokensIn, tokensOut: response.tokensOut,
+                userInput: nil, finalAnswer: nil))
 
             // Capture any plain-text blocks before/after tool_use.
             for block in response.content {
@@ -99,20 +121,30 @@ struct AnthropicClient {
                     await MainActor.run { onActivity(activity) }
                 }
 
+                let toolStart = Date()
                 let resultText: String
                 let isError: Bool
+                var toolError: String?
                 if let tool = tools.first(where: { $0.name == name }) {
                     do {
                         resultText = try await tool.handler(input)
                         isError = false
                     } catch {
                         resultText = "Tool error: \(error.localizedDescription)"
+                        toolError = error.localizedDescription
                         isError = true
                     }
                 } else {
                     resultText = "Unknown tool: \(name)"
+                    toolError = "Unknown tool"
                     isError = true
                 }
+                let toolLatency = Int(Date().timeIntervalSince(toolStart) * 1000)
+                await AppLogger.shared.record(.init(
+                    timestamp: toolStart, interactionId: interactionId, sessionId: sessionId,
+                    backend: "api", kind: isError ? "tool_error" : "tool_call", toolName: name,
+                    input: input, output: resultText, error: toolError, latencyMs: toolLatency,
+                    tokensIn: nil, tokensOut: nil, userInput: nil, finalAnswer: nil))
 
                 toolResults.append([
                     "type": "tool_result",
@@ -135,6 +167,8 @@ struct AnthropicClient {
     private struct CallResponse {
         let content: [[String: Any]]
         let stopReason: String?
+        let tokensIn: Int?
+        let tokensOut: Int?
     }
 
     private static func call(apiKey: String,
@@ -189,6 +223,12 @@ struct AnthropicClient {
               let content = json["content"] as? [[String: Any]] else {
             throw AnthropicError.decodeFailed
         }
-        return CallResponse(content: content, stopReason: json["stop_reason"] as? String)
+        let usage = json["usage"] as? [String: Any]
+        return CallResponse(
+            content: content,
+            stopReason: json["stop_reason"] as? String,
+            tokensIn: usage?["input_tokens"] as? Int,
+            tokensOut: usage?["output_tokens"] as? Int
+        )
     }
 }

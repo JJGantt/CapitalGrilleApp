@@ -37,14 +37,15 @@ enum TopSection: String, CaseIterable, Identifiable {
 
 struct ContentView: View {
     @StateObject private var store = MenuStore()
-    @StateObject private var wineStore = WineStore()
+    @StateObject private var bottleStore = BottleStore()
     @StateObject private var restockStore = RestockStore()
     @StateObject private var voice = VoiceRecorder()
     @State private var searchText = ""
     @State private var section: TopSection = .food
 
+    @State private var liquorExpanded: Set<String> = []
     @State private var selectedDish: Dish?
-    @State private var selectedWine: Wine?
+    @State private var selectedWine: Bottle?
     @State private var showSettings = false
     @State private var aiMode = true        // AI is the default field mode
     @State private var showAIResults = false  // chat overlay visibility
@@ -82,11 +83,11 @@ struct ContentView: View {
                 }
             }
             .sheet(isPresented: $showSettings) {
-                SettingsView(wineStore: wineStore)
+                SettingsView(bottleStore: bottleStore)
             }
             .fullScreenCover(item: $selectedWine) { wine in
                 NavigationStack {
-                    WineDetailView(wine: wine, store: wineStore)
+                    WineDetailView(wine: wine, store: bottleStore)
                         .toolbar {
                             ToolbarItem(placement: .topBarLeading) {
                                 Button(action: { selectedWine = nil }) {
@@ -102,9 +103,8 @@ struct ContentView: View {
             }
             .onAppear {
                 if store.menu == nil { store.load() }
-                if wineStore.categories.isEmpty { wineStore.loadBundle() }
                 Task {
-                    await wineStore.refreshFromSupabase()
+                    await bottleStore.refreshFromSupabase()
                     await restockStore.refresh()
                 }
             }
@@ -112,16 +112,34 @@ struct ContentView: View {
 
     var mainContent: some View {
         VStack(spacing: 0) {
-            // Top: Food / Wine segmented control
-            Picker("Section", selection: $section) {
+            // Top: Food / Wine / Liquor / Restock segmented control.
+            // Tapping any segment also closes the AI conversation view — including
+            // the currently-active segment (which native Picker wouldn't notify us about).
+            HStack(spacing: 0) {
                 ForEach(TopSection.allCases) { s in
-                    Text(s.rawValue).tag(s)
+                    Button(action: {
+                        withAnimation {
+                            section = s
+                            if showAIResults { showAIResults = false }
+                        }
+                    }) {
+                        Text(s.rawValue)
+                            .font(.subheadline.weight(section == s ? .semibold : .regular))
+                            .foregroundColor(section == s ? .cgText : .cgTextMuted)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 7)
+                            .background(
+                                RoundedRectangle(cornerRadius: 7)
+                                    .fill(section == s ? Color.cgCard : Color.clear)
+                                    .padding(2)
+                            )
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
                 }
             }
-            .pickerStyle(.segmented)
-            .onChange(of: section) { _ in
-                if showAIResults { withAnimation { showAIResults = false } }
-            }
+            .background(Color.cgBorder.opacity(0.25))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
             .onChange(of: searchText) { _ in autoSwitchForSearch() }
             .padding(.horizontal, 12)
             .padding(.top, 6)
@@ -142,13 +160,15 @@ struct ContentView: View {
         if showAIResults {
             aiResultsView
         } else if section == .wine {
-            WineListView(store: wineStore, searchText: searchText) { wine in
+            WineListView(store: bottleStore, searchText: searchText) { wine in
                 selectedWine = wine
             }
         } else if section == .liquor {
-            LiquorListView(wineStore: wineStore)
+            LiquorListView(bottleStore: bottleStore, expanded: $liquorExpanded) { bottle in
+                selectedWine = bottle
+            }
         } else if section == .restock {
-            RestockListView(restockStore: restockStore, wineStore: wineStore)
+            RestockListView(restockStore: restockStore, bottleStore: bottleStore)
         } else {
             menuListView
         }
@@ -292,12 +312,12 @@ struct ContentView: View {
                 acc + g.dishes(from: menu).filter { matches(dish: $0, query: q) }.count
             }
         }()
-        let wineCount = wineStore.categories.flatMap(\.wines).filter {
-            $0.name.lowercased().contains(q)
-            || $0.tasting_notes.lowercased().contains(q)
-            || $0.food_pairing.lowercased().contains(q)
+        let wineCount = bottleStore.wineCategories.flatMap(\.bottles).filter {
+            $0.displayName.lowercased().contains(q)
+            || ($0.tasting_notes ?? "").lowercased().contains(q)
+            || ($0.food_pairing ?? "").lowercased().contains(q)
         }.count
-        let liquorCount = wineStore.liquors.filter {
+        let liquorCount = bottleStore.liquors.filter {
             ($0.name ?? "").lowercased().contains(q)
         }.count
 
@@ -392,330 +412,12 @@ struct ContentView: View {
 
     @MainActor
     private func askAnything(question: String, history: [(question: String, answer: String)]) async throws -> String {
-        // Always send food menu + wine list + areas. The model decides what's relevant.
-        let menuJSON: String = {
-            guard let menu = store.menu else { return "(menu unavailable)" }
-            let enc = JSONEncoder()
-            enc.outputFormatting = [.prettyPrinted]
-            if let data = try? enc.encode(menu), let s = String(data: data, encoding: .utf8) { return s }
-            return "(menu unavailable)"
-        }()
-
-        struct WineCtx: Encodable {
-            let id: String
-            let name: String
-            let primary: WineLocation?
-            let backup: WineLocation?
-        }
-        let wines: [WineCtx] = wineStore.categories.flatMap { cat in
-            cat.wines.map { w in
-                WineCtx(id: w.id, name: w.name,
-                        primary: wineStore.locations[w.id]?.primary,
-                        backup:  wineStore.locations[w.id]?.backup)
-            }
-        }
-        let areas = wineStore.areas.map(\.name)
-        let enc = JSONEncoder()
-        enc.outputFormatting = [.prettyPrinted]
-        let winesJSON = (try? String(data: enc.encode(wines), encoding: .utf8)) ?? "[]"
-        let areasJSON = (try? String(data: JSONSerialization.data(withJSONObject: areas), encoding: .utf8)) ?? "[]"
-
-        let toolName = Backend.current == .mac ? "mcp__wine__update_wine_locations" : "update_wine_locations"
-        let areaTool = Backend.current == .mac ? "mcp__wine__edit_areas" : "edit_areas"
-        let restockTool = Backend.current == .mac ? "mcp__wine__update_restock" : "update_restock"
-        let addProductTool = Backend.current == .mac ? "mcp__wine__add_product" : "add_product"
-        let deleteProductTool = Backend.current == .mac ? "mcp__wine__delete_product" : "delete_product"
-
-        // Liquors snapshot from Supabase products (kind=liquor)
-        let liquorsCtx = wineStore.liquors.map { row -> [String: Any] in
-            var d: [String: Any] = ["id": row.id, "name": row.name ?? row.id]
-            if let s = row.primary.displayString { d["primary"] = s }
-            if let s = row.backup.displayString  { d["backup"]  = s }
-            return d
-        }
-        let liquorsJSON = (try? String(data: JSONSerialization.data(withJSONObject: liquorsCtx), encoding: .utf8)) ?? "[]"
-
-        // Current restock list snapshot
-        let restockCtx = restockStore.items.map { item -> [String: Any] in
-            ["product_id": item.product_id, "quantity": item.quantity]
-        }
-        let restockJSON = (try? String(data: JSONSerialization.data(withJSONObject: restockCtx), encoding: .utf8)) ?? "[]"
-        // STABLE prefix (rules + food menu + tool definitions) — cacheable for the Direct API path.
-        let systemStable = """
-        You are a quick reference assistant for The Capital Grille bartender/server training. You answer questions about both food and wine, and can update wine bottle locations behind the bar.
-
-        Be concise — 1-3 sentences unless a list is needed.
-
-        IMPORTANT — input comes from VOICE TRANSCRIPTION. Treat EVERYTHING phonetically before literally. The transcription will mishear words, drop punctuation, mis-capitalize, split or merge words, and substitute homophones. Your job is to recover intent from how the words SOUND, not how they're spelled.
-
-        Apply this lens to every field:
-        - **Numbers**: homophones map to digits — "for"/"four"/"fore" → 4; "to"/"two"/"too" → 2; "won"/"one" → 1; "ate"/"eight" → 8; "tree"/"three" → 3; "zero"/"oh" → 0; "negative one"/"minus one"/"neg one" → -1. Slots that expect a number ALWAYS take a number — never ask whether "for" meant 4.
-        - **Sentences that appear cut off**: If a request appears to end abruptly with a word that sounds like a number ("...position for", "...column to", "...row one"), it is NOT truncated — that final word IS the number. Never respond with "your message seems cut off" or "could you clarify" for these. Treat "for"=4, "to"=2, "one"=1, "tree"=3, "ate"=8 even when they fall at the end of a sentence. The user's intent is always complete; trust your phonetic interpretation.
-        - **Product names** (wines, liquors): fuzzy-match phonetically against the catalog — "rye on dough" → Riondo, "whispering angle" → Whispering Angel, "see do ree" → Siduri, "more raise day cass ah res" → Marqués de Cáceres, "Don who leo" → Don Julio. Match aggressively when one product is a clear phonetic fit. If TWO products are plausible matches and you genuinely can't tell, ask.
-        - **Area names**: same phonetic match against the EXISTING WINE AREAS list — "bar top reds" might come through as "bartop reds" or "bar tops". Match to the closest existing area.
-        - **Row terms**: "back"/"front"/"top"/"bottom" — also accept "rear" → back, "lower" → bottom, "upper" → top.
-        - **Action verbs**: "move", "set", "put", "place", "stick", "throw" all mean update location. "Add", "stock", "need" mean add to restock list. "Take off", "remove", "cross off", "got one" mean reduce restock quantity.
-
-        Default behavior: trust your phonetic interpretation. Don't second-guess the user with clarifying questions unless multiple readings are genuinely equally plausible.
-
-        FOOD MENU DATA:
-        \(menuJSON)
-        """
-
-        // DYNAMIC part (changes per request) — not cached.
-        let systemDynamic = """
-        WINES (id, name, current primary/backup location):
-        \(winesJSON)
-
-        LIQUORS (id, name, locations) — empty until you start adding them:
-        \(liquorsJSON)
-
-        EXISTING WINE AREAS (use ONLY these names — never invent new ones):
-        \(areasJSON)
-
-        CURRENT RESTOCK LIST (product_id → quantity):
-        \(restockJSON)
-
-        Restock rules:
-        - Quantity in update_restock is ABSOLUTE (the new total), not a delta. For relative phrasing like "take one off", compute the new value (current − 1) from the CURRENT RESTOCK LIST. Result ≤ 0 → quantity: 0 to remove.
-        - For real products (wines today, liquors later), use the product's existing id from the WINES list and product_kind matching its kind. Omit the name field.
-        - For items that don't match any real product (oranges, lemons, lime juice, ice, paper towels...), add as free-text: product_kind: "misc", product_id: a kebab-case slug of the name (e.g. "oranges", "lime-juice"), AND set the name field to the human-readable string ("Oranges", "Lime juice").
-        - Match aggressively against real products when the user's phrasing plausibly refers to one. If it's clearly not in the product list, free-text. If it's ambiguous, ASK rather than guessing.
-        - Batch multiple items in one call when the user lists them in sequence.
-
-        Catalog rules:
-        - To register a NEW bottle (wine or liquor) so it can be referenced later, call \(addProductTool) with id (kebab-case slug), name, kind, and any locations the user mentions.
-        - Only call add_product when the user is explicitly cataloging a bottle. For one-off restock entries that don't need a catalog row, use \(restockTool) with product_kind 'misc' instead.
-        - To remove a product call \(deleteProductTool). This is a soft delete — the data is preserved. Wines are readonly and cannot be deleted by you; if the user tries, explain and suggest they remove it manually in Supabase.
-
-        Tool disambiguation (READ CAREFULLY — common mistake):
-        - "Set/change/move/put the [primary|backup] location of X to ..." → \(toolName) (NEVER update_restock).
-        - Any phrase mentioning "primary", "backup", "row", "column", "back/front/top/bottom" with an area name → \(toolName).
-        - "Add/I need X to the restock list", "two of these", "out of X" → \(restockTool).
-        - If the user is RELOCATING a bottle (specifying where it sits), it's update_wine_locations — quantity is irrelevant.
-        - If the user is asking you to REMEMBER they need more of something, it's update_restock.
-
-        Wine-location rules:
-        - For lookups ("where is X?", "what's similar to Y?"), answer in plain text from the WINES data.
-        - For setting locations ("Santa Margherita goes back 3", "I'm reading off back of bar top reds: A, B, C"), call \(toolName) with a batched updates array. When the user reads off a sequence, auto-increment column starting at 1.
-        - Row enum: back/front for bar areas, top/bottom for coolers. Match the user's wording.
-        - Fuzzy-match area names against the EXISTING WINE AREAS list. If no clear match, ask. Never call \(areaTool) to add an area unless the user explicitly asks for that.
-        - After an update, briefly confirm what was set.
-        """
-
-        // Mac path takes a single combined string; Direct API uses split for caching.
-        let combinedSystem = systemStable + "\n\n" + systemDynamic
-
-        let updateTool = AnthropicTool(
-            name: "update_wine_locations",
-            description: "Set the primary or backup location for one or more wines. The 'area' must be one of the existing areas. 'row' must be back/front/top/bottom. 'column' is any integer (positive, zero, or negative — negatives are valid for bottles sitting to the left of the main row). When the user lists multiple wines in sequence on the same row, batch them all into one call with auto-incrementing columns.",
-            inputSchema: [
-                "type": "object",
-                "properties": [
-                    "updates": [
-                        "type": "array",
-                        "items": [
-                            "type": "object",
-                            "properties": [
-                                "wine_id": ["type": "string", "description": "Wine ID from the WINES list"],
-                                "primary": [
-                                    "type": "object",
-                                    "properties": [
-                                        "area":   ["type": "string"],
-                                        "row":    ["type": "string", "enum": ["back","front","top","bottom"]],
-                                        "column": ["type": "integer"]
-                                    ]
-                                ],
-                                "backup": [
-                                    "type": "object",
-                                    "properties": [
-                                        "area":   ["type": "string"],
-                                        "row":    ["type": "string", "enum": ["back","front","top","bottom"]],
-                                        "column": ["type": "integer"]
-                                    ]
-                                ]
-                            ],
-                            "required": ["wine_id"]
-                        ]
-                    ]
-                ],
-                "required": ["updates"]
-            ],
-            handler: { input in
-                let updates = (input["updates"] as? [[String: Any]]) ?? []
-                let ids = try await wineStore.updateLocations(updates)
-                return "Updated \(ids.count) wine(s): \(ids.joined(separator: ", "))"
-            }
-        )
-
-        let deleteProductDef = AnthropicTool(
-            name: "delete_product",
-            description: "Soft-delete a product from the catalog. Fails if the product is readonly. Data is preserved.",
-            inputSchema: [
-                "type": "object",
-                "properties": ["id": ["type": "string"]],
-                "required": ["id"]
-            ],
-            handler: { input in
-                let pid = (input["id"] as? String) ?? ""
-                // Pre-check readonly to give a clean refusal message
-                struct Row: Decodable { let readonly: Bool?; let name: String? }
-                let existing: [Row] = (try? await SupabaseClient.shared.get(path: "wines?id=eq.\(pid)&select=readonly,name")) ?? []
-                if existing.first?.readonly == true {
-                    return "'\(existing.first?.name ?? pid)' is readonly and can't be deleted by the AI."
-                }
-                try await SupabaseClient.shared.patch(path: "wines?id=eq.\(pid)", body: ["deleted": true])
-                await wineStore.refreshFromSupabase()
-                return "Deleted '\(existing.first?.name ?? pid)'."
-            }
-        )
-
-        let addProductDef = AnthropicTool(
-            name: "add_product",
-            description: "Create a new product in the catalog (wine, liquor, soda). Use when the user explicitly registers a new bottle. id is a kebab-case slug; location fields are all optional.",
-            inputSchema: [
-                "type": "object",
-                "properties": [
-                    "id":              ["type": "string"],
-                    "name":            ["type": "string"],
-                    "kind":            ["type": "string", "enum": ["wine","liquor","soda"]],
-                    "primary_area":    ["type": "string"],
-                    "primary_row":     ["type": "string", "enum": ["back","front","top","bottom"]],
-                    "primary_column":  ["type": "integer"],
-                    "backup_area":     ["type": "string"],
-                    "backup_row":      ["type": "string", "enum": ["back","front","top","bottom"]],
-                    "backup_column":   ["type": "integer"]
-                ],
-                "required": ["id","name","kind"]
-            ],
-            handler: { input in
-                var row: [String: Any] = [
-                    "id": (input["id"] as? String) ?? "",
-                    "name": (input["name"] as? String) ?? "",
-                    "kind": (input["kind"] as? String) ?? "wine"
-                ]
-                for k in ["primary_area","primary_row","primary_column","backup_area","backup_row","backup_column"] {
-                    if let v = input[k] { row[k] = v }
-                }
-                try await SupabaseClient.shared.upsert(path: "wines", body: [row], onConflict: "id")
-                await wineStore.refreshFromSupabase()
-                return "Added \(row["kind"] ?? "?") '\(row["name"] ?? "?")'."
-            }
-        )
-
-        let restockToolDef = AnthropicTool(
-            name: "update_restock",
-            description: "Add/change/remove items on the restock list. quantity is ABSOLUTE (new total), quantity=0 removes. For real products use their existing id and matching kind. For free-text items (oranges, lemons, etc.) use product_kind 'misc', a slug id, AND a name.",
-            inputSchema: [
-                "type": "object",
-                "properties": [
-                    "updates": [
-                        "type": "array",
-                        "items": [
-                            "type": "object",
-                            "properties": [
-                                "product_id":   ["type": "string", "description": "Slug. Real product → its existing id; free-text → kebab-case of the name."],
-                                "product_kind": ["type": "string", "enum": ["wine","liquor","soda","misc"]],
-                                "quantity":     ["type": "integer", "minimum": 0],
-                                "name":         ["type": "string", "description": "Display name. REQUIRED when product_kind is 'misc'."]
-                            ],
-                            "required": ["product_id", "quantity"]
-                        ]
-                    ]
-                ],
-                "required": ["updates"]
-            ],
-            handler: { input in
-                let updates = (input["updates"] as? [[String: Any]]) ?? []
-                try await restockStore.apply(updates)
-                return "Updated restock list (\(updates.count) change(s))."
-            }
-        )
-
-        let areasTool = AnthropicTool(
-            name: "edit_areas",
-            description: "Add, rename, or remove a wine storage area. Only call when the user explicitly asks to manage area names.",
-            inputSchema: [
-                "type": "object",
-                "properties": [
-                    "action":   ["type": "string", "enum": ["add","rename","remove"]],
-                    "name":     ["type": "string"],
-                    "new_name": ["type": "string", "description": "Required for rename"]
-                ],
-                "required": ["action","name"]
-            ],
-            handler: { input in
-                let action = (input["action"] as? String) ?? ""
-                let name = (input["name"] as? String) ?? ""
-                switch action {
-                case "add":
-                    try await wineStore.addArea(name)
-                    return "Added area '\(name)'."
-                case "rename":
-                    guard let newName = input["new_name"] as? String else { return "Missing new_name." }
-                    try await wineStore.renameArea(name, to: newName)
-                    return "Renamed '\(name)' to '\(newName)'."
-                case "remove":
-                    try await wineStore.removeArea(name)
-                    return "Removed area '\(name)'."
-                default:
-                    return "Unknown action '\(action)'."
-                }
-            }
-        )
-
-        let activityHandler: @MainActor (String?) -> Void = { activity in
+        let engine = ChatEngine(menuStore: store, bottleStore: bottleStore, restockStore: restockStore, surface: "ios")
+        return try await engine.ask(question: question, history: history, sessionId: aiSessionId) { activity in
             self.aiActivity = activity
         }
-
-        let sessionId = aiSessionId
-
-        if Backend.current == .mac {
-            do {
-                let answer = try await MacClient.ask(
-                    question: question, history: history, systemPrompt: combinedSystem, mode: "wine",
-                    sessionId: sessionId,
-                    onActivity: activityHandler
-                )
-                await wineStore.refreshFromSupabase()
-                await restockStore.refresh()
-                return answer
-            } catch {
-                if isConnectionError(error) {
-                    await MainActor.run { activityHandler("Mac unreachable — falling back to API") }
-                    // fall through to Direct API
-                } else {
-                    throw error
-                }
-            }
-        }
-        return try await AnthropicClient.chatWithTools(
-            question: question,
-            history: history,
-            systemStable: systemStable,
-            systemDynamic: systemDynamic,
-            tools: [updateTool, areasTool, restockToolDef, addProductDef, deleteProductDef],
-            onActivity: activityHandler
-        )
     }
 
-    /// True for "can't even reach the server" errors. HTTP error responses don't count.
-    private func isConnectionError(_ error: Error) -> Bool {
-        let ns = error as NSError
-        guard ns.domain == NSURLErrorDomain else { return false }
-        switch ns.code {
-        case NSURLErrorTimedOut,
-             NSURLErrorCannotFindHost,
-             NSURLErrorCannotConnectToHost,
-             NSURLErrorNetworkConnectionLost,
-             NSURLErrorNotConnectedToInternet,
-             NSURLErrorDNSLookupFailed,
-             NSURLErrorResourceUnavailable:
-            return true
-        default:
-            return false
-        }
-    }
 
     @ViewBuilder
     var aiResultsView: some View {
@@ -725,6 +427,7 @@ struct ContentView: View {
                 Color.clear.frame(height: 1).id("bottomAnchor")
             }
             .scrollDismissesKeyboard(.immediately)
+            .onAppear { proxy.scrollTo("bottomAnchor", anchor: .bottom) }
             .onChange(of: aiHistory.count) { _ in
                 withAnimation { proxy.scrollTo("bottomAnchor", anchor: .bottom) }
             }
