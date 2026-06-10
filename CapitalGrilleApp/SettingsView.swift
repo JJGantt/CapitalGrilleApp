@@ -73,7 +73,8 @@ struct SettingsView: View {
                         .onChange(of: model) { new in AIModel.current = new }
                 }
 
-                Section("Areas") {
+                if AppGate.isOwnerDevice {
+                    Section("Areas") {
                     if !bottleStore.areas.isEmpty {
                         ForEach(bottleStore.areas) { area in
                             HStack {
@@ -110,6 +111,7 @@ struct SettingsView: View {
                         }
                         .buttonStyle(.plain)
                         .disabled(newAreaName.trimmingCharacters(in: .whitespaces).isEmpty || busy)
+                    }
                     }
                 }
 

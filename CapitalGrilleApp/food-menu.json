@@ -4705,7 +4705,6 @@
           {
             "name": "Whipped Chevre with Watermelon, Crispy Prosciutto, Pistachio & Honey Vinaigrette",
             "section": "Amuse Bouche",
-            "menu_name": "Watermelon with Crispy Prosciutto, Goat Cheese, Pistachio, Honey and Fig Balsamic",
             "portion": [
               {
                 "ingredient": "Fig Balsamic",
@@ -4738,7 +4737,8 @@
                 "ingredient": "Prosciutto Crisp, 1\" x ½\"",
                 "amount": "1 ea"
               }
-            ]
+            ],
+            "description": "Watermelon with Crispy Prosciutto, Goat Cheese, Pistachio, Honey and Fig Balsamic"
           }
         ]
       },
@@ -4933,7 +4933,6 @@
           {
             "name": "8 oz SRF Wagyu Filet (upgrade)",
             "section": "Second Course — Upgrades",
-            "menu_name": "Upgrade: 8 oz SRF Wagyu Filet with Potato Leek Purée & Onion Jam",
             "price": 30,
             "notes": [
               "+$30 surcharge on top of the $125 tasting menu price. Same plating as the standard 8 oz Filet Mignon course."
@@ -4979,12 +4978,12 @@
                 "ingredient": "Watercress, no more than 1½\"",
                 "amount": "6-8 leaves"
               }
-            ]
+            ],
+            "description": "8 oz SRF Wagyu Filet with Potato Leek Purée & Onion Jam"
           },
           {
             "name": "22 oz Bone-In Ribeye (upgrade)",
             "section": "Second Course — Upgrades",
-            "menu_name": "Upgrade: Bone-In Ribeye 22 oz Steak Frites with Black Garlic Glaze & Charred Shallot Aioli",
             "price": 20,
             "notes": [
               "+$20 surcharge on top of the $125 tasting menu price. Same accompaniments as the 14 oz Dry Aged NY Strip course."
@@ -5028,7 +5027,8 @@
                 "ingredient": "Watercress, no more than 1½\"",
                 "amount": "6-8 stems"
               }
-            ]
+            ],
+            "description": "Bone-In Ribeye 22 oz Steak Frites with Black Garlic Glaze & Charred Shallot Aioli"
           }
         ]
       },
