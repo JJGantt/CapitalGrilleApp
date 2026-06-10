@@ -3,10 +3,15 @@ import SwiftUI
 @main
 struct CapitalGrilleApp: App {
     init() {
+        APIKeyStore.seedFromSecretsIfNeeded()
+        // Resolve gating from the bundled defaults immediately (synchronous), then
+        // let Supabase override it in the background if a config row exists.
+        AppGate.apply()
+        Task { await AppGate.refreshFromSupabase() }
         WatchRelayHandler.activate()
-        // Diagnostic: fire a heartbeat directly via URLSession on launch. Bypasses
-        // AppLogger entirely so we can confirm the new build is running independently
-        // of whether logging itself works.
+        #if DEBUG
+        // Diagnostic heartbeat — DEBUG only so TestFlight/App Store builds
+        // don't ping Supabase on every cold start.
         Task.detached(priority: .background) {
             let url = URL(string: "https://felyggqjjhltwokdfhop.supabase.co/rest/v1/app_logs")!
             var req = URLRequest(url: url)
@@ -26,6 +31,7 @@ struct CapitalGrilleApp: App {
             req.httpBody = try? JSONSerialization.data(withJSONObject: body)
             _ = try? await URLSession.shared.data(for: req)
         }
+        #endif
     }
 
     var body: some Scene {

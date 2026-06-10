@@ -36,7 +36,10 @@ final class ChatEngine {
         let interactionId = UUID()
         let startedAt = Date()
 
-        let (systemStable, systemDynamic, tools) = buildPromptAndTools()
+        // Editable rule text comes from Supabase (app_content/system_prompt); on any
+        // failure we fall back to the in-code literals, so the prompt never breaks.
+        let remotePrompt = await Self.fetchPromptBlocks()
+        let (systemStable, systemDynamic, tools) = buildPromptAndTools(remotePrompt: remotePrompt)
         let combinedSystem = systemStable + "\n\n" + systemDynamic
 
         func logInteraction(backend: String, answer: String?, error: String?) async {
@@ -101,7 +104,18 @@ final class ChatEngine {
 
     // MARK: - Prompt + tools
 
-    private func buildPromptAndTools() -> (stable: String, dynamic: String, tools: [AnthropicTool]) {
+    /// Fetch the editable rule blocks from Supabase (app_content/system_prompt).
+    /// Returns nil on any failure → callers fall back to the in-code literals.
+    static func fetchPromptBlocks() async -> [String: String]? {
+        struct Row: Decodable { let data: [String: String] }
+        if let rows: [Row] = try? await SupabaseClient.shared.get(
+                path: "app_content?key=eq.system_prompt&select=data") {
+            return rows.first?.data
+        }
+        return nil
+    }
+
+    private func buildPromptAndTools(remotePrompt: [String: String]?) -> (stable: String, dynamic: String, tools: [AnthropicTool]) {
         // Catalog skeleton
         func locStr(_ l: BottleLocation) -> String? {
             guard let area = l.area else { return nil }
@@ -149,13 +163,33 @@ final class ChatEngine {
         let detailsTool = Backend.current == .mac ? "mcp__bottle__get_bottle_details" : "get_bottle_details"
         let byVarietalTool = Backend.current == .mac ? "mcp__bottle__get_bottles_by_varietal" : "get_bottles_by_varietal"
         let foodTool = Backend.current == .mac ? "mcp__bottle__get_food_menu" : "get_food_menu"
+        let generousPourTool = Backend.current == .mac ? "mcp__bottle__get_generous_pour" : "get_generous_pour"
 
         let restockCtx = restockStore.items.map { item -> [String: Any] in
             ["product_id": item.product_id, "quantity": item.quantity]
         }
         let restockJSON = (try? String(data: JSONSerialization.data(withJSONObject: restockCtx), encoding: .utf8)) ?? "[]"
 
-        var systemStable = """
+        let cocktailsList = CocktailStore.loadFromBundle()
+        let cocktailSkel = cocktailsList.isEmpty ? "" : cocktailSkeleton(cocktailsList)
+
+        // Editable rule blocks live in Supabase (app_content/system_prompt). A remote
+        // block (which uses {{placeholders}}) overrides the in-code literal; either
+        // way, {{tool}}/{{data}} placeholders resolve to the live backend + data.
+        let promptSub: [String: String] = [
+            "{{food_tool}}": foodTool, "{{details_tool}}": detailsTool, "{{by_varietal_tool}}": byVarietalTool,
+            "{{generous_pour_tool}}": generousPourTool, "{{location_tool}}": toolName, "{{area_tool}}": areaTool,
+            "{{restock_tool}}": restockTool, "{{add_product_tool}}": addProductTool, "{{delete_product_tool}}": deleteProductTool,
+            "{{bottle_skeleton}}": bottleSkeleton, "{{areas}}": areasJSON, "{{cocktail_skeleton}}": cocktailSkel, "{{restock}}": restockJSON,
+        ]
+        func promptBlock(_ key: String, _ fallback: String) -> String {
+            guard let remote = remotePrompt?[key], !remote.isEmpty else { return fallback }
+            var r = remote
+            for (k, v) in promptSub { r = r.replacingOccurrences(of: k, with: v) }
+            return r
+        }
+
+        let baseRulesFallback = """
         You are a quick reference assistant for The Capital Grille bartender/server training. You answer questions about food, wine, liquor, and the bar's inventory, and can update bottle locations behind the bar.
 
         Be concise — 1-3 sentences unless a list is needed.
@@ -168,10 +202,32 @@ final class ChatEngine {
         - For questions about a category ("what are the smoky scotches", "which gins do you have"), ALWAYS call get_bottles_by_varietal to see every option with full notes — even if you think you know the answer.
         - A single producer's lineup can span multiple varietals. E.g. "Colonel E.H. Taylor" has bourbons AND a rye (Straight Rye, varietal "Rye"). "Angel's Envy" has a bourbon AND a rye (Angel's Envy Rye, varietal "Rye"). "WhistlePig" is all ryes. When asked about a brand or lineup, scan the WHOLE skeleton for every matching name across ALL varietal groups, then call get_bottle_details for each one. Don't assume a single varietal covers the whole lineup.
         - For ANY question about food/dishes, ALWAYS call get_food_menu (with a section if you can narrow it down). The menu data is the source of truth — never guess ingredients from your own knowledge.
+        - GENEROUS POUR is a separate seasonal program (summer wine/tasting event). Its menu, wines, prices, dates, and recipes are NOT part of the regular food/wine catalog and live behind a dedicated tool, \(generousPourTool). ONLY call \(generousPourTool) when the user has explicitly mentioned "Generous Pour" (or a clear phonetic variant). Do not include Generous Pour wines or dishes in answers to ordinary food, wine, or recommendation questions. If the user mentions Generous Pour, \(generousPourTool) returns the full program data — wines, courses, recipes, and pricing — in one shot.
         - Tool calls are cheap — when in doubt, call the tool. Better to verify with data than guess.
 
         QUESTION-SHAPE RULES:
-        - "What's in X?" / "What are the ingredients of X?" / "What's it made of?" / "How is X made?" → return the ACTUAL list of components/ingredients, not a description. Lists go on their own lines (one item per line, plain text, no bullets needed). NEVER substitute a summary for a list when the user explicitly asked for the contents.
+        - BARE NOUN PROMPTS: When the user's prompt is just the name of a thing (e.g. "White Russian", "Porcini Rub", "Old Fashioned", "Stagg") with no verb or question, treat it as a request for full information about that thing in the standard format for its type. Specifically:
+          - Bare cocktail name (e.g. "Negroni", "White Russian") → same as "What's in a ___?" — apply COCKTAIL ROUTING (see OUR COCKTAILS below), then answer in the cocktail structure (Ingredients / Glass / Garnish / Instructions).
+          - Bare food item (e.g. "Porcini Rub", "Kona Crust") → same as "What is X and what's in it?" — call get_food_menu, give a one-sentence description PLUS the ingredients list.
+          - Bare bottle name (wine or liquor, e.g. "Orin Swift You Had Me at Hell No", "Stagg", "Macallan 18") → call get_bottle_details. LEAD WITH THE LOCATION: primary location on the first line, backup location on the second line if one exists. Then the tasting notes / production specs. The location is the most important fact for a bartender hearing a bottle name standalone — they need to know where to grab it before anything else.
+          - Bare varietal/category (e.g. "Bourbon", "Cabernet") → same as "What X do we have?" — call get_bottles_by_varietal.
+        - "What's in X?" / "What are the ingredients of X?" / "What's it made of?" / "How is X made?" → return the ACTUAL list of components/ingredients, one item per line, plain text. NEVER substitute a description for a list. THEN route by what X actually is:
+          - X is a dish, sauce, rub, side, dessert, etc. → call get_food_menu and use its data as the source of truth. List the menu's exact ingredients verbatim, do not paraphrase or summarize.
+          - X is a cocktail (Manhattan, Old Fashioned, Margarita, Negroni, White Russian, etc.) → apply COCKTAIL ROUTING (see OUR COCKTAILS below): prefer our version when X maps to one of ours, otherwise answer from general knowledge. No tool call needed — the recipes are in your prompt. Use this exact structure:
+            Ingredients:
+            <one per line with measurements>
+
+            Glass:
+            <glass type>
+
+            Garnish:
+            <garnish>
+
+            Instructions:
+            <method>
+
+          - X is a single bottle (a specific wine or spirit) → call get_bottle_details.
+        - For cocktail answers: if the standard recipe calls for a specific brand (e.g. "Patrón Silver"), only name the brand if it's in the catalog skeleton. Otherwise use the generic category ("blanco tequila", "coffee liqueur", "sweet vermouth").
         - "What dishes use X?" → list every dish whose menu entry mentions X.
         - "How is X different from Y?" / "Compare X and Y" → give the specific differences (proof, mash bill, finish, ingredients, etc.). Don't collapse to one vague difference.
 
@@ -188,20 +244,32 @@ final class ChatEngine {
         Default behavior: trust your phonetic interpretation. Don't second-guess the user with clarifying questions unless multiple readings are genuinely equally plausible.
         """
 
+        var systemStable = promptBlock("base_rules", baseRulesFallback)
+
+        let cocktailRoutingFallback = cocktailsList.isEmpty ? "" : """
+        OUR COCKTAILS — the cocktails on our bar menu, with full builds, are listed below.
+
+        COCKTAIL ROUTING:
+        - DEFAULT TO OURS. When asked about a cocktail, if it matches or plausibly maps to one on this list — including loose/partial matches (e.g. "Negroni" → our "Negroni Bianco", "Cosmo"/"Cosmopolitan" → "Capital Cosmopolitan", "Doli"/"Stoli Doli" → "The Doli", "Manhattan" → "Double Oaked & Rye Manhattan") — answer with OUR version and name it naturally ("Our Negroni Bianco is made with…").
+        - Drop to general bartending knowledge ONLY when the drink clearly isn't one of ours (e.g. Irish Coffee, White Russian) OR the guest explicitly asks for the classic / standard / traditional version. Same answer structure either way.
+        - NEVER say we "don't have" or "don't make" a cocktail. If it isn't on our list, just answer what it is from general knowledge.
+
+        \(cocktailSkel)
+        """
+        let cocktailRouting = promptBlock("cocktail_routing", cocktailRoutingFallback)
+        if !cocktailRouting.isEmpty { systemStable += "\n\n" + cocktailRouting }
+
         if let hint = surfaceHint {
             systemStable += "\n\nSURFACE NOTE: \(hint)"
         }
 
-        let systemDynamic = """
+        let catalogRulesFallback = """
         CATALOG SKELETON (name @ primary location | bk backup location). Use for fuzzy matching and location lookups. For tasting notes / details, call \(detailsTool) or \(byVarietalTool).
 
         \(bottleSkeleton)
 
         EXISTING WINE AREAS (use ONLY these names — never invent new ones):
         \(areasJSON)
-
-        CURRENT RESTOCK LIST (product_id → quantity):
-        \(restockJSON)
 
         Restock rules:
         - Quantity in update_restock is ABSOLUTE (the new total), not a delta. For relative phrasing like "take one off", compute the new value (current − 1) from the CURRENT RESTOCK LIST. Result ≤ 0 → quantity: 0 to remove.
@@ -231,6 +299,17 @@ final class ChatEngine {
         - Fuzzy-match area names against the EXISTING WINE AREAS list. If no clear match, ask. Never call \(areaTool) to add an area unless the user explicitly asks for that.
         - After an update, briefly confirm what was set.
         """
+
+        // The catalog skeleton + all the static rules are effectively static (the
+        // skeleton changes only on a location edit), so fold them into the cached
+        // prefix instead of re-billing them on every call. Only the live restock
+        // list — which changes frequently — stays in the uncached block.
+        systemStable += "\n\n" + promptBlock("catalog_rules", catalogRulesFallback)
+
+        let systemDynamic = promptBlock("restock", """
+        CURRENT RESTOCK LIST (product_id → quantity):
+        \(restockJSON)
+        """)
 
         // Tools — capture stores via closure
         let menuStore = self.menuStore
@@ -289,6 +368,24 @@ final class ChatEngine {
                 let enc = JSONEncoder()
                 enc.outputFormatting = [.prettyPrinted]
                 if let data = try? enc.encode(matched), let s = String(data: data, encoding: .utf8) { return s }
+                return "(encode error)"
+            }
+        )
+
+        let getGenerousPourTool = AnthropicTool(
+            name: "get_generous_pour",
+            description: "Get the Generous Pour summer program data — wines, tasting menu courses, prices, dates, recipes. ONLY call this when the user explicitly mentions 'Generous Pour' (or an obvious phonetic variant like 'generous pore'). This is a seasonal event, NOT part of the regular menu. Never call this for general food, wine, or dish questions.",
+            inputSchema: [
+                "type": "object",
+                "properties": [:],
+                "required": []
+            ],
+            handler: { input in
+                _ = input
+                guard let gp = await menuStore.menu?.generous_pour else { return "(Generous Pour data unavailable)" }
+                let enc = JSONEncoder()
+                enc.outputFormatting = [.prettyPrinted]
+                if let data = try? enc.encode(gp), let s = String(data: data, encoding: .utf8) { return s }
                 return "(encode error)"
             }
         )
@@ -590,7 +687,7 @@ final class ChatEngine {
         )
 
         let tools: [AnthropicTool] = [
-            getFoodMenuTool, getBottleDetailsTool, getBottlesByVarietalTool,
+            getFoodMenuTool, getGenerousPourTool, getBottleDetailsTool, getBottlesByVarietalTool,
             updateTool, areasTool, restockToolDef,
             addProductDef, deleteProductDef, setImageDef, updateDetailsDef,
         ]
@@ -598,6 +695,10 @@ final class ChatEngine {
     }
 
     private static func isConnectionError(_ error: Error) -> Bool {
+        #if os(watchOS)
+        // Watch-specific: phone relay unreachable means we should fall back to API.
+        if case WatchPhoneRelay.RelayError.notReachable = error { return true }
+        #endif
         let ns = error as NSError
         guard ns.domain == NSURLErrorDomain else { return false }
         switch ns.code {

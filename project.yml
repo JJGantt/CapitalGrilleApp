@@ -21,8 +21,10 @@ targets:
         CFBundleDisplayName: Capital Grille
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        ITSAppUsesNonExemptEncryption: false
         UIStatusBarStyle: UIStatusBarStyleDarkContent
         UILaunchScreen: {}
+        CFBundleIconName: AppIcon
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         NSMicrophoneUsageDescription: Lets you ask questions and add items by voice.
@@ -36,9 +38,9 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.jaredgantt.CapitalGrille
         PRODUCT_NAME: CapitalGrille
-        TARGETED_DEVICE_FAMILY: "1,2"
+        TARGETED_DEVICE_FAMILY: "1"
         MARKETING_VERSION: "1.0"
-        CURRENT_PROJECT_VERSION: "2"
+        CURRENT_PROJECT_VERSION: "8"
     dependencies:
       - target: CapitalGrilleWatch
         embed: true
@@ -53,12 +55,17 @@ targets:
       - path: CapitalGrilleApp/SupabaseClient.swift
       - path: CapitalGrilleApp/RestockModels.swift
       - path: CapitalGrilleApp/MenuModels.swift
+      - path: CapitalGrilleApp/CocktailModels.swift
+      - path: CapitalGrilleApp/ConfigModels.swift
       - path: CapitalGrilleApp/WineModels.swift
       - path: CapitalGrilleApp/AnthropicClient.swift
       - path: CapitalGrilleApp/AppLogger.swift
+      - path: CapitalGrilleApp/APIKeyStore.swift
       - path: CapitalGrilleApp/MacClient.swift
       - path: CapitalGrilleApp/ChatEngine.swift
       - path: CapitalGrilleApp/food-menu.json
+        buildPhase: resources
+      - path: CapitalGrilleApp/cocktails.json
         buildPhase: resources
     info:
       path: CapitalGrilleWatch/Info.plist
@@ -66,18 +73,52 @@ targets:
         CFBundleDisplayName: Capital Grille
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        ITSAppUsesNonExemptEncryption: false
+        CFBundleIconName: AppIcon
         WKApplication: true
         WKCompanionAppBundleIdentifier: com.jaredgantt.CapitalGrille
+        WKBackgroundModes:
+          - workout-processing
         NSMicrophoneUsageDescription: Voice prompts to the AI assistant.
         NSSpeechRecognitionUsageDescription: Transcribes voice prompts for the assistant.
+        NSHealthShareUsageDescription: Capital Grille runs a workout session to stay foregrounded when you raise your wrist, so the assistant is always one glance away. No health data is read.
+        NSHealthUpdateUsageDescription: Capital Grille runs a workout session to stay foregrounded when you raise your wrist. No health data is written.
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
           NSExceptionDomains:
             "100.106.101.57":
               NSExceptionAllowsInsecureHTTPLoads: true
+    entitlements:
+      path: CapitalGrilleWatch/CapitalGrilleWatch.entitlements
+      properties:
+        com.apple.developer.healthkit: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.jaredgantt.CapitalGrille.watch
         TARGETED_DEVICE_FAMILY: "4"
         MARKETING_VERSION: "1.0"
-        CURRENT_PROJECT_VERSION: "2"
+        CURRENT_PROJECT_VERSION: "8"
+    dependencies:
+      - target: CapitalGrilleWatchWidgets
+        embed: true
+
+  CapitalGrilleWatchWidgets:
+    type: app-extension
+    platform: watchOS
+    deploymentTarget: "11.0"
+    sources:
+      - path: CapitalGrilleWatchWidgets
+    info:
+      path: CapitalGrilleWatchWidgets/Info.plist
+      properties:
+        CFBundleDisplayName: Capital Grille
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.jaredgantt.CapitalGrille.watch.widgets
+        TARGETED_DEVICE_FAMILY: "4"
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "8"

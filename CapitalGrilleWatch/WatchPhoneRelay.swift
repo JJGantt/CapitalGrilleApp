@@ -18,6 +18,14 @@ final class WatchPhoneRelay: NSObject, ObservableObject, WCSessionDelegate {
         if WCSession.isSupported() {
             WCSession.default.delegate = self
             WCSession.default.activate()
+            // Pick up a key the phone may have pushed in a previous session.
+            ingestContext(WCSession.default.receivedApplicationContext)
+        }
+    }
+
+    private func ingestContext(_ ctx: [String: Any]) {
+        if let key = ctx["anthropic_api_key"] as? String, !key.isEmpty {
+            _ = APIKeyStore.set(key)
         }
     }
 
@@ -72,6 +80,11 @@ final class WatchPhoneRelay: NSObject, ObservableObject, WCSessionDelegate {
 
     nonisolated func sessionReachabilityDidChange(_ session: WCSession) {
         Task { @MainActor in self.isReachable = session.isReachable }
+    }
+
+    nonisolated func session(_ session: WCSession,
+                             didReceiveApplicationContext applicationContext: [String: Any]) {
+        Task { @MainActor in self.ingestContext(applicationContext) }
     }
 
     enum RelayError: LocalizedError {

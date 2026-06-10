@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct WatchContentView: View {
-    @EnvironmentObject private var extendedSession: ExtendedSessionManager
+    @EnvironmentObject private var workoutSession: WorkoutSessionManager
 
     var body: some View {
         TabView {
@@ -10,6 +10,6 @@ struct WatchContentView: View {
             NavigationStack { WatchSettingsView() }
         }
         .tabViewStyle(.page)
-        .onAppear { extendedSession.start() }
+        .onAppear { workoutSession.start() }
     }
 }

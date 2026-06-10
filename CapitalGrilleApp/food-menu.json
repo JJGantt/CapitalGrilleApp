@@ -4615,5 +4615,467 @@
       "variants": {},
       "image": "images/dishes/sliced-dry-aged-ny-strip.jpg"
     }
-  ]
+  ],
+  "generous_pour": {
+    "meta": {
+      "dates_active": "June 25 - August 30, 2026",
+      "wine_only_price": 38,
+      "tasting_menu_price": 125,
+      "tasting_menu_includes_wine": true,
+      "glass_pour_oz": 2,
+      "glassware": {
+        "item_number": "357842",
+        "description": "GLASS, 14 OZ GENEROUS POUR, W/ POUR LINE",
+        "case_pack": "24 glasses (4 boxes of 6 glasses)"
+      },
+      "notes": [
+        "GP wine glass has a 2 oz etched pour line — use to calibrate service pours.",
+        "Dessert course in the Chef's Pairing Menu is not paired with a Generous Pour wine."
+      ]
+    },
+    "wines": [
+      {
+        "name": "Goldeneye North Coast Brut Rosé Sparkling Wine",
+        "producer": "Goldeneye",
+        "region": "North Coast",
+        "varietal": "Sparkling Rosé",
+        "description": "A distinguished rosé crafted from the finest cool-climate vineyards on California's North Coast, selected for its poise, elegance, and refined character.",
+        "tasting_notes": "Apricot, honeysuckle, lemon peel and brioche open into flavors of strawberry, cherry and orange, with a soft, creamy texture and a bright finish.",
+        "suggested_pairing": "Pan-Fried Calamari with Hot Cherry Peppers",
+        "image_url": "https://felyggqjjhltwokdfhop.supabase.co/storage/v1/object/public/bottles/gp-goldeneye-brut-rose.jpg"
+      },
+      {
+        "name": "Duckhorn North Coast Sauvignon Blanc",
+        "producer": "Duckhorn",
+        "region": "North Coast",
+        "varietal": "Sauvignon Blanc",
+        "description": "Rich and elegant expressions revealing exceptional clarity, freshness, and vibrant natural acidity shaped by stainless steel and French oak.",
+        "tasting_notes": "Expressive tropical and citrus aromas with a refreshing palate, bright acidity, silky texture and dynamic finish.",
+        "suggested_pairing": "Caviar and Caramelized Onion Dip with Housemade Chips",
+        "image_url": "https://felyggqjjhltwokdfhop.supabase.co/storage/v1/object/public/bottles/gp-duckhorn-sauvignon-blanc.jpg"
+      },
+      {
+        "name": "Duckhorn Napa Valley Chardonnay",
+        "producer": "Duckhorn",
+        "region": "Napa Valley",
+        "varietal": "Chardonnay",
+        "description": "Rooted in tradition and sourced from prized vineyard sites, defined by its purity, structure, and polished expression.",
+        "tasting_notes": "Caramelized pineapple, white stone fruit, ripe pear and mango crème brûlée aromas with a bright, rich, acidic palate and layered fruit, floral, and mineral notes.",
+        "suggested_pairing": "Seared Sea Scallops with Maine Lobster and Asparagus Risotto",
+        "image_url": "https://felyggqjjhltwokdfhop.supabase.co/storage/v1/object/public/bottles/gp-duckhorn-chardonnay.jpg"
+      },
+      {
+        "name": "Goldeneye Anderson Valley Pinot Noir",
+        "producer": "Goldeneye",
+        "region": "Anderson Valley",
+        "varietal": "Pinot Noir",
+        "description": "Refined elegance meets subtle rustic beauty, guided by the region's cool, coastal character in this elevated expression.",
+        "tasting_notes": "Aromas of fresh sage, pennyroyal, fennel and pink peppercorn, with polished tannins and notes of cranberry, blood orange, açaí berry.",
+        "suggested_pairing": "Seared Citrus-Glazed Salmon with Marcona Almonds and Brown Butter",
+        "image_url": "https://felyggqjjhltwokdfhop.supabase.co/storage/v1/object/public/bottles/gp-goldeneye-pinot-noir.jpg"
+      },
+      {
+        "name": "Duckhorn Napa Valley Merlot",
+        "producer": "Duckhorn",
+        "region": "Napa Valley",
+        "varietal": "Merlot",
+        "description": "An heir to the crown jewel, the original 1978 Merlot, showcasing the diversity of Napa Valley's appellations and a longstanding dedication to excellence.",
+        "tasting_notes": "Refined and balanced with aromas of rhubarb crumble, cardamom and milk chocolate with layered red currant, raspberry, black plum and baking spice.",
+        "suggested_pairing": "Double Cut Lamb Rib Chops with Mint Gremolata",
+        "image_url": "https://felyggqjjhltwokdfhop.supabase.co/storage/v1/object/public/bottles/gp-duckhorn-merlot.jpg"
+      },
+      {
+        "name": "Duckhorn Napa Valley Heritage Cabernet Sauvignon",
+        "producer": "Duckhorn",
+        "region": "Napa Valley",
+        "varietal": "Cabernet Sauvignon",
+        "description": "A limited quantity, one-time summer release crafted from esteemed vineyards and estates, including Oak Knoll and Howell Mountain, defined by balance and enduring craftsmanship.",
+        "tasting_notes": "Boysenberry and black currant with baking spice and bay leaf, unfolding blueberry, slate and graham cracker, followed by a long finish of cassia and cedar.",
+        "suggested_pairing": "Kona-Crusted Dry Aged NY Strip with Shallot Butter",
+        "image_url": "https://felyggqjjhltwokdfhop.supabase.co/storage/v1/object/public/bottles/gp-duckhorn-cabernet.jpg"
+      }
+    ],
+    "courses": [
+      {
+        "course": "Amuse Bouche",
+        "paired_wines": [
+          "Goldeneye North Coast Brut Rosé Sparkling Wine"
+        ],
+        "dishes": [
+          {
+            "name": "Whipped Chevre with Watermelon, Crispy Prosciutto, Pistachio & Honey Vinaigrette",
+            "section": "Amuse Bouche",
+            "menu_name": "Watermelon with Crispy Prosciutto, Goat Cheese, Pistachio, Honey and Fig Balsamic",
+            "portion": [
+              {
+                "ingredient": "Fig Balsamic",
+                "amount": "½ tsp"
+              },
+              {
+                "ingredient": "Honey Vinaigrette",
+                "amount": "½ tsp",
+                "prep": "see recipe"
+              },
+              {
+                "ingredient": "Watermelon Cube",
+                "amount": "1 ea",
+                "prep": "see recipe"
+              },
+              {
+                "ingredient": "Whipped Goat Cheese",
+                "amount": "1 tsp",
+                "prep": "see recipe"
+              },
+              {
+                "ingredient": "Roasted Pistachio, crushed",
+                "amount": "1 pinch"
+              },
+              {
+                "ingredient": "Chives, sliced",
+                "amount": "1 pinch"
+              },
+              {
+                "ingredient": "Prosciutto Crisp, 1\" x ½\"",
+                "amount": "1 ea"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "course": "First Course",
+        "paired_wines": [
+          "Duckhorn North Coast Sauvignon Blanc",
+          "Duckhorn Napa Valley Chardonnay"
+        ],
+        "dishes": [
+          {
+            "name": "Chopped Salad with Feta, Port Dried Cherries, Marcona Almonds and Walnut Vinaigrette",
+            "section": "First Course",
+            "menu_name": "Chopped Salad with Feta, Port Dried Cherries, Marcona Almonds and Walnut Vinaigrette",
+            "notes": [
+              "Recipe details to follow — only menu-line description recorded so far."
+            ]
+          },
+          {
+            "name": "Caesar Salad with Grana Padano Croutons",
+            "section": "First Course",
+            "menu_name": "Caesar Salad with Grana Padano Croutons",
+            "notes": [
+              "Recipe details to follow — only menu-line description recorded so far."
+            ]
+          },
+          {
+            "name": "Tomato Bisque with Toasted Brie Crostini",
+            "section": "First Course",
+            "menu_name": "Tomato Bisque with Toasted Brie Crostini",
+            "notes": [
+              "Recipe details to follow — only menu-line description recorded so far."
+            ]
+          }
+        ]
+      },
+      {
+        "course": "Second Course",
+        "paired_wines": [
+          "Goldeneye Anderson Valley Pinot Noir",
+          "Duckhorn Napa Valley Merlot",
+          "Duckhorn Napa Valley Heritage Cabernet Sauvignon"
+        ],
+        "dishes": [
+          {
+            "name": "8 oz Filet Mignon with Pommes Puree, King Trumpet Mushrooms and Onion Jam",
+            "section": "Second Course",
+            "menu_name": "8 oz Filet Mignon with Pommes Puree, King Trumpet Mushrooms and Onion Jam",
+            "portion": [
+              {
+                "ingredient": "Filet Mignon",
+                "amount": "8 wt oz"
+              },
+              {
+                "ingredient": "Seasoning Salt",
+                "amount": "To season"
+              },
+              {
+                "ingredient": "Trumpet Mushroom Prep",
+                "amount": "3 ea",
+                "prep": "see recipe"
+              },
+              {
+                "ingredient": "Steak Butter",
+                "amount": "Brush",
+                "prep": "room temperature"
+              },
+              {
+                "ingredient": "Pommes Puree",
+                "amount": "1 Grey Scoop",
+                "prep": "see recipe"
+              },
+              {
+                "ingredient": "Chives, sliced ⅛\"",
+                "amount": "1 pinch"
+              },
+              {
+                "ingredient": "Red Wine Onion Jam",
+                "amount": "1 Purple Scoop",
+                "prep": "see recipe"
+              },
+              {
+                "ingredient": "Maldon Sea Salt",
+                "amount": "1 pinch"
+              },
+              {
+                "ingredient": "Watercress, no more than 1½\"",
+                "amount": "6-8 leaves"
+              }
+            ],
+            "variants": {
+              "upgrade_wagyu": "Elevate to 8 oz SRF Wagyu Filet for +$30 — same plating, swap filet."
+            }
+          },
+          {
+            "name": "Pan-Seared Salmon with Creamy Corn Polenta, Lemon Charred Asparagus and Scallion Oil",
+            "section": "Second Course",
+            "menu_name": "Pan-Seared Salmon with Creamy Corn Polenta, Lemon Charred Asparagus and Scallion Oil",
+            "portion": [
+              {
+                "ingredient": "Salmon Filet",
+                "amount": "8 wt oz"
+              },
+              {
+                "ingredient": "Seasoning Salt",
+                "amount": "¼ tsp"
+              },
+              {
+                "ingredient": "Clarified Butter",
+                "amount": "½ fl oz"
+              },
+              {
+                "ingredient": "White Wine Water Mix",
+                "amount": "½ fl oz + ¾ fl oz"
+              },
+              {
+                "ingredient": "Creamy Polenta",
+                "amount": "1 Green Scoop",
+                "prep": "see recipe"
+              },
+              {
+                "ingredient": "Grilled Asparagus, 4\"",
+                "amount": "6 ea"
+              },
+              {
+                "ingredient": "Trio Tomatoes, halved",
+                "amount": "1 Yellow Scoop"
+              },
+              {
+                "ingredient": "Lemon Oil",
+                "amount": "1 tsp"
+              },
+              {
+                "ingredient": "Green Onion Oil",
+                "amount": "¼ tsp",
+                "prep": "see recipe"
+              },
+              {
+                "ingredient": "Maldon Sea Salt",
+                "amount": "1 pinch"
+              }
+            ]
+          },
+          {
+            "name": "14 oz Dry Aged NY Strip with Black Garlic Glaze, Sea Salt Fries and Charred Shallot Aioli",
+            "section": "Second Course",
+            "menu_name": "14 oz Dry Aged NY Strip with Black Garlic Glaze, Sea Salt Fries and Charred Shallot Aioli",
+            "portion": [
+              {
+                "ingredient": "Boneless NY or KC Strip",
+                "amount": "14 wt oz"
+              },
+              {
+                "ingredient": "Seasoning Salt",
+                "amount": "As needed"
+              },
+              {
+                "ingredient": "Steak Butter",
+                "amount": "Brush",
+                "prep": "room temperature"
+              },
+              {
+                "ingredient": "Black Garlic Balsamic Glaze",
+                "amount": "1 fl oz"
+              },
+              {
+                "ingredient": "French Fries",
+                "amount": "6 wt oz"
+              },
+              {
+                "ingredient": "Sea Salt",
+                "amount": "¼ tsp"
+              },
+              {
+                "ingredient": "Charred Shallot Aioli",
+                "amount": "2 fl oz",
+                "prep": "see recipe"
+              },
+              {
+                "ingredient": "Maldon Sea Salt",
+                "amount": "Pinch"
+              },
+              {
+                "ingredient": "Watercress, no more than 1½\"",
+                "amount": "6-8 stems"
+              }
+            ],
+            "variants": {
+              "upgrade_ribeye": "Elevate to 22 oz Bone-In Ribeye for +$20 — same accompaniments."
+            }
+          },
+          {
+            "name": "8 oz SRF Wagyu Filet (upgrade)",
+            "section": "Second Course — Upgrades",
+            "menu_name": "Upgrade: 8 oz SRF Wagyu Filet with Potato Leek Purée & Onion Jam",
+            "price": 30,
+            "notes": [
+              "+$30 surcharge on top of the $125 tasting menu price. Same plating as the standard 8 oz Filet Mignon course."
+            ],
+            "portion": [
+              {
+                "ingredient": "SRF Wagyu Filet Mignon",
+                "amount": "8 wt oz"
+              },
+              {
+                "ingredient": "Seasoning Salt",
+                "amount": "To season"
+              },
+              {
+                "ingredient": "Trumpet Mushroom Prep",
+                "amount": "3 ea",
+                "prep": "see recipe"
+              },
+              {
+                "ingredient": "Steak Butter",
+                "amount": "Brush",
+                "prep": "room temperature"
+              },
+              {
+                "ingredient": "Pommes Puree",
+                "amount": "1 Grey Scoop",
+                "prep": "see recipe"
+              },
+              {
+                "ingredient": "Chives, sliced ⅛\"",
+                "amount": "1 pinch"
+              },
+              {
+                "ingredient": "Red Wine Onion Jam",
+                "amount": "1 Purple Scoop",
+                "prep": "see recipe"
+              },
+              {
+                "ingredient": "Maldon Sea Salt",
+                "amount": "1 pinch"
+              },
+              {
+                "ingredient": "Watercress, no more than 1½\"",
+                "amount": "6-8 leaves"
+              }
+            ]
+          },
+          {
+            "name": "22 oz Bone-In Ribeye (upgrade)",
+            "section": "Second Course — Upgrades",
+            "menu_name": "Upgrade: Bone-In Ribeye 22 oz Steak Frites with Black Garlic Glaze & Charred Shallot Aioli",
+            "price": 20,
+            "notes": [
+              "+$20 surcharge on top of the $125 tasting menu price. Same accompaniments as the 14 oz Dry Aged NY Strip course."
+            ],
+            "portion": [
+              {
+                "ingredient": "Prime Ribeye, bone-in, frenched 1\"",
+                "amount": "22 wt oz"
+              },
+              {
+                "ingredient": "Seasoning Salt",
+                "amount": "As needed"
+              },
+              {
+                "ingredient": "Steak Butter",
+                "amount": "Brush",
+                "prep": "room temperature"
+              },
+              {
+                "ingredient": "Black Garlic Balsamic Glaze",
+                "amount": "1 fl oz"
+              },
+              {
+                "ingredient": "French Fries",
+                "amount": "6 wt oz"
+              },
+              {
+                "ingredient": "Sea Salt",
+                "amount": "¼ tsp"
+              },
+              {
+                "ingredient": "Charred Shallot Aioli",
+                "amount": "2 fl oz",
+                "prep": "see recipe"
+              },
+              {
+                "ingredient": "Maldon Sea Salt",
+                "amount": "Pinch"
+              },
+              {
+                "ingredient": "Watercress, no more than 1½\"",
+                "amount": "6-8 stems"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "course": "Dessert Course",
+        "paired_wines": [],
+        "dishes": [
+          {
+            "name": "Flourless Chocolate Espresso Cake with Chocolate Pistachio Brittle and Raspberry Sauce",
+            "section": "Dessert Course",
+            "menu_name": "Flourless Chocolate Espresso Cake with Chocolate Pistachio Brittle and Raspberry Sauce",
+            "portion": [
+              {
+                "ingredient": "Mini Espresso Cake",
+                "amount": "1 ea",
+                "prep": "room temperature, see recipe"
+              },
+              {
+                "ingredient": "Maldon Sea Salt",
+                "amount": "1 pinch"
+              },
+              {
+                "ingredient": "Whipped Cream",
+                "amount": "1 Purple Scoop",
+                "prep": "see recipe"
+              },
+              {
+                "ingredient": "Crushed Pistachios",
+                "amount": "¼ tsp"
+              },
+              {
+                "ingredient": "Mint Sprig",
+                "amount": "1 ea"
+              },
+              {
+                "ingredient": "Raspberry Puree",
+                "amount": "2 Tbsp, 5 dots"
+              },
+              {
+                "ingredient": "Pistachio Brittle, 3\"-4\"",
+                "amount": "1 ea",
+                "prep": "see recipe"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
 }

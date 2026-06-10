@@ -15,6 +15,23 @@ final class WatchRelayHandler: NSObject, WCSessionDelegate {
         WCSession.default.activate()
     }
 
+    /// Mirrors the current Anthropic key into the watch's applicationContext so
+    /// the watch's direct-API fallback path has a key without the user having
+    /// to enter one on the watch. Safe to call repeatedly; identical contexts
+    /// are coalesced by WatchConnectivity.
+    func pushAPIKey(_ key: String?) {
+        guard WCSession.isSupported() else { return }
+        let session = WCSession.default
+        guard session.activationState == .activated else { return }
+        var ctx = session.applicationContext
+        if let key, !key.isEmpty {
+            ctx["anthropic_api_key"] = key
+        } else {
+            ctx.removeValue(forKey: "anthropic_api_key")
+        }
+        try? session.updateApplicationContext(ctx)
+    }
+
     func session(_ session: WCSession,
                  didReceiveMessage message: [String: Any],
                  replyHandler: @escaping ([String: Any]) -> Void) {
@@ -53,6 +70,10 @@ final class WatchRelayHandler: NSObject, WCSessionDelegate {
     func sessionDidDeactivate(_ session: WCSession) { WCSession.default.activate() }
     func session(_ session: WCSession,
                  activationDidCompleteWith state: WCSessionActivationState,
-                 error: Error?) {}
+                 error: Error?) {
+        if state == .activated {
+            pushAPIKey(APIKeyStore.current)
+        }
+    }
 }
 #endif

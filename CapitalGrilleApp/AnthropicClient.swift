@@ -55,8 +55,9 @@ struct AnthropicClient {
                               interactionId: UUID,
                               sessionId: String?,
                               onActivity: (@MainActor (String?) -> Void)? = nil) async throws -> String {
-        let apiKey = Secrets.anthropicAPIKey
-        guard apiKey.hasPrefix("sk-ant") else { throw AnthropicError.noAPIKey }
+        guard let apiKey = APIKeyStore.current, APIKeyStore.looksValid(apiKey) else {
+            throw AnthropicError.noAPIKey
+        }
 
         // Build messages: prior history as plain text, then current user question.
         var messages: [[String: Any]] = []
@@ -191,7 +192,7 @@ struct AnthropicClient {
         ]
         var body: [String: Any] = [
             "model": Self.model,
-            "max_tokens": 1024,
+            "max_tokens": 4096,
             "system": systemBlocks,
             "messages": messages
         ]

@@ -10,30 +10,67 @@ struct SettingsView: View {
     @State private var renameValue: String = ""
     @State private var busy: Bool = false
     @State private var errorMsg: String?
+    @State private var apiKeyDraft: String = ""
+    @State private var apiKeyMasked: String = ""
+    @State private var showKeyEditor: Bool = false
 
     var body: some View {
         NavigationStack {
             Form {
                 Section("Backend") {
-                    Picker("Backend", selection: $backend) {
-                        ForEach(Backend.allCases, id: \.self) { b in
-                            Text(b.label).tag(b)
+                    GatedPicker(options: Backend.allCases,
+                                selection: $backend,
+                                isAllowed: { AppGate.allowedBackends.contains($0.rawValue) },
+                                label: { $0.label })
+                        .onChange(of: backend) { new in Backend.current = new }
+                }
+
+                Section("Anthropic API key") {
+                    if showKeyEditor {
+                        SecureField("sk-ant-…", text: $apiKeyDraft)
+                            .autocorrectionDisabled()
+                            .textInputAutocapitalization(.never)
+                        HStack {
+                            Button("Cancel") {
+                                apiKeyDraft = ""
+                                showKeyEditor = false
+                            }
+                            .foregroundColor(.secondary)
+                            Spacer()
+                            Button("Save") {
+                                saveKey()
+                            }
+                            .disabled(!APIKeyStore.looksValid(apiKeyDraft))
+                        }
+                    } else {
+                        HStack {
+                            Text(apiKeyMasked.isEmpty ? "Not set" : apiKeyMasked)
+                                .foregroundColor(apiKeyMasked.isEmpty ? .red : .primary)
+                                .font(.system(.body, design: .monospaced))
+                            Spacer()
+                            Button(apiKeyMasked.isEmpty ? "Add" : "Change") {
+                                apiKeyDraft = ""
+                                showKeyEditor = true
+                            }
+                        }
+                        if !apiKeyMasked.isEmpty {
+                            Button(role: .destructive) {
+                                APIKeyStore.clear()
+                                refreshKeyDisplay()
+                                pushKeyToWatch()
+                            } label: {
+                                Text("Remove key")
+                            }
                         }
                     }
-                    .pickerStyle(.segmented)
-                    .labelsHidden()
-                    .onChange(of: backend) { new in Backend.current = new }
                 }
 
                 Section("Model") {
-                    Picker("Model", selection: $model) {
-                        ForEach(AIModel.allCases) { m in
-                            Text(m.label).tag(m)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .labelsHidden()
-                    .onChange(of: model) { new in AIModel.current = new }
+                    GatedPicker(options: AIModel.allCases,
+                                selection: $model,
+                                isAllowed: { AppGate.allowedModels.contains($0.key) },
+                                label: { $0.label })
+                        .onChange(of: model) { new in AIModel.current = new }
                 }
 
                 Section("Areas") {
@@ -87,7 +124,10 @@ struct SettingsView: View {
                     Button("Done") { dismiss() }
                 }
             }
-            .task { await bottleStore.refreshFromSupabase() }
+            .task {
+                refreshKeyDisplay()
+                await bottleStore.refreshFromSupabase()
+            }
             .alert("Rename area", isPresented: Binding(
                 get: { renameTarget != nil },
                 set: { if !$0 { renameTarget = nil } })) {
@@ -118,10 +158,67 @@ struct SettingsView: View {
         busy = false
     }
 
+    private func refreshKeyDisplay() {
+        if let key = APIKeyStore.current, !key.isEmpty {
+            let tail = String(key.suffix(4))
+            apiKeyMasked = "sk-ant-…\(tail)"
+        } else {
+            apiKeyMasked = ""
+        }
+    }
+
+    private func saveKey() {
+        let trimmed = apiKeyDraft.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard APIKeyStore.looksValid(trimmed) else { return }
+        _ = APIKeyStore.set(trimmed)
+        AppGate.apply()
+        apiKeyDraft = ""
+        showKeyEditor = false
+        refreshKeyDisplay()
+        pushKeyToWatch()
+    }
+
+    private func pushKeyToWatch() {
+        WatchRelayHandler.shared.pushAPIKey(APIKeyStore.current)
+    }
+
     private func remove(area: String) async {
         busy = true; errorMsg = nil
         do { try await bottleStore.removeArea(area) }
         catch { errorMsg = error.localizedDescription }
         busy = false
+    }
+}
+
+/// Segmented-style selector that shows every option but grays out and disables
+/// the ones the current device isn't permitted to use.
+struct GatedPicker<T: Hashable>: View {
+    let options: [T]
+    @Binding var selection: T
+    let isAllowed: (T) -> Bool
+    let label: (T) -> String
+
+    var body: some View {
+        HStack(spacing: 4) {
+            ForEach(options, id: \.self) { opt in
+                let selected = selection == opt
+                let allowed = isAllowed(opt)
+                Button { selection = opt } label: {
+                    Text(label(opt))
+                        .font(.subheadline.weight(selected ? .semibold : .regular))
+                        .foregroundColor(selected ? .accentColor : .primary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 6)
+                        .background(selected ? Color(.systemBackground) : Color.clear,
+                                    in: RoundedRectangle(cornerRadius: 6))
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .disabled(!allowed)
+                .opacity(allowed ? 1 : 0.35)
+            }
+        }
+        .padding(3)
+        .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 8))
     }
 }

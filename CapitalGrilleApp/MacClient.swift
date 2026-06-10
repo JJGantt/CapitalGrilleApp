@@ -172,7 +172,11 @@ enum Backend: String, CaseIterable {
             let fallback = Backend.mac.rawValue
             #endif
             let raw = UserDefaults.standard.string(forKey: key) ?? fallback
-            return Backend(rawValue: raw) ?? .mac
+            let b = Backend(rawValue: raw) ?? .mac
+            // Enforce gating — a stored backend that isn't permitted for this
+            // device falls back to the configured default.
+            if AppGate.allowedBackends.contains(b.rawValue) { return b }
+            return Backend(rawValue: AppGate.defaultBackend) ?? .api
         }
         set {
             #if os(watchOS)
@@ -198,10 +202,33 @@ enum AIModel: String, CaseIterable, Identifiable {
         }
     }
 
+    /// Short stable key used by the gating config (independent of the model id,
+    /// which can change on a version bump).
+    var key: String {
+        switch self {
+        case .haiku:  return "haiku"
+        case .sonnet: return "sonnet"
+        case .opus:   return "opus"
+        }
+    }
+
+    init?(key: String) {
+        switch key {
+        case "haiku":  self = .haiku
+        case "sonnet": self = .sonnet
+        case "opus":   self = .opus
+        default:       return nil
+        }
+    }
+
     static var current: AIModel {
         get {
             let raw = UserDefaults.standard.string(forKey: "model") ?? AIModel.sonnet.rawValue
-            return AIModel(rawValue: raw) ?? .sonnet
+            let m = AIModel(rawValue: raw) ?? .sonnet
+            // Enforce gating — a stored model that isn't permitted falls back to
+            // the configured default.
+            if AppGate.allowedModels.contains(m.key) { return m }
+            return AIModel(key: AppGate.defaultModel) ?? .haiku
         }
         set { UserDefaults.standard.set(newValue.rawValue, forKey: "model") }
     }

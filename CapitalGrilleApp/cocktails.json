@@ -1,0 +1,582 @@
+[
+  {
+    "name": "Negroni Bianco",
+    "glass": "Rocks Glass",
+    "garnish": "Cucumber Ribbon",
+    "service": null,
+    "ingredients": [
+      {
+        "name": "Drumshanbo Gunpowder Gin",
+        "amount": "1 1/4 oz"
+      },
+      {
+        "name": "Salt-Washed Italicus",
+        "amount": "1 oz"
+      },
+      {
+        "name": "Carpano Bianco Vermouth",
+        "amount": "3/4 oz"
+      },
+      {
+        "name": "Large Ice Cube",
+        "amount": "1 each"
+      },
+      {
+        "name": "Expressed Lemon Peel",
+        "amount": "1 each"
+      }
+    ],
+    "prep": [
+      "Gently place large ice cube in center of rocks glass.",
+      "Add gin, Italicus, and vermouth to bar mixing glass.",
+      "Stir to combine drink for 10-15 seconds.",
+      "Strain into rocks glass.",
+      "Express a lemon peel on one side of the rim for essence, then discard.",
+      "Carefully place cucumber ribbon around ice cube as garnish."
+    ]
+  },
+  {
+    "name": "Noble Paloma",
+    "glass": "Highball Glass",
+    "garnish": "Spicy Salt Rim, 1 Dehydrated Lime",
+    "service": null,
+    "ingredients": [
+      {
+        "name": "Casa Noble Reposado",
+        "amount": "1 1/2 oz"
+      },
+      {
+        "name": "Giffard Noix de Coco",
+        "amount": "1/2 oz"
+      },
+      {
+        "name": "Lime Juice",
+        "amount": "3/4 oz"
+      },
+      {
+        "name": "Fever Tree Grapefruit Soda",
+        "amount": "4 1/2 oz"
+      }
+    ],
+    "prep": [
+      "Rim with spicy salt then add ice to highball glass.",
+      "Add Casa Noble Reposado, Giffard Noix de Coco, and lime juice to Boston shaker.",
+      "Add ice then shake vigorously to combine drink for 15-20 seconds.",
+      "Strain into highball glass.",
+      "Add Fever Tree Grapefruit Soda.",
+      "Lightly stir with bar spoon for 1-2 rotations to incorporate the grapefruit soda.",
+      "Garnish with dehydrated lime wedge."
+    ]
+  },
+  {
+    "name": "Black Tie Margarita",
+    "glass": "Black Stemless Wine Glass",
+    "garnish": "Kosher Salt Half Rim, Lime Wedge",
+    "service": null,
+    "ingredients": [
+      {
+        "name": "Calirosa Rosa Blanco Tequila",
+        "amount": "1 1/2 oz"
+      },
+      {
+        "name": "Cointreau",
+        "amount": "1/2 oz"
+      },
+      {
+        "name": "Lime Juice",
+        "amount": "1 oz"
+      },
+      {
+        "name": "Lemon Juice",
+        "amount": "1/2 oz"
+      },
+      {
+        "name": "Simple Syrup",
+        "amount": "3/4 oz"
+      }
+    ],
+    "prep": [
+      "Salt half of the rim with kosher salt then add ice to black stemless wine glass.",
+      "Add tequila, Cointreau, lime juice, lemon juice, and simple syrup to Boston shaker.",
+      "Add ice then shake vigorously to combine drink for 15-20 seconds.",
+      "Strain into black stemless wine glass.",
+      "Garnish with lime wedge."
+    ]
+  },
+  {
+    "name": "Blackberry Bourbon Sidecar",
+    "glass": "Rocks Glass",
+    "garnish": "2 Blackberries on a TCG Pick, Sprig of Fresh Thyme",
+    "service": null,
+    "ingredients": [
+      {
+        "name": "Blackberries",
+        "amount": "3 each"
+      },
+      {
+        "name": "Angel's Envy Bourbon",
+        "amount": "1 1/2 oz"
+      },
+      {
+        "name": "Cointreau",
+        "amount": "1/4 oz"
+      },
+      {
+        "name": "Lemon Juice",
+        "amount": "1/2 oz"
+      },
+      {
+        "name": "Simple Syrup",
+        "amount": "1/2 oz"
+      }
+    ],
+    "prep": [
+      "Add ice to rocks glass.",
+      "Muddle 3 blackberries with simple syrup in Boston shaker.",
+      "Add Angel's Envy Bourbon, lemon juice, and Cointreau to Boston shaker.",
+      "Add ice then shake vigorously to combine drink for 15-20 seconds.",
+      "Double strain through a fine strainer into the rocks glass.",
+      "Garnish with 2 blackberries on a TCG pick and a fresh thyme sprig."
+    ]
+  },
+  {
+    "name": "Capital Cosmopolitan",
+    "glass": "Martini Glass",
+    "garnish": "Lemon Twist",
+    "service": "Shaken Tableside",
+    "ingredients": [
+      {
+        "name": "Ketel One Citroen",
+        "amount": "2 oz"
+      },
+      {
+        "name": "Cointreau",
+        "amount": "3/4 oz"
+      },
+      {
+        "name": "Lime Juice",
+        "amount": "1/2 oz"
+      },
+      {
+        "name": "Cranberry Juice",
+        "amount": "2 oz"
+      }
+    ],
+    "prep": [
+      "Add Ketel One Citroen, Cointreau, lime, and cranberry juice to Boston shaker.",
+      "Add ice then shake vigorously to combine drink for 15-20 seconds.",
+      "Strain into a martini glass.",
+      "Garnish with a lemon twist."
+    ]
+  },
+  {
+    "name": "Dirty Goose",
+    "glass": "Martini Glass",
+    "garnish": "Lemon Twist",
+    "service": "Shaken Tableside",
+    "ingredients": [
+      {
+        "name": "Grey Goose Vodka",
+        "amount": "2 1/2 oz"
+      },
+      {
+        "name": "Olive Brine",
+        "amount": "1/2 oz"
+      }
+    ],
+    "prep": [
+      "Add Grey Goose vodka and olive brine to Boston shaker.",
+      "Add ice then shake vigorously to combine drink for 15-20 seconds.",
+      "Strain into a martini glass.",
+      "Garnish with 3 blue cheese olives on a Grey Goose pick."
+    ]
+  },
+  {
+    "name": "Double Oaked & Rye Manhattan",
+    "glass": "Martini Glass",
+    "garnish": "2 Amarena Cherries on a TCG Pick",
+    "service": "Not Shaken Tableside",
+    "ingredients": [
+      {
+        "name": "Woodford Reserve Double Oak",
+        "amount": "1 oz"
+      },
+      {
+        "name": "Woodford Reserve Rye",
+        "amount": "1 oz"
+      },
+      {
+        "name": "Carpano Antica Vermouth",
+        "amount": "1 oz"
+      },
+      {
+        "name": "Angostura Bitters",
+        "amount": "2 dashes"
+      }
+    ],
+    "prep": [
+      "Add bourbons, vermouth, and bitters to bar mixing glass.",
+      "Add ice then stir to combine drink for 10-15 seconds.",
+      "Strain into a martini glass.",
+      "Garnish with 2 Amarena cherries on a TCG pick."
+    ]
+  },
+  {
+    "name": "In Fashion",
+    "glass": "Rocks Glass",
+    "garnish": "Amarena Cherry on a TCG Pick, Orange Peel",
+    "service": null,
+    "ingredients": [
+      {
+        "name": "Woodford Reserve Bourbon",
+        "amount": "2 oz"
+      },
+      {
+        "name": "Simple Syrup",
+        "amount": "1/2 oz"
+      },
+      {
+        "name": "Black Walnut Bitters",
+        "amount": "2 dashes"
+      },
+      {
+        "name": "Grand Marnier",
+        "amount": "1/4 oz"
+      }
+    ],
+    "prep": [
+      "Gently place large ice cube in center of rocks glass.",
+      "Add Woodford Reserve Bourbon, simple syrup, bitters, and Grand Marnier to bar mixing glass.",
+      "Stir to combine drink for 10-15 seconds.",
+      "Strain into rocks glass.",
+      "Garnish with Amarena cherry on a TCG pick and an orange peel around the ice cube."
+    ]
+  },
+  {
+    "name": "Kona Espresso",
+    "glass": "Martini Glass",
+    "garnish": "Kona Dust",
+    "service": "Not Shaken Tableside",
+    "ingredients": [
+      {
+        "name": "American Harvest Vodka",
+        "amount": "1 1/2 oz"
+      },
+      {
+        "name": "Simple Syrup",
+        "amount": "3/4 oz"
+      },
+      {
+        "name": "Espresso",
+        "amount": "1 shot"
+      },
+      {
+        "name": "Caffe Borghetti",
+        "amount": "1/2 oz"
+      }
+    ],
+    "prep": [
+      "Add simple syrup, espresso, Caffe Borghetti, and vodka to Boston shaker.",
+      "Add ice then shake vigorously to combine drink for 15-20 seconds.",
+      "Strain into martini glass.",
+      "Garnish with 5-6 shakes of Kona Dust in the center."
+    ]
+  },
+  {
+    "name": "Passion Fruit Mojito",
+    "glass": "Highball Glass",
+    "garnish": "Mint Sprig",
+    "service": null,
+    "ingredients": [
+      {
+        "name": "Mint Leaves",
+        "amount": "8 each"
+      },
+      {
+        "name": "Real Passion Fruit Syrup",
+        "amount": "1 1/2 oz"
+      },
+      {
+        "name": "Lime Juice",
+        "amount": "3/4 oz"
+      },
+      {
+        "name": "Diplomatico Planas Rum",
+        "amount": "1 1/2 oz"
+      },
+      {
+        "name": "Club Soda",
+        "amount": "2 oz"
+      },
+      {
+        "name": "Diplomatico Reserva Exclusiva Rum",
+        "amount": "1/2 oz"
+      }
+    ],
+    "prep": [
+      "Add ice to highball glass.",
+      "Add mint leaves, Real Passion Fruit Syrup, fresh lime juice, and Diplomatico Planas Rum to Boston shaker.",
+      "Add ice then shake vigorously to combine drink for 15-20 seconds.",
+      "Strain into highball glass.",
+      "Top with Club Soda.",
+      "Float Diplomatico Reserva Exclusiva Rum.",
+      "Garnish with a mint sprig."
+    ]
+  },
+  {
+    "name": "The Doli",
+    "glass": "Martini Glass",
+    "garnish": null,
+    "service": "Shaken Tableside",
+    "ingredients": [
+      {
+        "name": "The Doli, batched",
+        "amount": "3 oz"
+      }
+    ],
+    "prep": [
+      "Add The Doli, batched, to Boston shaker.",
+      "Add ice then shake vigorously to combine drink for 20-30 seconds.",
+      "Strain into a martini glass."
+    ]
+  },
+  {
+    "name": "Greyhound Martini",
+    "glass": "Martini Glass",
+    "garnish": "1 Basil Leaf",
+    "service": "Not Shaken Tableside",
+    "ingredients": [
+      {
+        "name": "Wheatley Vodka",
+        "amount": "2 oz"
+      },
+      {
+        "name": "Ruby Red Grapefruit Juice",
+        "amount": "2 oz"
+      },
+      {
+        "name": "Simple Syrup",
+        "amount": "1 oz"
+      },
+      {
+        "name": "Basil Leaves",
+        "amount": "4 each"
+      }
+    ],
+    "prep": [
+      "Add Wheatley Vodka, fresh ruby red grapefruit juice, simple syrup, and 3 basil leaves to Boston shaker.",
+      "Add ice then shake vigorously to combine drink for 10-15 seconds.",
+      "Double strain through a fine strainer into martini glass.",
+      "Garnish with 1 basil leaf."
+    ]
+  },
+  {
+    "name": "Straight Up",
+    "glass": "Martini Glass",
+    "garnish": "2 Blue Stuffed Cheese Olives on a TCG Pick",
+    "service": "Not Shaken Tableside",
+    "ingredients": [
+      {
+        "name": "Wheatley Vodka or Bombay Gin",
+        "amount": "2 oz"
+      },
+      {
+        "name": "Dry Vermouth",
+        "amount": "1/2 oz"
+      }
+    ],
+    "prep": [
+      "Add Wheatley Vodka or Bombay Gin and dry vermouth to Boston shaker.",
+      "Add ice then shake vigorously to combine drink for 10-15 seconds.",
+      "Strain into a martini glass.",
+      "Garnish with 2 blue stuffed cheese olives on a TCG pick."
+    ]
+  },
+  {
+    "name": "Old Fashioned",
+    "glass": "Rocks Glass",
+    "garnish": "Amarena Cherries and Orange Peel on a TCG Pick",
+    "service": null,
+    "ingredients": [
+      {
+        "name": "Maker's Mark Bourbon",
+        "amount": "2 oz"
+      },
+      {
+        "name": "Simple Syrup",
+        "amount": "1/2 oz"
+      },
+      {
+        "name": "Angostura Bitters",
+        "amount": "2 dashes"
+      }
+    ],
+    "prep": [
+      "Add ice to rocks glass.",
+      "Add Maker's Mark, simple syrup, and bitters to bar mixing glass.",
+      "Stir to combine drink for 10-15 seconds.",
+      "Strain into rocks glass.",
+      "Garnish by picking one side of the orange peel, place the Amarena cherry in the center, and pick the other side of the orange peel on a TCG pick."
+    ]
+  },
+  {
+    "name": "Peach Bourbon Smash",
+    "glass": "Rocks Glass",
+    "garnish": "Lemon Wedge",
+    "service": null,
+    "ingredients": [
+      {
+        "name": "Maker's Mark Bourbon",
+        "amount": "2 oz"
+      },
+      {
+        "name": "Lemon Juice",
+        "amount": "1 oz"
+      },
+      {
+        "name": "Real Peach Syrup",
+        "amount": "1 oz"
+      }
+    ],
+    "prep": [
+      "Add ice to rocks glass.",
+      "Add Maker's Mark, lemon juice, and Real Peach Syrup to Boston shaker.",
+      "Add ice then shake vigorously to combine drink for 10-15 seconds.",
+      "Strain into rocks glass.",
+      "Garnish with lemon wedge on rim."
+    ]
+  },
+  {
+    "name": "Classic Margarita",
+    "glass": "Rocks Glass",
+    "garnish": "Kosher Salt Half Rim, 1 Lime Wedge",
+    "service": null,
+    "ingredients": [
+      {
+        "name": "Corazon Blanco Tequila",
+        "amount": "1 1/2 oz"
+      },
+      {
+        "name": "Triple Sec",
+        "amount": "1/2 oz"
+      },
+      {
+        "name": "Sweet and Sour Mix",
+        "amount": "2 1/2 oz"
+      }
+    ],
+    "prep": [
+      "Salt half of the rim with kosher salt then add ice to rocks glass.",
+      "Add Corazon Blanco Tequila, Triple Sec, and Sweet and Sour Mix to Boston shaker.",
+      "Add ice then shake vigorously to combine drink for 10-15 seconds.",
+      "Strain into rocks glass.",
+      "Garnish with lime wedge on rim."
+    ]
+  },
+  {
+    "name": "Passion Fruit Mule",
+    "glass": "Water Glass",
+    "garnish": "1 Lime Wedge on a TCG Pick, Mint Sprig",
+    "service": "Serve with a straw on the side",
+    "ingredients": [
+      {
+        "name": "Real Passionfruit Syrup",
+        "amount": "1 oz"
+      },
+      {
+        "name": "Lime Juice",
+        "amount": "1/2 oz"
+      },
+      {
+        "name": "Ginger Beer",
+        "amount": "5 oz"
+      }
+    ],
+    "prep": [
+      "Add ice to water glass.",
+      "Add Real Passionfruit Syrup, fresh lime juice, and ginger beer to bar mixing glass.",
+      "Stir to combine drink for 10-15 seconds.",
+      "Strain into water glass.",
+      "Garnish with a lime wedge on a TCG pick and a mint sprig."
+    ]
+  },
+  {
+    "name": "Blackberry Peach Sour",
+    "glass": "Water Glass",
+    "garnish": "3 Blackberries on a TCG Pick",
+    "service": null,
+    "ingredients": [
+      {
+        "name": "Blackberries",
+        "amount": "7 each"
+      },
+      {
+        "name": "Sweet and Sour Mix",
+        "amount": "5 oz"
+      },
+      {
+        "name": "Real Peach Syrup",
+        "amount": "1/2 oz"
+      }
+    ],
+    "prep": [
+      "Add ice to water glass.",
+      "Add blackberries, sweet and sour mix, and Real Peach Syrup to Boston shaker.",
+      "Add ice then shake vigorously to combine drink for 10-15 seconds.",
+      "Strain into water glass.",
+      "Garnish with 3 blackberries on a TCG pick."
+    ]
+  },
+  {
+    "name": "Grapefruit Soda",
+    "glass": "Water Glass",
+    "garnish": "Grapefruit Wedge, Mint Sprig",
+    "service": "Serve with a straw and iced teaspoon on the side",
+    "ingredients": [
+      {
+        "name": "Ruby Red Grapefruit Juice",
+        "amount": "2 oz"
+      },
+      {
+        "name": "Elderflower",
+        "amount": "2 tbsp"
+      },
+      {
+        "name": "Soda Water",
+        "amount": "4 oz"
+      },
+      {
+        "name": "Lime Wedge",
+        "amount": "1 each"
+      },
+      {
+        "name": "Grenadine",
+        "amount": "2 dashes"
+      }
+    ],
+    "prep": [
+      "Add ice to water glass.",
+      "Add elderflower, grapefruit juice, soda water, and lime juice to bar mixing glass.",
+      "Stir to combine drink for 10-15 seconds.",
+      "Strain into water glass.",
+      "Garnish with grapefruit wedge on rim and mint sprig."
+    ]
+  },
+  {
+    "name": "Mint Lemonade",
+    "glass": "Water Glass",
+    "garnish": "1 Lemon Wedge, Mint Leaves",
+    "service": "Serve with a straw on the side",
+    "ingredients": [
+      {
+        "name": "Mint Lemonade, batched",
+        "amount": "7 oz"
+      }
+    ],
+    "prep": [
+      "Add ice to water glass.",
+      "Fill to top with Mint Lemonade batch.",
+      "Garnish with lemon wedge on rim and 2-3 mint leaves."
+    ]
+  }
+]

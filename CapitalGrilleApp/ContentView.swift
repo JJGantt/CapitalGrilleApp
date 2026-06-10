@@ -31,6 +31,7 @@ enum TopSection: String, CaseIterable, Identifiable {
     case food = "Food"
     case wine = "Wine"
     case liquor = "Liquor"
+    case cocktails = "Cocktails"
     case restock = "Restock"
     var id: String { rawValue }
 }
@@ -39,6 +40,7 @@ struct ContentView: View {
     @StateObject private var store = MenuStore()
     @StateObject private var bottleStore = BottleStore()
     @StateObject private var restockStore = RestockStore()
+    @StateObject private var cocktailStore = CocktailStore()
     @StateObject private var voice = VoiceRecorder()
     @State private var searchText = ""
     @State private var section: TopSection = .food
@@ -46,6 +48,8 @@ struct ContentView: View {
     @State private var liquorExpanded: Set<String> = []
     @State private var selectedDish: Dish?
     @State private var selectedWine: Bottle?
+    @State private var selectedCocktail: Cocktail?
+    @State private var selectedGPWine: GenerousPourWine?
     @State private var showSettings = false
     @State private var aiMode = true        // AI is the default field mode
     @State private var showAIResults = false  // chat overlay visibility
@@ -85,6 +89,38 @@ struct ContentView: View {
             .sheet(isPresented: $showSettings) {
                 SettingsView(bottleStore: bottleStore)
             }
+            .fullScreenCover(item: $selectedCocktail) { cocktail in
+                NavigationStack {
+                    CocktailDetailView(cocktail: cocktail)
+                        .toolbar {
+                            ToolbarItem(placement: .topBarLeading) {
+                                Button(action: { selectedCocktail = nil }) {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "chevron.left")
+                                        Text("Back")
+                                    }
+                                    .foregroundColor(.cgAccent)
+                                }
+                            }
+                        }
+                }
+            }
+            .fullScreenCover(item: $selectedGPWine) { wine in
+                NavigationStack {
+                    GenerousPourWineDetailView(wine: wine)
+                        .toolbar {
+                            ToolbarItem(placement: .topBarLeading) {
+                                Button(action: { selectedGPWine = nil }) {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "chevron.left")
+                                        Text("Back")
+                                    }
+                                    .foregroundColor(.cgAccent)
+                                }
+                            }
+                        }
+                }
+            }
             .fullScreenCover(item: $selectedWine) { wine in
                 NavigationStack {
                     WineDetailView(wine: wine, store: bottleStore)
@@ -103,6 +139,7 @@ struct ContentView: View {
             }
             .onAppear {
                 if store.menu == nil { store.load() }
+                if cocktailStore.cocktails.isEmpty { cocktailStore.load() }
                 Task {
                     await bottleStore.refreshFromSupabase()
                     await restockStore.refresh()
@@ -126,6 +163,8 @@ struct ContentView: View {
                         Text(s.rawValue)
                             .font(.subheadline.weight(section == s ? .semibold : .regular))
                             .foregroundColor(section == s ? .cgText : .cgTextMuted)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.75)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 7)
                             .background(
@@ -166,6 +205,12 @@ struct ContentView: View {
         } else if section == .liquor {
             LiquorListView(bottleStore: bottleStore, expanded: $liquorExpanded) { bottle in
                 selectedWine = bottle
+            }
+        } else if section == .cocktails {
+            CocktailsListView(cocktails: cocktailStore.cocktails,
+                              loadError: cocktailStore.loadError,
+                              searchText: searchText) { cocktail in
+                selectedCocktail = cocktail
             }
         } else if section == .restock {
             RestockListView(restockStore: restockStore, bottleStore: bottleStore)
@@ -308,9 +353,14 @@ struct ContentView: View {
 
         let foodCount: Int = {
             guard let menu = store.menu else { return 0 }
-            return MenuGroup.allCases.reduce(0) { acc, g in
+            var n = MenuGroup.allCases.reduce(0) { acc, g in
                 acc + g.dishes(from: menu).filter { matches(dish: $0, query: q) }.count
             }
+            if let gp = menu.generous_pour {
+                n += gp.wines.filter { gpWineMatches($0, query: q) }.count
+                n += gp.courses.reduce(0) { $0 + $1.dishes.filter { gpDishMatches($0, query: q) }.count }
+            }
+            return n
         }()
         let wineCount = bottleStore.wineCategories.flatMap(\.bottles).filter {
             $0.displayName.lowercased().contains(q)
@@ -320,8 +370,11 @@ struct ContentView: View {
         let liquorCount = bottleStore.liquors.filter {
             ($0.name ?? "").lowercased().contains(q)
         }.count
+        let cocktailCount = cocktailStore.cocktails.filter { cocktailMatches($0, query: q) }.count
 
-        let counts: [(TopSection, Int)] = [(.food, foodCount), (.wine, wineCount), (.liquor, liquorCount)]
+        let counts: [(TopSection, Int)] = [
+            (.food, foodCount), (.wine, wineCount), (.liquor, liquorCount), (.cocktails, cocktailCount)
+        ]
         guard let best = counts.max(by: { $0.1 < $1.1 }), best.1 > 0 else { return }
 
         // Stay put if current tab already has matches at the top.
@@ -437,6 +490,27 @@ struct ContentView: View {
         }
     }
 
+    /// A single chat message in its own bordered card — used for both the user
+    /// prompt and the AI response so each is separated the same way exchanges are.
+    @ViewBuilder
+    func chatBubble<Content: View>(icon: String,
+                                   iconColor: Color,
+                                   iconAlignment: VerticalAlignment = .top,
+                                   @ViewBuilder content: () -> Content) -> some View {
+        HStack(alignment: iconAlignment, spacing: 6) {
+            Image(systemName: icon)
+                .foregroundColor(iconColor)
+                .font(.callout)
+            content()
+            Spacer(minLength: 0)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.cgCard)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.cgBorder, lineWidth: 1))
+    }
+
     @ViewBuilder
     var aiResultsContent: some View {
             VStack(alignment: .leading, spacing: 12) {
@@ -469,55 +543,29 @@ struct ContentView: View {
                     .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.cgBorder.opacity(0.6), lineWidth: 1))
                 }
                 ForEach(aiHistory) { ex in
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack(alignment: .top, spacing: 6) {
-                            Image(systemName: "person.crop.circle.fill")
-                                .foregroundColor(.cgTextMuted)
-                                .font(.callout)
-                            Text(ex.question)
-                                .font(.callout)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.cgText)
-                        }
-                        HStack(alignment: .top, spacing: 6) {
-                            Image(systemName: "sparkles")
-                                .foregroundColor(.cgAccent)
-                                .font(.callout)
-                            Text(renderMarkdown(ex.answer))
-                                .font(.callout)
-                                .foregroundColor(.cgText)
-                                .textSelection(.enabled)
-                        }
+                    chatBubble(icon: "person.crop.circle.fill", iconColor: .cgTextMuted) {
+                        Text(ex.question)
+                            .font(.callout)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.cgText)
                     }
-                    .padding(12)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.cgCard)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.cgBorder, lineWidth: 1))
+                    chatBubble(icon: "sparkles", iconColor: .cgAccent) {
+                        Text(renderMarkdown(ex.answer))
+                            .font(.callout)
+                            .foregroundColor(.cgText)
+                            .textSelection(.enabled)
+                    }
                 }
                 if let pending = pendingQuestion {
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack(alignment: .top, spacing: 6) {
-                            Image(systemName: "person.crop.circle.fill")
-                                .foregroundColor(.cgTextMuted)
-                                .font(.callout)
-                            Text(pending)
-                                .font(.callout)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.cgText)
-                        }
-                        HStack(alignment: .center, spacing: 6) {
-                            Image(systemName: "sparkles")
-                                .foregroundColor(.cgAccent)
-                                .font(.callout)
-                            ProgressView().progressViewStyle(.circular).scaleEffect(0.7)
-                        }
+                    chatBubble(icon: "person.crop.circle.fill", iconColor: .cgTextMuted) {
+                        Text(pending)
+                            .font(.callout)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.cgText)
                     }
-                    .padding(12)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.cgCard)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.cgBorder, lineWidth: 1))
+                    chatBubble(icon: "sparkles", iconColor: .cgAccent, iconAlignment: .center) {
+                        ProgressView().progressViewStyle(.circular).scaleEffect(0.7)
+                    }
                 }
                 if let err = aiError {
                     Text(err)
@@ -557,6 +605,17 @@ struct ContentView: View {
                                 )
                                 .id("\(group.rawValue)-\(searchText)")
                             }
+                        }
+                        if let gp = menu.generous_pour {
+                            GenerousPourGroupView(
+                                gp: gp,
+                                menu: menu,
+                                query: searchText,
+                                defaultExpanded: !searchText.isEmpty,
+                                onTapDish: { selectedDish = $0 },
+                                onTapWine: { selectedGPWine = $0 }
+                            )
+                            .id("generous-pour-\(searchText)")
                         }
                     } else if let err = store.loadError {
                         Text(err).foregroundColor(.red).padding()
@@ -740,7 +799,15 @@ struct DishRow: View {
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 12) {
-                DishThumbnail(imagePath: dish.image, size: 48)
+                // No photo → no thumbnail (and no reserved space).
+                if let path = dish.image, let ui = loadImage(path) {
+                    Image(uiImage: ui)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 48, height: 48)
+                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                        .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color.cgBorder.opacity(0.6), lineWidth: 1))
+                }
                 VStack(alignment: .leading, spacing: 3) {
                     Text(dish.name)
                         .font(.system(.body, design: .serif))
@@ -776,28 +843,6 @@ struct DishRow: View {
     }
 }
 
-// MARK: - Dish Thumbnail
-
-struct DishThumbnail: View {
-    let imagePath: String?
-    let size: CGFloat
-
-    var body: some View {
-        Group {
-            if let path = imagePath, let image = loadImage(path) {
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            } else {
-                Rectangle().fill(Color.cgBorder.opacity(0.4))
-            }
-        }
-        .frame(width: size, height: size)
-        .clipShape(RoundedRectangle(cornerRadius: 4))
-        .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color.cgBorder.opacity(0.6), lineWidth: 1))
-    }
-}
-
 func loadImage(_ path: String) -> UIImage? {
     // path like "images/dishes/foo.jpg"
     let filename = (path as NSString).lastPathComponent
@@ -815,4 +860,272 @@ func loadImage(_ path: String) -> UIImage? {
     }
     if let img = UIImage(named: name) { return img }
     return nil
+}
+
+// MARK: - Generous Pour Group (seasonal wine/tasting program)
+
+struct GenerousPourGroupView: View {
+    let gp: GenerousPour
+    let dishIndex: [String: Dish]
+    let query: String
+    let defaultExpanded: Bool
+    let onTapDish: (Dish) -> Void
+    let onTapWine: (GenerousPourWine) -> Void
+    @State private var isExpanded: Bool
+
+    init(gp: GenerousPour, menu: MenuData, query: String, defaultExpanded: Bool,
+         onTapDish: @escaping (Dish) -> Void,
+         onTapWine: @escaping (GenerousPourWine) -> Void) {
+        self.gp = gp
+        self.dishIndex = fullMenuDishIndex(menu)
+        self.query = query
+        self.defaultExpanded = defaultExpanded
+        self.onTapDish = onTapDish
+        self.onTapWine = onTapWine
+        _isExpanded = State(initialValue: defaultExpanded)
+    }
+
+    private func resolved(_ dish: Dish) -> Dish { resolveGenerousPourDish(dish, using: dishIndex) }
+
+    private var q: String { query.lowercased().trimmingCharacters(in: .whitespaces) }
+
+    private var filteredWines: [GenerousPourWine] {
+        q.isEmpty ? gp.wines : gp.wines.filter { gpWineMatches($0, query: q) }
+    }
+
+    private var filteredCourses: [GenerousPourCourse] {
+        gp.courses.compactMap { course in
+            let resolvedDishes = course.dishes.map { resolved($0) }
+            let shown = q.isEmpty ? resolvedDishes : resolvedDishes.filter { gpDishMatches($0, query: q) }
+            return shown.isEmpty ? nil
+                : GenerousPourCourse(course: course.course, paired_wines: course.paired_wines, dishes: shown)
+        }
+    }
+
+    private var hasContent: Bool { !filteredWines.isEmpty || !filteredCourses.isEmpty }
+
+    var body: some View {
+        // When searching with no matches here, render nothing (no empty card).
+        if !q.isEmpty && !hasContent {
+            EmptyView()
+        } else {
+            card
+        }
+    }
+
+    private var card: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Button(action: { withAnimation { isExpanded.toggle() } }) {
+                HStack {
+                    Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                        .font(.caption)
+                        .foregroundColor(.cgAccent.opacity(0.7))
+                    Text("GENEROUS POUR")
+                        .font(.system(.title3, design: .serif))
+                        .tracking(3)
+                        .foregroundColor(.cgAccent)
+                    Spacer()
+                }
+                .padding(.vertical, 14)
+                .padding(.horizontal, 16)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+
+            if isExpanded {
+                VStack(alignment: .leading, spacing: 0) {
+                    Divider().background(Color.cgBorder.opacity(0.6))
+                    metaBlock
+                    ForEach(filteredCourses, id: \.course) { course in
+                        courseView(course)
+                    }
+                    if !filteredWines.isEmpty {
+                        winesSection
+                    }
+                }
+                .padding(.bottom, 8)
+            }
+        }
+        .background(Color.cgCard)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color.cgBorder, lineWidth: 1)
+        )
+    }
+
+    private var metaBlock: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(gp.meta.dates_active.uppercased())
+                .font(.caption2)
+                .tracking(1)
+                .foregroundColor(.cgTextMuted)
+            HStack(spacing: 6) {
+                Text("Wine $\(gp.meta.wine_only_price)")
+                    .font(.caption.bold())
+                    .foregroundColor(.cgAccent)
+                Text("·").font(.caption).foregroundColor(.cgTextMuted)
+                Text("Tasting Menu $\(gp.meta.tasting_menu_price)")
+                    .font(.caption.bold())
+                    .foregroundColor(.cgAccent)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+    }
+
+    private func courseView(_ course: GenerousPourCourse) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(course.course.uppercased())
+                    .font(.system(.subheadline, design: .serif))
+                    .fontWeight(.semibold)
+                    .tracking(1)
+                    .foregroundColor(.cgText)
+                if !course.paired_wines.isEmpty {
+                    Text(course.paired_wines.joined(separator: " · "))
+                        .font(.caption)
+                        .italic()
+                        .foregroundColor(.cgTextMuted)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 18)
+            .padding(.top, 10)
+            .padding(.bottom, 4)
+
+            ForEach(course.dishes) { dish in
+                DishRow(dish: dish, onTap: { onTapDish(dish) })
+                if dish.id != course.dishes.last?.id {
+                    Divider().background(Color.cgBorder.opacity(0.3))
+                        .padding(.leading, 70)
+                }
+            }
+            Divider().background(Color.cgBorder.opacity(0.4))
+        }
+    }
+
+    private var winesSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("WINES")
+                .font(.system(.subheadline, design: .serif))
+                .fontWeight(.semibold)
+                .tracking(1)
+                .foregroundColor(.cgText)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 18)
+                .padding(.top, 10)
+                .padding(.bottom, 4)
+            ForEach(filteredWines) { wine in
+                wineRow(wine)
+                if wine.id != filteredWines.last?.id {
+                    Divider().background(Color.cgBorder.opacity(0.3))
+                        .padding(.leading, 70)
+                }
+            }
+        }
+    }
+
+    /// Bottle-style row matching the regular wine list — thumbnail + name +
+    /// producer/region/varietal, tappable into the full wine detail.
+    private func wineRow(_ wine: GenerousPourWine) -> some View {
+        Button { onTapWine(wine) } label: {
+            HStack(spacing: 12) {
+                WineThumbnail(urlString: wine.image_url, size: 56)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(wine.name)
+                        .font(.system(.body, design: .serif))
+                        .foregroundColor(.cgText)
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(2)
+                    if let sub = gpWineSubtitle(wine) {
+                        Text(sub)
+                            .font(.footnote)
+                            .foregroundColor(.cgTextMuted)
+                    }
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption2)
+                    .foregroundColor(.cgTextMuted)
+            }
+            .padding(.vertical, 8)
+            .padding(.horizontal, 14)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+func gpWineSubtitle(_ wine: GenerousPourWine) -> String? {
+    let parts = [wine.producer, wine.region, wine.varietal]
+        .compactMap { $0 }
+        .filter { !$0.isEmpty }
+    return parts.isEmpty ? nil : parts.joined(separator: " · ")
+}
+
+// MARK: - Generous Pour wine detail
+
+struct GenerousPourWineDetailView: View {
+    let wine: GenerousPourWine
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                ZStack {
+                    Color.white
+                    RemoteImage(urlString: wine.image_url)
+                        .frame(maxHeight: 360)
+                }
+                .frame(height: 360)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.cgBorder, lineWidth: 1))
+
+                Text(wine.name)
+                    .font(.system(.title2, design: .serif))
+                    .foregroundColor(.cgText)
+
+                if let sub = gpWineSubtitle(wine) {
+                    Text(sub)
+                        .font(.system(.body, design: .serif))
+                        .foregroundColor(.cgTextMuted)
+                }
+
+                if let desc = wine.description, !desc.isEmpty {
+                    infoBlock(title: "About", body: desc)
+                }
+                if let notes = wine.tasting_notes, !notes.isEmpty {
+                    infoBlock(title: "Tasting Notes", body: notes)
+                }
+                if let pairing = wine.suggested_pairing, !pairing.isEmpty {
+                    infoBlock(title: "Suggested Pairing", body: pairing)
+                }
+            }
+            .padding(.horizontal, 14)
+            .padding(.bottom, 24)
+        }
+        .background(Color.cgBackground.ignoresSafeArea())
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    @ViewBuilder
+    private func infoBlock(title: String, body: String) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title.uppercased())
+                .font(.caption.bold())
+                .tracking(2)
+                .foregroundColor(.cgAccent)
+            Text(body)
+                .font(.system(.body, design: .serif))
+                .foregroundColor(.cgText)
+                .textSelection(.enabled)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.cgCard)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.cgBorder, lineWidth: 1))
+    }
 }

@@ -20,7 +20,13 @@ final class RestockStore: ObservableObject {
         do {
             let rows: [RestockItem] = try await SupabaseClient.shared.get(path: "restock_items?select=*&order=added_at.asc")
             self.items = rows
+            self.loadError = nil
+        } catch is CancellationError {
+            // View was torn down mid-fetch (tab switch, etc.) — not a real error.
+            return
         } catch {
+            let ns = error as NSError
+            if ns.domain == NSURLErrorDomain && ns.code == NSURLErrorCancelled { return }
             self.loadError = "Restock fetch failed: \(error.localizedDescription)"
         }
     }

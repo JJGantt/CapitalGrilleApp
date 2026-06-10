@@ -90,6 +90,25 @@ struct DishDetailView: View {
 
                 // Fields
                 VStack(alignment: .leading, spacing: 12) {
+                    // Composed ingredients (rub / crust / finishing / components) —
+                    // e.g. the Porcini and Kona rubs on Enhancements.
+                    if let ing = dish.ingredients {
+                        if let rub = ing.rub, !rub.isEmpty {
+                            FieldListView(label: "Rub", items: rub)
+                        }
+                        if let crust = ing.crust, !crust.isEmpty {
+                            FieldListView(label: "Crust", items: crust)
+                        }
+                        if let finishing = ing.finishing, !finishing.isEmpty {
+                            FieldListView(label: "Finishing", items: finishing)
+                        }
+                        if let components = ing.components, !components.isEmpty {
+                            FieldListView(label: "Components", items: components)
+                        }
+                        if let note = ing.note, !note.isEmpty {
+                            FieldStringView(label: "Note", value: note)
+                        }
+                    }
                     if let sp = dish.serving_piece, !sp.isEmpty {
                         FieldStringView(label: "Serving Piece", value: sp)
                     }

@@ -8,6 +8,8 @@
 	<string>Capital Grille</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -20,6 +22,8 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>
@@ -33,12 +37,20 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Capital Grille runs a workout session to stay foregrounded when you raise your wrist, so the assistant is always one glance away. No health data is read.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Capital Grille runs a workout session to stay foregrounded when you raise your wrist. No health data is written.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Voice prompts to the AI assistant.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Transcribes voice prompts for the assistant.</string>
 	<key>WKApplication</key>
 	<true/>
+	<key>WKBackgroundModes</key>
+	<array>
+		<string>workout-processing</string>
+	</array>
 	<key>WKCompanionAppBundleIdentifier</key>
 	<string>com.jaredgantt.CapitalGrille</string>
 </dict>
