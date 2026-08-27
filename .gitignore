@@ -22,3 +22,6 @@ Carthage/Build/
 # macOS junk
 .DS_Store
 *.swp
+
+# Supabase CLI scratch — version stamps and link state the tool rewrites on every run.
+supabase/.temp/

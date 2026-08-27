@@ -402,6 +402,46 @@ func resolveGenerousPourDish(_ dish: Dish, using index: [String: Dish]) -> Dish 
     return dish
 }
 
+/// Compact food menu for the assistant's prompt — name, price, a short
+/// description, and key ingredients per dish, grouped by menu and section. Lets
+/// the model answer menu questions from context instead of a tool round-trip.
+/// Built from the live menu, so database edits flow through automatically.
+func foodMenuSkeleton(_ menu: MenuData?) -> String {
+    guard let menu else { return "" }
+    func ingredients(_ d: Dish) -> String {
+        var parts: [String] = []
+        if let ing = d.ingredients {
+            if let r = ing.rub, !r.isEmpty { parts.append("rub: " + r.joined(separator: ", ")) }
+            if let c = ing.crust, !c.isEmpty { parts.append("crust: " + c.joined(separator: ", ")) }
+            if let f = ing.finishing, !f.isEmpty { parts.append("finishing: " + f.joined(separator: ", ")) }
+            if let comp = ing.components, !comp.isEmpty { parts.append("components: " + comp.joined(separator: ", ")) }
+        }
+        if let portion = d.portion, !portion.isEmpty {
+            let names = portion.compactMap { $0.ingredient }.prefix(8)
+            if !names.isEmpty { parts.append("portion: " + names.joined(separator: ", ")) }
+        }
+        return parts.joined(separator: " | ")
+    }
+    func line(_ d: Dish) -> String {
+        var bits = [d.name]
+        if let p = d.price { bits.append("$\(p)") }
+        if let desc = d.description, !desc.isEmpty { bits.append(String(desc.prefix(140))) }
+        let ing = ingredients(d)
+        if !ing.isEmpty { bits.append(ing) }
+        return bits.joined(separator: " — ")
+    }
+    var out: [String] = []
+    for (label, dishes) in [("LUNCH", menu.lunch), ("DINNER", menu.dinner), ("CAPITAL HOURS", menu.capital_hours)] where !dishes.isEmpty {
+        out.append("== \(label) ==")
+        var section: String?
+        for d in dishes {
+            if d.section != section { section = d.section; out.append("-- \(d.section) --") }
+            out.append("  " + line(d))
+        }
+    }
+    return out.joined(separator: "\n")
+}
+
 func dishesBySection(_ dishes: [Dish], sectionOrder: [String]) -> [(String, [Dish])] {
     var grouped: [String: [Dish]] = [:]
     for d in dishes {

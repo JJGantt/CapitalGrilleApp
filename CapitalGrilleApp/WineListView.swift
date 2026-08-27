@@ -5,11 +5,27 @@ struct WineListView: View {
     let searchText: String
     let onTapWine: (Bottle) -> Void
 
+    @State private var selectedViewId: String?
+
+    /// The currently selected backend-defined view (falls back to the default, then first).
+    private var currentView: BottleSectionView {
+        let views = store.views(for: "wine")
+        return views.first(where: { $0.id == selectedViewId })
+            ?? views.first(where: { $0.is_default })
+            ?? views[0]
+    }
+
     var body: some View {
         ScrollView {
             content
         }
         .scrollDismissesKeyboard(.immediately)
+        .onAppear {
+            if selectedViewId == nil {
+                selectedViewId = (store.views(for: "wine").first(where: { $0.is_default })
+                                  ?? store.views(for: "wine").first)?.id
+            }
+        }
     }
 
     private var content: some View {
@@ -21,8 +37,13 @@ struct WineListView: View {
                     ProgressView().padding(40)
                 }
             } else {
+                viewPicker
                 ForEach(filteredCategories()) { cat in
-                    WineCategorySection(category: cat, onTapWine: onTapWine)
+                    WineCategorySection(
+                        category: cat,
+                        description: store.description(dimension: currentView.group_by, value: cat.name, section: "wine"),
+                        forceExpand: !searchText.trimmingCharacters(in: .whitespaces).isEmpty,
+                        onTapWine: onTapWine)
                 }
             }
         }
@@ -30,15 +51,29 @@ struct WineListView: View {
         .padding(.bottom, 12)
     }
 
-    private func filteredCategories() -> [BottleCategory] {
-        let q = searchText.lowercased().trimmingCharacters(in: .whitespaces)
-        guard !q.isEmpty else { return store.wineCategories }
-        return store.wineCategories.compactMap { cat in
-            let matched = cat.bottles.filter { w in
-                w.displayName.lowercased().contains(q)
-                || (w.tasting_notes ?? "").lowercased().contains(q)
-                || (w.food_pairing ?? "").lowercased().contains(q)
+    /// View-mode toggle, only shown when the backend defines more than one wine view.
+    @ViewBuilder private var viewPicker: some View {
+        let views = store.views(for: "wine")
+        if views.count > 1 {
+            Picker("View", selection: Binding(
+                get: { currentView.id },
+                set: { selectedViewId = $0 }
+            )) {
+                ForEach(views) { v in
+                    Text(v.label).tag(v.id)
+                }
             }
+            .pickerStyle(.segmented)
+            .padding(.top, 4)
+        }
+    }
+
+    private func filteredCategories() -> [BottleCategory] {
+        let groups = store.groups(for: currentView)
+        let q = searchText.lowercased().trimmingCharacters(in: .whitespaces)
+        guard !q.isEmpty else { return groups }
+        return groups.compactMap { cat in
+            let matched = cat.bottles.filter { bottleMatches($0, query: q) }
             return matched.isEmpty ? nil : BottleCategory(name: cat.name, bottles: matched)
         }
     }
@@ -46,14 +81,20 @@ struct WineListView: View {
 
 private struct WineCategorySection: View {
     let category: BottleCategory
+    var description: String? = nil
+    /// Forces the group open regardless of the user's toggle — used during search so
+    /// matching bottles stay visible even though groups are collapsed by default.
+    var forceExpand: Bool = false
     let onTapWine: (Bottle) -> Void
-    @State private var expanded = true
+    @State private var expanded = false
+
+    private var isOpen: Bool { expanded || forceExpand }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Button(action: { withAnimation { expanded.toggle() } }) {
                 HStack {
-                    Image(systemName: expanded ? "chevron.down" : "chevron.right")
+                    Image(systemName: isOpen ? "chevron.down" : "chevron.right")
                         .font(.caption)
                         .foregroundColor(.cgAccent.opacity(0.7))
                     Text(category.name.uppercased())
@@ -68,9 +109,16 @@ private struct WineCategorySection: View {
             }
             .buttonStyle(.plain)
 
-            if expanded {
+            if isOpen {
                 VStack(alignment: .leading, spacing: 0) {
                     Divider().background(Color.cgBorder.opacity(0.6))
+                    if let description, !description.isEmpty {
+                        Text(description)
+                            .font(.footnote)
+                            .foregroundColor(.cgTextMuted)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
+                    }
                     ForEach(category.bottles) { wine in
                         WineRowView(wine: wine, onTap: { onTapWine(wine) })
                         if wine.id != category.bottles.last?.id {

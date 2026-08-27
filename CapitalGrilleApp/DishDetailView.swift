@@ -2,6 +2,8 @@ import SwiftUI
 
 struct DishDetailView: View {
     let dish: Dish
+    @ObservedObject var store: BottleStore
+    @Environment(\.closeDetail) private var closeDetail
 
     var body: some View {
         ScrollView {
@@ -16,6 +18,13 @@ struct DishDetailView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.cgBorder, lineWidth: 1))
                 }
+
+                // Full dish name — the nav-bar title truncates long names, so always
+                // show the complete name here under the image.
+                Text(dish.name)
+                    .font(.system(.title2, design: .serif))
+                    .foregroundColor(.cgText)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 // Price / calories
                 HStack(spacing: 10) {
@@ -151,12 +160,42 @@ struct DishDetailView: View {
                     .background(Color.cgBackground)
                     .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color.cgBorder, style: StrokeStyle(lineWidth: 1, dash: [3])))
                 }
+
+                winePairingsCard
             }
             .padding(16)
         }
         .background(Color.cgBackground.ignoresSafeArea())
         .navigationTitle(dish.name)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar { ToolbarItem(placement: .topBarTrailing) { CloseDetailButton(action: closeDetail) } }
+    }
+
+    /// Wine pairings for this dish: one block per wine STYLE that pairs, best tier
+    /// first, each with the mechanism justification, the ★ standout bottle (when one
+    /// earns it), and every bottle in the style. Closes with the "not listed & why".
+    @ViewBuilder private var winePairingsCard: some View {
+        let pairings = store.stylePairings(forDishName: dish.name)
+        if !pairings.isEmpty {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("WINE PAIRINGS")
+                    .font(.caption.bold())
+                    .tracking(2)
+                    .foregroundColor(.cgAccent)
+                ForEach(pairings) { sp in
+                    StylePairingBlock(pairing: sp, store: store)
+                }
+                if let lo = pairings.compactMap({ $0.leaves_out }).first(where: { !$0.isEmpty }) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("NOT LISTED")
+                            .font(.caption2.bold()).tracking(1.5).foregroundColor(.cgTextMuted)
+                        GlossaryText(lo, store: store, font: .footnote, color: .cgTextMuted)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 2)
+                }
+            }
+        }
     }
 
     @ViewBuilder
@@ -165,6 +204,50 @@ struct DishDetailView: View {
             Text(label + ":").font(.caption).foregroundColor(.cgTextMuted)
             Text(value).font(.caption).foregroundColor(.cgText)
         }
+    }
+}
+
+/// One wine-style pairing on a dish's detail: the style name + tier, the mechanism
+/// justification, then every bottle in the style (the ★ standout, if any, pinned first
+/// with its specific reason). Tapping a bottle pushes its full detail.
+struct StylePairingBlock: View {
+    let pairing: StylePairing
+    @ObservedObject var store: BottleStore
+
+    var body: some View {
+        let wines = store.wines(inStyle: pairing.style, standoutId: pairing.standout_wine_id)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(pairing.style)
+                    .font(.system(.callout, design: .serif).weight(.semibold))
+                    .foregroundColor(.cgText)
+                Spacer(minLength: 8)
+                TierPill(tier: pairing.tier)
+            }
+            GlossaryText(pairing.justification, store: store, font: .footnote, color: .cgTextMuted)
+            VStack(spacing: 0) {
+                ForEach(wines) { w in
+                    let isS = w.id == pairing.standout_wine_id
+                    NavigationLink(destination: WineDetailView(wine: w, store: store)) {
+                        PairingItemRow(title: w.displayName,
+                                       isStandout: isS,
+                                       reason: isS ? pairing.standout_reason : nil,
+                                       store: store)
+                    }
+                    .buttonStyle(.plain)
+                    if w.id != wines.last?.id {
+                        Divider().background(Color.cgBorder.opacity(0.25))
+                    }
+                }
+            }
+            .padding(.top, 2)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.cgCard)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(RoundedRectangle(cornerRadius: 8)
+            .stroke(pairing.tier == "Perfect" ? Color.cgAccent.opacity(0.5) : Color.cgBorder, lineWidth: 1))
     }
 }
 

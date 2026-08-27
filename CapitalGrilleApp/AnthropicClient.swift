@@ -183,7 +183,7 @@ struct AnthropicClient {
             [
                 "type": "text",
                 "text": systemStable,
-                "cache_control": ["type": "ephemeral"]
+                "cache_control": ["type": "ephemeral", "ttl": "1h"]   // 1-hour cache (vs 5-min default)
             ],
             [
                 "type": "text",
@@ -210,6 +210,7 @@ struct AnthropicClient {
         req.httpMethod = "POST"
         req.setValue(apiKey, forHTTPHeaderField: "x-api-key")
         req.setValue(version, forHTTPHeaderField: "anthropic-version")
+        req.setValue("extended-cache-ttl-2025-04-11", forHTTPHeaderField: "anthropic-beta")  // enables ttl:1h
         req.setValue("application/json", forHTTPHeaderField: "content-type")
         req.httpBody = try JSONSerialization.data(withJSONObject: body)
         req.timeoutInterval = 30

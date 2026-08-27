@@ -25,6 +25,21 @@ extension Color {
     static let cgBorder = Color(red: 0.85, green: 0.80, blue: 0.72)
 }
 
+// MARK: - Close-detail action (jump straight out of a pushed detail stack)
+
+/// Lets any view deep in a detail NavigationStack dismiss the whole fullScreenCover
+/// (back to the main list) without popping level by level. Set once on the stack;
+/// every pushed view inherits it via the environment.
+private struct CloseDetailKey: EnvironmentKey {
+    static let defaultValue: () -> Void = {}
+}
+extension EnvironmentValues {
+    var closeDetail: () -> Void {
+        get { self[CloseDetailKey.self] }
+        set { self[CloseDetailKey.self] = newValue }
+    }
+}
+
 // MARK: - Content View
 
 enum TopSection: String, CaseIterable, Identifiable {
@@ -72,19 +87,17 @@ struct ContentView: View {
             .background(Color.cgBackground.ignoresSafeArea())
             .fullScreenCover(item: $selectedDish) { dish in
                 NavigationStack {
-                    DishDetailView(dish: dish)
+                    DishDetailView(dish: dish, store: bottleStore)
                         .toolbar {
                             ToolbarItem(placement: .topBarLeading) {
                                 Button(action: { selectedDish = nil }) {
-                                    HStack(spacing: 4) {
-                                        Image(systemName: "chevron.left")
-                                        Text("Back")
-                                    }
-                                    .foregroundColor(.cgAccent)
+                                    Image(systemName: "chevron.left").foregroundColor(.cgAccent)
                                 }
                             }
                         }
                 }
+                .environment(\.closeDetail) { selectedDish = nil }
+                .glossaryHost(bottleStore)
             }
             .sheet(isPresented: $showSettings) {
                 SettingsView(bottleStore: bottleStore)
@@ -95,11 +108,7 @@ struct ContentView: View {
                         .toolbar {
                             ToolbarItem(placement: .topBarLeading) {
                                 Button(action: { selectedCocktail = nil }) {
-                                    HStack(spacing: 4) {
-                                        Image(systemName: "chevron.left")
-                                        Text("Back")
-                                    }
-                                    .foregroundColor(.cgAccent)
+                                    Image(systemName: "chevron.left").foregroundColor(.cgAccent)
                                 }
                             }
                         }
@@ -111,11 +120,7 @@ struct ContentView: View {
                         .toolbar {
                             ToolbarItem(placement: .topBarLeading) {
                                 Button(action: { selectedGPWine = nil }) {
-                                    HStack(spacing: 4) {
-                                        Image(systemName: "chevron.left")
-                                        Text("Back")
-                                    }
-                                    .foregroundColor(.cgAccent)
+                                    Image(systemName: "chevron.left").foregroundColor(.cgAccent)
                                 }
                             }
                         }
@@ -127,15 +132,13 @@ struct ContentView: View {
                         .toolbar {
                             ToolbarItem(placement: .topBarLeading) {
                                 Button(action: { selectedWine = nil }) {
-                                    HStack(spacing: 4) {
-                                        Image(systemName: "chevron.left")
-                                        Text("Back")
-                                    }
-                                    .foregroundColor(.cgAccent)
+                                    Image(systemName: "chevron.left").foregroundColor(.cgAccent)
                                 }
                             }
                         }
                 }
+                .environment(\.closeDetail) { selectedWine = nil }
+                .glossaryHost(bottleStore)
             }
             .onAppear {
                 if store.menu == nil { store.load() }
@@ -144,6 +147,11 @@ struct ContentView: View {
                     await bottleStore.refreshFromSupabase()
                     await restockStore.refresh()
                 }
+            }
+            // Hand the loaded food menu to the bottle store so it can resolve pairing
+            // dish slugs to real Dishes (the menu lives here, the pairings there).
+            .onReceive(store.$menu.compactMap { $0 }) { menu in
+                bottleStore.menuDishes = fullMenuDishIndex(menu)
             }
     }
 
@@ -203,7 +211,7 @@ struct ContentView: View {
                 selectedWine = wine
             }
         } else if section == .liquor {
-            LiquorListView(bottleStore: bottleStore, expanded: $liquorExpanded) { bottle in
+            LiquorListView(bottleStore: bottleStore, expanded: $liquorExpanded, searchText: searchText) { bottle in
                 selectedWine = bottle
             }
         } else if section == .cocktails {
@@ -362,14 +370,8 @@ struct ContentView: View {
             }
             return n
         }()
-        let wineCount = bottleStore.wineCategories.flatMap(\.bottles).filter {
-            $0.displayName.lowercased().contains(q)
-            || ($0.tasting_notes ?? "").lowercased().contains(q)
-            || ($0.food_pairing ?? "").lowercased().contains(q)
-        }.count
-        let liquorCount = bottleStore.liquors.filter {
-            ($0.name ?? "").lowercased().contains(q)
-        }.count
+        let wineCount = bottleStore.wineCategories.flatMap(\.bottles).filter { bottleMatches($0, query: q) }.count
+        let liquorCount = bottleStore.liquors.filter { bottleMatches($0, query: q) }.count
         let cocktailCount = cocktailStore.cocktails.filter { cocktailMatches($0, query: q) }.count
 
         let counts: [(TopSection, Int)] = [
@@ -465,7 +467,7 @@ struct ContentView: View {
 
     @MainActor
     private func askAnything(question: String, history: [(question: String, answer: String)]) async throws -> String {
-        let engine = ChatEngine(menuStore: store, bottleStore: bottleStore, restockStore: restockStore, surface: "ios")
+        let engine = ChatEngine(menuStore: store, bottleStore: bottleStore, restockStore: restockStore, cocktailStore: cocktailStore, surface: "ios")
         return try await engine.ask(question: question, history: history, sessionId: aiSessionId) { activity in
             self.aiActivity = activity
         }
@@ -526,22 +528,6 @@ struct ContentView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.top, 60)
                 }
-                if aiBusy, let activity = aiActivity {
-                    HStack(alignment: .top, spacing: 6) {
-                        Image(systemName: "wrench.and.screwdriver.fill")
-                            .foregroundColor(.cgAccent.opacity(0.7))
-                            .font(.caption)
-                        Text(activity)
-                            .font(.system(.caption, design: .monospaced))
-                            .foregroundColor(.cgTextMuted)
-                            .textSelection(.enabled)
-                    }
-                    .padding(10)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.cgCard.opacity(0.6))
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
-                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.cgBorder.opacity(0.6), lineWidth: 1))
-                }
                 ForEach(aiHistory) { ex in
                     chatBubble(icon: "person.crop.circle.fill", iconColor: .cgTextMuted) {
                         Text(ex.question)
@@ -566,6 +552,24 @@ struct ContentView: View {
                     chatBubble(icon: "sparkles", iconColor: .cgAccent, iconAlignment: .center) {
                         ProgressView().progressViewStyle(.circular).scaleEffect(0.7)
                     }
+                }
+                // Tool-use / activity indicator — at the BOTTOM so it's the most recent
+                // thing visible in a long conversation (auto-scrolled into view).
+                if aiBusy, let activity = aiActivity {
+                    HStack(alignment: .top, spacing: 6) {
+                        Image(systemName: "wrench.and.screwdriver.fill")
+                            .foregroundColor(.cgAccent.opacity(0.7))
+                            .font(.caption)
+                        Text(activity)
+                            .font(.system(.caption, design: .monospaced))
+                            .foregroundColor(.cgTextMuted)
+                            .textSelection(.enabled)
+                    }
+                    .padding(10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.cgCard.opacity(0.6))
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.cgBorder.opacity(0.6), lineWidth: 1))
                 }
                 if let err = aiError {
                     Text(err)

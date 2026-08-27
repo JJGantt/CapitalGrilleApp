@@ -9,6 +9,10 @@ final class ChatEngine {
     private let menuStore: MenuStore
     private let bottleStore: BottleStore
     private let restockStore: RestockStore
+    /// Live cocktail catalog (Supabase-backed). Optional so the watch — which
+    /// has no CocktailStore — falls back to the bundled list. iOS passes the
+    /// live store so the assistant sees cocktail edits without a rebuild.
+    private let cocktailStore: CocktailStore?
 
     /// Surface name (e.g., "iOS", "Watch") prepended to logs.
     private let surface: String
@@ -20,11 +24,13 @@ final class ChatEngine {
     init(menuStore: MenuStore,
          bottleStore: BottleStore,
          restockStore: RestockStore,
+         cocktailStore: CocktailStore? = nil,
          surface: String = "ios",
          surfaceHint: String? = nil) {
         self.menuStore = menuStore
         self.bottleStore = bottleStore
         self.restockStore = restockStore
+        self.cocktailStore = cocktailStore
         self.surface = surface
         self.surfaceHint = surfaceHint
     }
@@ -61,6 +67,7 @@ final class ChatEngine {
                     onActivity: onActivity
                 )
                 await bottleStore.refreshFromSupabase()
+                await cocktailStore?.refreshFromRemote()
                 await restockStore.refresh()
                 await logInteraction(backend: "mac", answer: answer, error: nil)
                 return answer
@@ -126,6 +133,14 @@ final class ChatEngine {
         }
         func formatBottle(_ b: Bottle) -> String {
             var s = "\(b.displayName) [id:\(b.id)]"
+            // Compact attribute tags so company/region/style/ABV questions are
+            // answerable straight from the (cached) skeleton without a tool call.
+            var tags: [String] = []
+            if let pp = b.producer_parent { tags.append(pp) }
+            if let loc = b.location { tags.append(loc) }
+            if let st = b.pairing_style { tags.append(st) }
+            if let abv = b.abv { tags.append(abv) }
+            if !tags.isEmpty { s += " (" + tags.joined(separator: ", ") + ")" }
             let primary = locStr(b.primary)
             let backup  = locStr(b.backup)
             if let p = primary, let bk = backup { s += " @ \(p) | bk \(bk)" }
@@ -162,6 +177,8 @@ final class ChatEngine {
         let deleteProductTool = Backend.current == .mac ? "mcp__bottle__delete_product" : "delete_product"
         let detailsTool = Backend.current == .mac ? "mcp__bottle__get_bottle_details" : "get_bottle_details"
         let byVarietalTool = Backend.current == .mac ? "mcp__bottle__get_bottles_by_varietal" : "get_bottles_by_varietal"
+        let searchTool = Backend.current == .mac ? "mcp__bottle__search_bottles" : "search_bottles"
+        let pairingsTool = Backend.current == .mac ? "mcp__bottle__get_pairings" : "get_pairings"
         let foodTool = Backend.current == .mac ? "mcp__bottle__get_food_menu" : "get_food_menu"
         let generousPourTool = Backend.current == .mac ? "mcp__bottle__get_generous_pour" : "get_generous_pour"
 
@@ -170,17 +187,23 @@ final class ChatEngine {
         }
         let restockJSON = (try? String(data: JSONSerialization.data(withJSONObject: restockCtx), encoding: .utf8)) ?? "[]"
 
-        let cocktailsList = CocktailStore.loadFromBundle()
+        // Prefer the live, Supabase-backed cocktail list (same treatment as bottles);
+        // fall back to the bundled copy only if the live store hasn't loaded.
+        let liveCocktails = cocktailStore?.cocktails ?? []
+        let cocktailsList = liveCocktails.isEmpty ? CocktailStore.loadFromBundle() : liveCocktails
         let cocktailSkel = cocktailsList.isEmpty ? "" : cocktailSkeleton(cocktailsList)
+        let foodSkeleton = foodMenuSkeleton(menuStore.menu)
 
         // Editable rule blocks live in Supabase (app_content/system_prompt). A remote
         // block (which uses {{placeholders}}) overrides the in-code literal; either
         // way, {{tool}}/{{data}} placeholders resolve to the live backend + data.
         let promptSub: [String: String] = [
             "{{food_tool}}": foodTool, "{{details_tool}}": detailsTool, "{{by_varietal_tool}}": byVarietalTool,
+            "{{search_tool}}": searchTool, "{{pairings_tool}}": pairingsTool,
             "{{generous_pour_tool}}": generousPourTool, "{{location_tool}}": toolName, "{{area_tool}}": areaTool,
             "{{restock_tool}}": restockTool, "{{add_product_tool}}": addProductTool, "{{delete_product_tool}}": deleteProductTool,
             "{{bottle_skeleton}}": bottleSkeleton, "{{areas}}": areasJSON, "{{cocktail_skeleton}}": cocktailSkel, "{{restock}}": restockJSON,
+            "{{food_skeleton}}": foodSkeleton,
         ]
         func promptBlock(_ key: String, _ fallback: String) -> String {
             guard let remote = remotePrompt?[key], !remote.isEmpty else { return fallback }
@@ -201,7 +224,7 @@ final class ChatEngine {
         - For ANY substantive question about a bottle's flavor, history, production, additives, age, mash bill, etc., ALWAYS call get_bottle_details or get_bottles_by_varietal FIRST to fetch authoritative tasting notes. Your own knowledge is welcome to add color and context, but the tool data is the source of truth.
         - For questions about a category ("what are the smoky scotches", "which gins do you have"), ALWAYS call get_bottles_by_varietal to see every option with full notes — even if you think you know the answer.
         - A single producer's lineup can span multiple varietals. E.g. "Colonel E.H. Taylor" has bourbons AND a rye (Straight Rye, varietal "Rye"). "Angel's Envy" has a bourbon AND a rye (Angel's Envy Rye, varietal "Rye"). "WhistlePig" is all ryes. When asked about a brand or lineup, scan the WHOLE skeleton for every matching name across ALL varietal groups, then call get_bottle_details for each one. Don't assume a single varietal covers the whole lineup.
-        - For ANY question about food/dishes, ALWAYS call get_food_menu (with a section if you can narrow it down). The menu data is the source of truth — never guess ingredients from your own knowledge.
+        - For food/dish questions, answer from the FOOD MENU section in this prompt (every dish is listed with its description and key ingredients). Call get_food_menu ONLY for details not shown there — exact portion amounts (oz/Tbsp) or full step-by-step prep. NEVER guess menu facts: if it isn't in the FOOD MENU and you haven't called the tool, say you would verify rather than invent.
         - GENEROUS POUR is a separate seasonal program (summer wine/tasting event). Its menu, wines, prices, dates, and recipes are NOT part of the regular food/wine catalog and live behind a dedicated tool, \(generousPourTool). ONLY call \(generousPourTool) when the user has explicitly mentioned "Generous Pour" (or a clear phonetic variant). Do not include Generous Pour wines or dishes in answers to ordinary food, wine, or recommendation questions. If the user mentions Generous Pour, \(generousPourTool) returns the full program data — wines, courses, recipes, and pricing — in one shot.
         - Tool calls are cheap — when in doubt, call the tool. Better to verify with data than guess.
 
@@ -259,12 +282,20 @@ final class ChatEngine {
         let cocktailRouting = promptBlock("cocktail_routing", cocktailRoutingFallback)
         if !cocktailRouting.isEmpty { systemStable += "\n\n" + cocktailRouting }
 
+        let foodMenuFallback = foodSkeleton.isEmpty ? "" : """
+        FOOD MENU — the complete menu is below. Answer ALL food/dish questions directly from this list (what's on the menu, which dish has a given rub/crust, ingredients, descriptions, prices, item counts). Do NOT call a tool for these — the data is already here. Call \(foodTool) ONLY for details not shown: exact portion amounts (oz/Tbsp), full step-by-step prep, or detailed talking points. NEVER state a menu fact that is neither in this list nor fetched via \(foodTool) — if unsure, say you would verify rather than guess.
+
+        \(foodSkeleton)
+        """
+        let foodMenu = promptBlock("food_menu", foodMenuFallback)
+        if !foodMenu.isEmpty { systemStable += "\n\n" + foodMenu }
+
         if let hint = surfaceHint {
             systemStable += "\n\nSURFACE NOTE: \(hint)"
         }
 
         let catalogRulesFallback = """
-        CATALOG SKELETON (name @ primary location | bk backup location). Use for fuzzy matching and location lookups. For tasting notes / details, call \(detailsTool) or \(byVarietalTool).
+        CATALOG SKELETON — each line is: name [id] (company, region, pairing-style, ABV) @ primary | bk backup. Use it for fuzzy matching, location lookups, AND to filter or recommend by company, region, pairing style, or ABV directly from these lines (no tool call needed for those). For a bottle's FULL details (producer, grain bill, talking points) + its pairings, call \(detailsTool). To list every bottle sharing a company/producer/region/style, call \(searchTool). For food↔wine pairings, call \(pairingsTool). For a whole varietal, call \(byVarietalTool).
 
         \(bottleSkeleton)
 
@@ -289,7 +320,9 @@ final class ChatEngine {
         - "Add/I need X to the restock list", "two of these", "out of X" → \(restockTool).
         - If the user is RELOCATING a bottle (specifying where it sits), it's update_bottle_locations — quantity is irrelevant.
         - If the user is asking you to REMEMBER they need more of something, it's update_restock.
-        - Questions about bottle CHARACTERISTICS (flavor, history, production, additives, age) → \(detailsTool) for one bottle or \(byVarietalTool) for a category.
+        - Questions about ONE bottle's CHARACTERISTICS (flavor, history, production, grain bill, ABV, talking points) → \(detailsTool). It now returns the FULL record AND the dishes that bottle pairs with.
+        - Questions filtering by COMPANY, PRODUCER, REGION, or PAIRING STYLE ("what does Buffalo Trace make", "which wines are from Napa", "what does Pernod Ricard own", "recommend a Structured Bold Red") → \(searchTool). For a whole varietal/category ("what cabernets do you have") → \(byVarietalTool).
+        - WINE↔FOOD PAIRING questions ("what wine goes with the ribeye", "what should I drink with the lobster mac", "what does the Cabernet pair with") → \(pairingsTool). These pairings are hand-curated — NEVER improvise a pairing from general knowledge when this tool can answer.
         - Questions about FOOD → \(foodTool) (with section if you can narrow it).
 
         Bottle-location rules:
@@ -400,31 +433,43 @@ final class ChatEngine {
             ],
             handler: { input in
                 let bid = (input["bottle_id"] as? String) ?? ""
-                struct Row: Decodable {
-                    let id: String; let name: String?; let kind: String?; let category: String?; let varietal: String?
-                    let tasting_notes: String?; let food_pairing: String?; let image_url: String?
-                    let primary_area: String?; let primary_row: Int?; let primary_column: Int?
-                    let backup_area: String?; let backup_row: Int?; let backup_column: Int?
-                }
-                let rows: [Row] = (try? await SupabaseClient.shared.get(path: "bottles?id=eq.\(bid)&select=*")) ?? []
+                let rows: [Bottle] = (try? await SupabaseClient.shared.get(path: "bottles?id=eq.\(bid)&unverified=eq.false&select=*")) ?? []
                 guard let b = rows.first else { return "Bottle '\(bid)' not found." }
-                var out = "\(b.name ?? b.id) [\(b.varietal ?? "?")]"
+                var out = "\(b.displayName) [\(b.varietal ?? "?")]"
                 if let c = b.category { out += " · \(c)" }
-                if let p = b.primary_area {
-                    var s = "\nPrimary: \(p)"
-                    if let r = b.primary_row { s += " · R\(r)" }
-                    if let c = b.primary_column { s += " · C\(c)" }
-                    out += s
+                var attrs: [String] = []
+                if let p = b.producer { attrs.append("Producer: \(p)") }
+                if let pp = b.producer_parent { attrs.append("Company: \(pp)") }
+                if let loc = b.location { attrs.append("Region: \(loc)") }
+                if let abv = b.abv { attrs.append("ABV: \(abv)") }
+                if let st = b.pairing_style { attrs.append("Pairing style: \(st)") }
+                if !attrs.isEmpty { out += "\n" + attrs.joined(separator: " · ") }
+                if let s = b.primary.displayString { out += "\nPrimary: \(s)" }
+                if let s = b.backup.displayString  { out += "\nBackup: \(s)" }
+                if let g = b.grape_detail   { out += "\n\nGrapes/grain bill: \(g)" }
+                if let t = b.tasting_notes  { out += "\n\nTasting notes: \(t)" }
+                if let tp = b.talking_points { out += "\n\nTalking points: \(tp)" }
+                if let fp = b.food_pairing  { out += "\n\nFood pairing: \(fp)" }
+                if let u = b.image_url      { out += "\n\nImage: \(u)" }
+                // Curated pairings via the bottle's style
+                if let style = b.pairing_style, (b.kind ?? "wine") == "wine" {
+                    let enc = style.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? style
+                    struct SP: Decodable { let dish_id: String; let tier: String; let standout_wine_id: String?; let standout_reason: String? }
+                    struct MD: Decodable { let id: String; let name: String }
+                    let sp: [SP] = (try? await SupabaseClient.shared.get(path: "style_pairings?style=eq.\(enc)&select=dish_id,tier,standout_wine_id,standout_reason&order=sort_order.asc")) ?? []
+                    if !sp.isEmpty {
+                        let dishes: [MD] = (try? await SupabaseClient.shared.get(path: "menu_dishes?select=id,name")) ?? []
+                        let nameBy = Dictionary(dishes.map { ($0.id, $0.name) }, uniquingKeysWith: { a, _ in a })
+                        var seen = Set<String>(); var lines: [String] = []
+                        for p in sp {
+                            guard let nm = nameBy[p.dish_id], !seen.contains(nm) else { continue }
+                            seen.insert(nm)
+                            let star = (p.standout_wine_id == b.id && p.standout_reason != nil) ? " ★ \(p.standout_reason!)" : ""
+                            lines.append("  [\(p.tier)] \(nm)\(star)")
+                        }
+                        if !lines.isEmpty { out += "\n\nPairs with (as a \(style)):\n" + lines.joined(separator: "\n") }
+                    }
                 }
-                if let bk = b.backup_area {
-                    var s = "\nBackup: \(bk)"
-                    if let r = b.backup_row { s += " · R\(r)" }
-                    if let c = b.backup_column { s += " · C\(c)" }
-                    out += s
-                }
-                if let t = b.tasting_notes { out += "\n\nTasting notes: \(t)" }
-                if let fp = b.food_pairing { out += "\n\nFood pairing: \(fp)" }
-                if let u = b.image_url { out += "\n\nImage: \(u)" }
                 return out
             }
         )
@@ -448,7 +493,7 @@ final class ChatEngine {
                     let backup_area: String?; let backup_row: Int?; let backup_column: Int?
                 }
                 let escaped = v.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? v
-                let rows: [Row] = (try? await SupabaseClient.shared.get(path: "bottles?varietal=eq.\(escaped)&deleted=eq.false&select=id,name,varietal,category,tasting_notes,primary_area,primary_row,primary_column,backup_area,backup_row,backup_column&order=name.asc")) ?? []
+                let rows: [Row] = (try? await SupabaseClient.shared.get(path: "bottles?varietal=eq.\(escaped)&deleted=eq.false&unverified=eq.false&select=id,name,varietal,category,tasting_notes,primary_area,primary_row,primary_column,backup_area,backup_row,backup_column&order=name.asc")) ?? []
                 if rows.isEmpty { return "No bottles with varietal '\(v)' found." }
                 var out: [String] = ["\(v.uppercased()) (\(rows.count) bottles):\n"]
                 for b in rows {
@@ -686,8 +731,105 @@ final class ChatEngine {
             }
         )
 
+        let searchBottlesTool = AnthropicTool(
+            name: "search_bottles",
+            description: "Search the wine & liquor catalog by any attribute and get the matching bottles with details. Use this for company/producer/region/style questions the varietal tool can't answer: 'what does Buffalo Trace make', 'which wines are from Napa', 'what does Pernod Ricard own', 'recommend a Structured Bold Red'. Returns the authoritative set — the tool data is the source of truth.",
+            inputSchema: [
+                "type": "object",
+                "properties": [
+                    "field": ["type": "string", "enum": ["producer", "producer_parent", "location", "pairing_style", "varietal", "kind"],
+                              "description": "Attribute to filter on. producer_parent = overarching company; location = region/country; pairing_style = wine-pairing style bucket; kind = 'wine' or 'liquor'."],
+                    "value": ["type": "string", "description": "Value to match exactly, as it appears in the catalog."]
+                ],
+                "required": ["field", "value"]
+            ],
+            handler: { input in
+                let field = (input["field"] as? String) ?? ""
+                let value = (input["value"] as? String) ?? ""
+                let allowed = ["producer", "producer_parent", "location", "pairing_style", "varietal", "kind"]
+                guard allowed.contains(field), !value.isEmpty else { return "field must be one of \(allowed) and value is required." }
+                let enc = value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? value
+                struct Row: Decodable {
+                    let id: String; let name: String?; let kind: String?; let varietal: String?
+                    let producer: String?; let producer_parent: String?; let location: String?
+                    let abv: String?; let pairing_style: String?; let tasting_notes: String?
+                }
+                let rows: [Row] = (try? await SupabaseClient.shared.get(path: "bottles?\(field)=eq.\(enc)&deleted=eq.false&unverified=eq.false&select=id,name,kind,varietal,producer,producer_parent,location,abv,pairing_style,tasting_notes&order=name.asc")) ?? []
+                if rows.isEmpty { return "No bottles where \(field) = '\(value)'." }
+                var out = ["\(field.uppercased()) = \(value) (\(rows.count) bottles):", ""]
+                for b in rows {
+                    let bits = [b.varietal, b.abv].compactMap { $0 }
+                    out.append("• \(b.name ?? b.id) [id:\(b.id)]" + (bits.isEmpty ? "" : " — \(bits.joined(separator: " · "))"))
+                    if let t = b.tasting_notes { out.append("  \(t)") }
+                }
+                return out.joined(separator: "\n")
+            }
+        )
+
+        let getPairingsTool = AnthropicTool(
+            name: "get_pairings",
+            description: "Get the curated wine pairings for a DISH (which wine styles go with it, with reasons and the bottles in each) or the dishes a WINE pairs with. ALWAYS call this for pairing questions ('what wine goes with the ribeye', 'what should I drink with the lobster mac', 'what does the Cabernet pair with'). These are hand-authored, mechanism-based pairings and the source of truth — do NOT improvise pairings from general knowledge when this can answer.",
+            inputSchema: [
+                "type": "object",
+                "properties": [
+                    "dish_name": ["type": "string", "description": "A dish name (or close phrase) to get its wine pairings."],
+                    "wine_id": ["type": "string", "description": "A wine's bottle id to get the dishes it pairs with."]
+                ],
+                "required": []
+            ],
+            handler: { input in
+                let dishName = (input["dish_name"] as? String) ?? ""
+                let wineId = (input["wine_id"] as? String) ?? ""
+                struct MD: Decodable { let id: String; let name: String }
+                struct W: Decodable { let id: String; let name: String?; let pairing_style: String? }
+                struct SP: Decodable { let style: String?; let dish_id: String?; let tier: String; let justification: String?; let leaves_out: String?; let standout_wine_id: String?; let standout_reason: String? }
+                let dishes: [MD] = (try? await SupabaseClient.shared.get(path: "menu_dishes?select=id,name")) ?? []
+                let wines: [W] = (try? await SupabaseClient.shared.get(path: "bottles?kind=eq.wine&deleted=eq.false&select=id,name,pairing_style")) ?? []
+                let wname = Dictionary(wines.map { ($0.id, $0.name ?? $0.id) }, uniquingKeysWith: { a, _ in a })
+                if !wineId.isEmpty {
+                    guard let style = wines.first(where: { $0.id == wineId })?.pairing_style else { return "\(wname[wineId] ?? wineId) has no pairing style set." }
+                    let enc = style.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? style
+                    let sp: [SP] = (try? await SupabaseClient.shared.get(path: "style_pairings?style=eq.\(enc)&select=dish_id,tier,standout_wine_id,standout_reason&order=sort_order.asc")) ?? []
+                    let nameBy = Dictionary(dishes.map { ($0.id, $0.name) }, uniquingKeysWith: { a, _ in a })
+                    var seen = Set<String>(); var lines: [String] = []
+                    for p in sp {
+                        guard let did = p.dish_id, let nm = nameBy[did], !seen.contains(nm) else { continue }
+                        seen.insert(nm)
+                        let star = (p.standout_wine_id == wineId && p.standout_reason != nil) ? " ★ \(p.standout_reason!)" : ""
+                        lines.append("[\(p.tier)] \(nm)\(star)")
+                    }
+                    return lines.isEmpty ? "No pairings found for \(wname[wineId] ?? wineId)." : "\(wname[wineId] ?? wineId) (as a \(style)) pairs with:\n" + lines.joined(separator: "\n")
+                }
+                if !dishName.isEmpty {
+                    let tgt = normalizeDishName(dishName)
+                    var slugs = dishes.filter { normalizeDishName($0.name) == tgt }.map { $0.id }
+                    if slugs.isEmpty { slugs = dishes.filter { normalizeDishName($0.name).contains(tgt) || tgt.contains(normalizeDishName($0.name)) }.map { $0.id } }
+                    guard let slug = slugs.first else { return "No dish matching '\(dishName)'." }
+                    let dn = dishes.first(where: { $0.id == slug })?.name ?? dishName
+                    let sp: [SP] = (try? await SupabaseClient.shared.get(path: "style_pairings?dish_id=eq.\(slug.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? slug)&select=style,tier,justification,leaves_out,standout_wine_id,standout_reason&order=sort_order.asc")) ?? []
+                    if sp.isEmpty { return "No curated pairings for \(dn)." }
+                    var out = ["Wine pairings for \(dn):", ""]
+                    for p in sp {
+                        out.append("[\(p.tier)] \(p.style ?? "?") — \(p.justification ?? "")")
+                        if let sid = p.standout_wine_id, let r = p.standout_reason { out.append("   ★ \(wname[sid] ?? sid): \(r)") }
+                        if let st = p.style {
+                            struct BN: Decodable { let name: String? }
+                            let bn: [BN] = (try? await SupabaseClient.shared.get(path: "bottles?kind=eq.wine&deleted=eq.false&pairing_style=eq.\(st.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? st)&select=name&order=name.asc")) ?? []
+                            let names = bn.compactMap { $0.name }
+                            if !names.isEmpty { out.append("   bottles: " + names.joined(separator: ", ")) }
+                        }
+                        out.append("")
+                    }
+                    if let lo = sp.first?.leaves_out, !lo.isEmpty { out.append("Not listed: \(lo)") }
+                    return out.joined(separator: "\n")
+                }
+                return "Provide either dish_name or wine_id."
+            }
+        )
+
         let tools: [AnthropicTool] = [
             getFoodMenuTool, getGenerousPourTool, getBottleDetailsTool, getBottlesByVarietalTool,
+            searchBottlesTool, getPairingsTool,
             updateTool, areasTool, restockToolDef,
             addProductDef, deleteProductDef, setImageDef, updateDetailsDef,
         ]

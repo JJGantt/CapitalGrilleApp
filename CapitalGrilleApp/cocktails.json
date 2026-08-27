@@ -327,17 +327,25 @@
     "name": "The Doli",
     "glass": "Martini Glass",
     "garnish": null,
-    "service": "Shaken Tableside",
+    "service": "Shaken Tableside - 3 oz of the batched Doli.",
     "ingredients": [
       {
-        "name": "The Doli, batched",
-        "amount": "3 oz"
+        "name": "Jet Fresh Dole Pineapple",
+        "amount": null
+      },
+      {
+        "name": "Wheatley American Craft Vodka",
+        "amount": null
       }
     ],
     "prep": [
-      "Add The Doli, batched, to Boston shaker.",
-      "Add ice then shake vigorously to combine drink for 20-30 seconds.",
-      "Strain into a martini glass."
+      "Start with Jet Fresh Dole pineapple, which is the ripest available",
+      "Trim the top and bottom of the pineapple",
+      "Skin pineapple the long way, trimming away the outer skin until no brown spots remain so the end result is an octagonal shape",
+      "Slice the pineapple exactly 1\" thick",
+      "Stack pineapple slices into a jar around outside perimeter as neatly as possible, staggering each layer like bricks. Place as many slices in jar as will fit. Then fill jars with Wheatley American Craft Vodka",
+      "Label back of jar with day label",
+      "NOTE: It takes 7-10 days for the pineapple to \"marinate,\" and it is unusable before this. Having backup containers in reserve is important. DO NOT APPLY PRESSURE or weight when straining - allow it to strain with a natural flow."
     ]
   },
   {
@@ -564,19 +572,130 @@
   },
   {
     "name": "Mint Lemonade",
-    "glass": "Water Glass",
-    "garnish": "1 Lemon Wedge, Mint Leaves",
-    "service": "Serve with a straw on the side",
+    "glass": "Beverage Glass",
+    "garnish": "Lemon Wedge, Mint Sprig",
+    "service": "Put ice in glass. Tear 1-2 mint leaves and place over ice. Pour lemonade.",
     "ingredients": [
       {
-        "name": "Mint Lemonade, batched",
-        "amount": "7 oz"
+        "name": "Sugar",
+        "amount": "4 cups"
+      },
+      {
+        "name": "Fresh Lemon Juice",
+        "amount": "4 cups"
+      },
+      {
+        "name": "Salt",
+        "amount": "1 tsp."
+      },
+      {
+        "name": "Water",
+        "amount": "1 gallon"
+      },
+      {
+        "name": "Lemons",
+        "amount": "4 ea."
+      },
+      {
+        "name": "Fresh Mint Leaves (torn)",
+        "amount": "24 ea."
       }
     ],
     "prep": [
-      "Add ice to water glass.",
-      "Fill to top with Mint Lemonade batch.",
-      "Garnish with lemon wedge on rim and 2-3 mint leaves."
+      "Wash lemons in victory and then cut each lemon in half.",
+      "CCP#6 VICTORY PRODUCE WASH - lemons must be treated with Victory produce wash for two minutes.",
+      "In a large stainless steel-mixing bowl with lemon halves, add sugar, mint leaves (torn), salt, fresh lemon juice and water.",
+      "Muddle together all ingredients",
+      "Let steep for three hours",
+      "Strain mint leaves out of lemonade, label, date and reserve for service",
+      "NOTE: Shelf life for lemonade is 36 hours"
+    ]
+  },
+  {
+    "name": "Bloody Mary Mix",
+    "glass": null,
+    "garnish": null,
+    "service": null,
+    "ingredients": [
+      {
+        "name": "V8",
+        "amount": "1 46 oz. Bottle"
+      },
+      {
+        "name": "Dijon Mustard",
+        "amount": "1 TBL."
+      },
+      {
+        "name": "Horseradish, prepared",
+        "amount": "2 TBL."
+      },
+      {
+        "name": "Worcestershire Sauce",
+        "amount": "4 tsp."
+      },
+      {
+        "name": "A1 Sauce",
+        "amount": "5 tsp."
+      },
+      {
+        "name": "Tabasco Sauce",
+        "amount": "1 1/2 tsp."
+      },
+      {
+        "name": "Celery Salt",
+        "amount": "1/2 tsp."
+      },
+      {
+        "name": "Lemon Juice, fresh squeezed",
+        "amount": "1/2 cup"
+      },
+      {
+        "name": "Black Pepper, Table Grind",
+        "amount": "1 TBL."
+      }
+    ],
+    "prep": [
+      "Combine all ingredients in a 1 gallon cambro",
+      "Mix well",
+      "Pour equal amounts into two-quart store and pour containers",
+      "Cover, label and date",
+      "Shake well before each use",
+      "NOTE: All teaspoon and tablespoons are LEVEL measurements. Shelf life is a maximum of 3 days. Product older than 3 days is discarded."
+    ]
+  },
+  {
+    "name": "Sweet and Sour Mix",
+    "glass": null,
+    "garnish": null,
+    "service": null,
+    "ingredients": [
+      {
+        "name": "Freshly Squeezed Lemon Juice",
+        "amount": "1 quart"
+      },
+      {
+        "name": "Freshly Squeezed Lime Juice",
+        "amount": "10 oz."
+      },
+      {
+        "name": "Superfine Sugar",
+        "amount": "2 cups"
+      },
+      {
+        "name": "Hot Water",
+        "amount": "2 cups"
+      }
+    ],
+    "prep": [
+      "In a 1-gallon Cambro, measure and pour in 2 cups sugar and 2 cups hot water. It is important that the water is extremely hot so that the sugar completely dissolves. Use the water from the coffee machine spigot that we use for hot tea service. Let cool",
+      "Using a wire whisk, stir well until all of the sugar has dissolved. Add to 1 gallon Cambro",
+      "Fresh squeeze lemons to an exact measurement of 1 quart (32 oz.). Add to 1 gallon Cambro",
+      "Fresh squeeze limes to an exact measurement of 10 oz. Add to 1 gallon Cambro",
+      "Using a wire whisk mix all ingredients well",
+      "Pour equal amounts into two store n pour containers. Cover, label and date",
+      "Refrigerate",
+      "Shake well before each use",
+      "NOTE: Shelf life is a maximum of 3 days. Product older than 3 days is discarded."
     ]
   }
 ]
