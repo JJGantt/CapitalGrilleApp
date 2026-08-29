@@ -46,7 +46,9 @@ Solved 2026-06-01. Root cause: **Developer Mode on the watch is hidden until the
 4. Re-run the install. Works going forward via either direct or iPhone-Watch app path.
 
 ## TestFlight release — one-liner
-`./scripts/release.sh` does the whole pipeline: bumps `CURRENT_PROJECT_VERSION`, regenerates the Xcode project, archives Release, exports the IPA, and uploads to App Store Connect via the API key already wired in. After ~5-15 min the build shows up in App Store Connect → TestFlight. Add testers under **Internal Testing** (no Apple review) or **External Testing** (24h review on first build).
+`./scripts/release.sh` does the whole pipeline: bumps `CURRENT_PROJECT_VERSION`, regenerates the Xcode project, archives Release, exports the IPA, and uploads to App Store Connect via the API key already wired in. After ~5-15 min the build shows up in App Store Connect → TestFlight. Run it outside the sandbox (`dangerouslyDisableSandbox`) — the export needs the keychain and Apple's provisioning service.
+
+Signing is cloud-managed: there is no Apple Distribution certificate in the local keychain (only Apple Development), so the archive and export pass the API key with `-allowProvisioningUpdates` to authenticate to Apple's developer services. Without that they fall back to the Xcode account session, which expires — and then the export fails with `No signing certificate "iOS Distribution" found` after a "Your session has expired" line in the log (build 15, 2026-08-29). Re-signing in to Xcode is not needed; the key path is. Add testers under **Internal Testing** (no Apple review) or **External Testing** (24h review on first build).
 
 API key lives at `~/.appstoreconnect/private_keys/AuthKey_P8Y337A8RC.p8` (Key ID `P8Y337A8RC`, Issuer ID `141a8ead-b829-4e58-b9ff-b8c95f8c4ed9`, role: App Manager). If it's ever revoked or rotated, regenerate via App Store Connect → Users and Access → Integrations → App Store Connect API and update the constants at the top of `scripts/release.sh`.
 

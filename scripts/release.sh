@@ -8,6 +8,17 @@ cd "$(dirname "$0")/.."
 
 KEY_ID="P8Y337A8RC"
 ISSUER_ID="141a8ead-b829-4e58-b9ff-b8c95f8c4ed9"
+KEY_PATH="$HOME/.appstoreconnect/private_keys/AuthKey_${KEY_ID}.p8"
+# Signing is cloud-managed (no Apple Distribution cert in the local keychain), so
+# xcodebuild must authenticate to Apple's provisioning service itself. Without these
+# it uses the Xcode account session, which expires and then the export fails with
+# 'No signing certificate "iOS Distribution" found'.
+PROVISIONING_AUTH=(
+    -allowProvisioningUpdates
+    -authenticationKeyPath "$KEY_PATH"
+    -authenticationKeyID "$KEY_ID"
+    -authenticationKeyIssuerID "$ISSUER_ID"
+)
 ARCHIVE_PATH="/tmp/CapitalGrille.xcarchive"
 EXPORT_PATH="/tmp/CapitalGrille-export"
 EXPORT_OPTIONS="/tmp/CapitalGrille-ExportOptions.plist"
@@ -28,6 +39,7 @@ rm -rf "$ARCHIVE_PATH"
 xcodebuild -project CapitalGrille.xcodeproj -scheme CapitalGrille \
     -destination "generic/platform=iOS" -configuration Release \
     -archivePath "$ARCHIVE_PATH" archive \
+    "${PROVISIONING_AUTH[@]}" \
     -quiet
 
 # --- export ---
@@ -52,6 +64,7 @@ xcodebuild -exportArchive \
     -archivePath "$ARCHIVE_PATH" \
     -exportPath "$EXPORT_PATH" \
     -exportOptionsPlist "$EXPORT_OPTIONS" \
+    "${PROVISIONING_AUTH[@]}" \
     -quiet
 
 # --- upload ---
