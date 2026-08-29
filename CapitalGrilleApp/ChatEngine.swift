@@ -180,7 +180,7 @@ final class ChatEngine {
         let searchTool = Backend.current == .mac ? "mcp__bottle__search_bottles" : "search_bottles"
         let pairingsTool = Backend.current == .mac ? "mcp__bottle__get_pairings" : "get_pairings"
         let foodTool = Backend.current == .mac ? "mcp__bottle__get_food_menu" : "get_food_menu"
-        let generousPourTool = Backend.current == .mac ? "mcp__bottle__get_generous_pour" : "get_generous_pour"
+        let seasonalTool = Backend.current == .mac ? "mcp__bottle__get_seasonal_program" : "get_seasonal_program"
 
         let restockCtx = restockStore.items.map { item -> [String: Any] in
             ["product_id": item.product_id, "quantity": item.quantity]
@@ -193,6 +193,7 @@ final class ChatEngine {
         let cocktailsList = liveCocktails.isEmpty ? CocktailStore.loadFromBundle() : liveCocktails
         let cocktailSkel = cocktailsList.isEmpty ? "" : cocktailSkeleton(cocktailsList)
         let foodSkeleton = foodMenuSkeleton(menuStore.menu)
+        let seasonalSkeleton = seasonalProgramSkeleton(menuStore.menu?.seasonal_program)
 
         // Editable rule blocks live in Supabase (app_content/system_prompt). A remote
         // block (which uses {{placeholders}}) overrides the in-code literal; either
@@ -200,10 +201,10 @@ final class ChatEngine {
         let promptSub: [String: String] = [
             "{{food_tool}}": foodTool, "{{details_tool}}": detailsTool, "{{by_varietal_tool}}": byVarietalTool,
             "{{search_tool}}": searchTool, "{{pairings_tool}}": pairingsTool,
-            "{{generous_pour_tool}}": generousPourTool, "{{location_tool}}": toolName, "{{area_tool}}": areaTool,
+            "{{seasonal_tool}}": seasonalTool, "{{location_tool}}": toolName, "{{area_tool}}": areaTool,
             "{{restock_tool}}": restockTool, "{{add_product_tool}}": addProductTool, "{{delete_product_tool}}": deleteProductTool,
             "{{bottle_skeleton}}": bottleSkeleton, "{{areas}}": areasJSON, "{{cocktail_skeleton}}": cocktailSkel, "{{restock}}": restockJSON,
-            "{{food_skeleton}}": foodSkeleton,
+            "{{food_skeleton}}": foodSkeleton, "{{seasonal_skeleton}}": seasonalSkeleton,
         ]
         func promptBlock(_ key: String, _ fallback: String) -> String {
             guard let remote = remotePrompt?[key], !remote.isEmpty else { return fallback }
@@ -225,7 +226,8 @@ final class ChatEngine {
         - For questions about a category ("what are the smoky scotches", "which gins do you have"), ALWAYS call get_bottles_by_varietal to see every option with full notes — even if you think you know the answer.
         - A single producer's lineup can span multiple varietals. E.g. "Colonel E.H. Taylor" has bourbons AND a rye (Straight Rye, varietal "Rye"). "Angel's Envy" has a bourbon AND a rye (Angel's Envy Rye, varietal "Rye"). "WhistlePig" is all ryes. When asked about a brand or lineup, scan the WHOLE skeleton for every matching name across ALL varietal groups, then call get_bottle_details for each one. Don't assume a single varietal covers the whole lineup.
         - For food/dish questions, answer from the FOOD MENU section in this prompt (every dish is listed with its description and key ingredients). Call get_food_menu ONLY for details not shown there — exact portion amounts (oz/Tbsp) or full step-by-step prep. NEVER guess menu facts: if it isn't in the FOOD MENU and you haven't called the tool, say you would verify rather than invent.
-        - GENEROUS POUR is a separate seasonal program (summer wine/tasting event). Its menu, wines, prices, dates, and recipes are NOT part of the regular food/wine catalog and live behind a dedicated tool, \(generousPourTool). ONLY call \(generousPourTool) when the user has explicitly mentioned "Generous Pour" (or a clear phonetic variant). Do not include Generous Pour wines or dishes in answers to ordinary food, wine, or recommendation questions. If the user mentions Generous Pour, \(generousPourTool) returns the full program data — wines, courses, recipes, and pricing — in one shot.
+        - SEASONAL PROGRAM: a limited-time card that runs alongside the regular menu. Its title, dates, and the names of its dishes and wines are listed just below; everything else about it (descriptions, tasting notes, pairings, prices, notes) lives behind a dedicated tool, \(seasonalTool), which returns the whole program in one shot. Call \(seasonalTool) when the user names the program, asks about one of its dishes or wines, or asks what is new, seasonal, or featured. Its wines and dishes are NOT part of the regular food/wine catalog — do not include them in answers to ordinary catalog or recommendation questions.
+        \(seasonalSkeleton)
         - Tool calls are cheap — when in doubt, call the tool. Better to verify with data than guess.
 
         QUESTION-SHAPE RULES:
@@ -405,9 +407,9 @@ final class ChatEngine {
             }
         )
 
-        let getGenerousPourTool = AnthropicTool(
-            name: "get_generous_pour",
-            description: "Get the Generous Pour summer program data — wines, tasting menu courses, prices, dates, recipes. ONLY call this when the user explicitly mentions 'Generous Pour' (or an obvious phonetic variant like 'generous pore'). This is a seasonal event, NOT part of the regular menu. Never call this for general food, wine, or dish questions.",
+        let getSeasonalProgramTool = AnthropicTool(
+            name: "get_seasonal_program",
+            description: "Get the current seasonal program — the limited-time card that runs alongside the regular menu (its title, dates, and item names are in the system prompt). Returns every dish with its description and notes, and every wine with its description, tasting notes, and suggested pairing. Call this when the user names the program, asks about one of its dishes or wines, or asks what is new, seasonal, or featured. It is NOT part of the regular menu — never call it for ordinary food, wine, or dish questions.",
             inputSchema: [
                 "type": "object",
                 "properties": [:],
@@ -415,10 +417,10 @@ final class ChatEngine {
             ],
             handler: { input in
                 _ = input
-                guard let gp = await menuStore.menu?.generous_pour else { return "(Generous Pour data unavailable)" }
+                guard let program = await menuStore.menu?.seasonal_program else { return "(no seasonal program data)" }
                 let enc = JSONEncoder()
                 enc.outputFormatting = [.prettyPrinted]
-                if let data = try? enc.encode(gp), let s = String(data: data, encoding: .utf8) { return s }
+                if let data = try? enc.encode(program), let s = String(data: data, encoding: .utf8) { return s }
                 return "(encode error)"
             }
         )
@@ -828,7 +830,7 @@ final class ChatEngine {
         )
 
         let tools: [AnthropicTool] = [
-            getFoodMenuTool, getGenerousPourTool, getBottleDetailsTool, getBottlesByVarietalTool,
+            getFoodMenuTool, getSeasonalProgramTool, getBottleDetailsTool, getBottlesByVarietalTool,
             searchBottlesTool, getPairingsTool,
             updateTool, areasTool, restockToolDef,
             addProductDef, deleteProductDef, setImageDef, updateDetailsDef,

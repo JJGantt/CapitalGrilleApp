@@ -64,7 +64,7 @@ struct ContentView: View {
     @State private var selectedDish: Dish?
     @State private var selectedWine: Bottle?
     @State private var selectedCocktail: Cocktail?
-    @State private var selectedGPWine: GenerousPourWine?
+    @State private var selectedSeasonalWine: SeasonalWine?
     @State private var showSettings = false
     @State private var aiMode = true        // AI is the default field mode
     @State private var showAIResults = false  // chat overlay visibility
@@ -114,12 +114,12 @@ struct ContentView: View {
                         }
                 }
             }
-            .fullScreenCover(item: $selectedGPWine) { wine in
+            .fullScreenCover(item: $selectedSeasonalWine) { wine in
                 NavigationStack {
-                    GenerousPourWineDetailView(wine: wine)
+                    SeasonalWineDetailView(wine: wine)
                         .toolbar {
                             ToolbarItem(placement: .topBarLeading) {
-                                Button(action: { selectedGPWine = nil }) {
+                                Button(action: { selectedSeasonalWine = nil }) {
                                     Image(systemName: "chevron.left").foregroundColor(.cgAccent)
                                 }
                             }
@@ -364,9 +364,9 @@ struct ContentView: View {
             var n = MenuGroup.allCases.reduce(0) { acc, g in
                 acc + g.dishes(from: menu).filter { matches(dish: $0, query: q) }.count
             }
-            if let gp = menu.generous_pour {
-                n += gp.wines.filter { gpWineMatches($0, query: q) }.count
-                n += gp.courses.reduce(0) { $0 + $1.dishes.filter { gpDishMatches($0, query: q) }.count }
+            if let program = menu.seasonal_program {
+                n += program.wines.filter { seasonalWineMatches($0, query: q) }.count
+                n += program.sections.reduce(0) { $0 + $1.dishes.filter { seasonalDishMatches($0, query: q) }.count }
             }
             return n
         }()
@@ -610,16 +610,16 @@ struct ContentView: View {
                                 .id("\(group.rawValue)-\(searchText)")
                             }
                         }
-                        if let gp = menu.generous_pour {
-                            GenerousPourGroupView(
-                                gp: gp,
+                        if let program = menu.seasonal_program {
+                            SeasonalProgramView(
+                                program: program,
                                 menu: menu,
                                 query: searchText,
                                 defaultExpanded: !searchText.isEmpty,
                                 onTapDish: { selectedDish = $0 },
-                                onTapWine: { selectedGPWine = $0 }
+                                onTapWine: { selectedSeasonalWine = $0 }
                             )
-                            .id("generous-pour-\(searchText)")
+                            .id("seasonal-\(searchText)")
                         }
                     } else if let err = store.loadError {
                         Text(err).foregroundColor(.red).padding()
@@ -866,21 +866,21 @@ func loadImage(_ path: String) -> UIImage? {
     return nil
 }
 
-// MARK: - Generous Pour Group (seasonal wine/tasting program)
+// MARK: - Seasonal program card (the current limited-time menu)
 
-struct GenerousPourGroupView: View {
-    let gp: GenerousPour
+struct SeasonalProgramView: View {
+    let program: SeasonalProgram
     let dishIndex: [String: Dish]
     let query: String
     let defaultExpanded: Bool
     let onTapDish: (Dish) -> Void
-    let onTapWine: (GenerousPourWine) -> Void
+    let onTapWine: (SeasonalWine) -> Void
     @State private var isExpanded: Bool
 
-    init(gp: GenerousPour, menu: MenuData, query: String, defaultExpanded: Bool,
+    init(program: SeasonalProgram, menu: MenuData, query: String, defaultExpanded: Bool,
          onTapDish: @escaping (Dish) -> Void,
-         onTapWine: @escaping (GenerousPourWine) -> Void) {
-        self.gp = gp
+         onTapWine: @escaping (SeasonalWine) -> Void) {
+        self.program = program
         self.dishIndex = fullMenuDishIndex(menu)
         self.query = query
         self.defaultExpanded = defaultExpanded
@@ -889,24 +889,24 @@ struct GenerousPourGroupView: View {
         _isExpanded = State(initialValue: defaultExpanded)
     }
 
-    private func resolved(_ dish: Dish) -> Dish { resolveGenerousPourDish(dish, using: dishIndex) }
+    private func resolved(_ dish: Dish) -> Dish { resolveSeasonalDish(dish, using: dishIndex) }
 
     private var q: String { query.lowercased().trimmingCharacters(in: .whitespaces) }
 
-    private var filteredWines: [GenerousPourWine] {
-        q.isEmpty ? gp.wines : gp.wines.filter { gpWineMatches($0, query: q) }
+    private var filteredWines: [SeasonalWine] {
+        q.isEmpty ? program.wines : program.wines.filter { seasonalWineMatches($0, query: q) }
     }
 
-    private var filteredCourses: [GenerousPourCourse] {
-        gp.courses.compactMap { course in
-            let resolvedDishes = course.dishes.map { resolved($0) }
-            let shown = q.isEmpty ? resolvedDishes : resolvedDishes.filter { gpDishMatches($0, query: q) }
+    private var filteredSections: [SeasonalSection] {
+        program.sections.compactMap { section in
+            let resolvedDishes = section.dishes.map { resolved($0) }
+            let shown = q.isEmpty ? resolvedDishes : resolvedDishes.filter { seasonalDishMatches($0, query: q) }
             return shown.isEmpty ? nil
-                : GenerousPourCourse(course: course.course, paired_wines: course.paired_wines, dishes: shown)
+                : SeasonalSection(title: section.title, paired_wines: section.paired_wines, dishes: shown)
         }
     }
 
-    private var hasContent: Bool { !filteredWines.isEmpty || !filteredCourses.isEmpty }
+    private var hasContent: Bool { !filteredWines.isEmpty || !filteredSections.isEmpty }
 
     var body: some View {
         // When searching with no matches here, render nothing (no empty card).
@@ -924,7 +924,7 @@ struct GenerousPourGroupView: View {
                     Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
                         .font(.caption)
                         .foregroundColor(.cgAccent.opacity(0.7))
-                    Text("GENEROUS POUR")
+                    Text(program.meta.title.uppercased())
                         .font(.system(.title3, design: .serif))
                         .tracking(3)
                         .foregroundColor(.cgAccent)
@@ -940,8 +940,8 @@ struct GenerousPourGroupView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     Divider().background(Color.cgBorder.opacity(0.6))
                     metaBlock
-                    ForEach(filteredCourses, id: \.course) { course in
-                        courseView(course)
+                    ForEach(filteredSections, id: \.title) { section in
+                        sectionView(section)
                     }
                     if !filteredWines.isEmpty {
                         winesSection
@@ -960,18 +960,15 @@ struct GenerousPourGroupView: View {
 
     private var metaBlock: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(gp.meta.dates_active.uppercased())
+            Text(program.meta.dates_active.uppercased())
                 .font(.caption2)
                 .tracking(1)
                 .foregroundColor(.cgTextMuted)
-            HStack(spacing: 6) {
-                Text("Wine $\(gp.meta.wine_only_price)")
-                    .font(.caption.bold())
-                    .foregroundColor(.cgAccent)
-                Text("·").font(.caption).foregroundColor(.cgTextMuted)
-                Text("Tasting Menu $\(gp.meta.tasting_menu_price)")
-                    .font(.caption.bold())
-                    .foregroundColor(.cgAccent)
+            ForEach(program.meta.notes ?? [], id: \.self) { note in
+                Text(note)
+                    .font(.caption)
+                    .foregroundColor(.cgTextMuted)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -979,16 +976,16 @@ struct GenerousPourGroupView: View {
         .padding(.vertical, 10)
     }
 
-    private func courseView(_ course: GenerousPourCourse) -> some View {
+    private func sectionView(_ section: SeasonalSection) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(course.course.uppercased())
+                Text(section.title.uppercased())
                     .font(.system(.subheadline, design: .serif))
                     .fontWeight(.semibold)
                     .tracking(1)
                     .foregroundColor(.cgText)
-                if !course.paired_wines.isEmpty {
-                    Text(course.paired_wines.joined(separator: " · "))
+                if !section.paired_wines.isEmpty {
+                    Text(section.paired_wines.joined(separator: " · "))
                         .font(.caption)
                         .italic()
                         .foregroundColor(.cgTextMuted)
@@ -1000,9 +997,9 @@ struct GenerousPourGroupView: View {
             .padding(.top, 10)
             .padding(.bottom, 4)
 
-            ForEach(course.dishes) { dish in
+            ForEach(section.dishes) { dish in
                 DishRow(dish: dish, onTap: { onTapDish(dish) })
-                if dish.id != course.dishes.last?.id {
+                if dish.id != section.dishes.last?.id {
                     Divider().background(Color.cgBorder.opacity(0.3))
                         .padding(.leading, 70)
                 }
@@ -1034,7 +1031,7 @@ struct GenerousPourGroupView: View {
 
     /// Bottle-style row matching the regular wine list — thumbnail + name +
     /// producer/region/varietal, tappable into the full wine detail.
-    private func wineRow(_ wine: GenerousPourWine) -> some View {
+    private func wineRow(_ wine: SeasonalWine) -> some View {
         Button { onTapWine(wine) } label: {
             HStack(spacing: 12) {
                 WineThumbnail(urlString: wine.image_url, size: 56)
@@ -1044,7 +1041,7 @@ struct GenerousPourGroupView: View {
                         .foregroundColor(.cgText)
                         .multilineTextAlignment(.leading)
                         .lineLimit(2)
-                    if let sub = gpWineSubtitle(wine) {
+                    if let sub = seasonalWineSubtitle(wine) {
                         Text(sub)
                             .font(.footnote)
                             .foregroundColor(.cgTextMuted)
@@ -1063,17 +1060,17 @@ struct GenerousPourGroupView: View {
     }
 }
 
-func gpWineSubtitle(_ wine: GenerousPourWine) -> String? {
+func seasonalWineSubtitle(_ wine: SeasonalWine) -> String? {
     let parts = [wine.producer, wine.region, wine.varietal]
         .compactMap { $0 }
         .filter { !$0.isEmpty }
     return parts.isEmpty ? nil : parts.joined(separator: " · ")
 }
 
-// MARK: - Generous Pour wine detail
+// MARK: - Seasonal wine detail
 
-struct GenerousPourWineDetailView: View {
-    let wine: GenerousPourWine
+struct SeasonalWineDetailView: View {
+    let wine: SeasonalWine
 
     var body: some View {
         ScrollView {
@@ -1091,7 +1088,7 @@ struct GenerousPourWineDetailView: View {
                     .font(.system(.title2, design: .serif))
                     .foregroundColor(.cgText)
 
-                if let sub = gpWineSubtitle(wine) {
+                if let sub = seasonalWineSubtitle(wine) {
                     Text(sub)
                         .font(.system(.body, design: .serif))
                         .foregroundColor(.cgTextMuted)

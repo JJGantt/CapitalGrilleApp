@@ -6,38 +6,28 @@ struct MenuData: Codable {
     var lunch: [Dish] = []
     var dinner: [Dish] = []
     var capital_hours: [Dish] = []
-    var generous_pour: GenerousPour?
+    var seasonal_program: SeasonalProgram?
 }
 
-// MARK: - Generous Pour (seasonal wine/tasting program)
+// MARK: - Seasonal program (the current limited-time card, e.g. Wagyu & Wine)
 //
-// Standalone summer event (June 25 - Aug 30). Lives outside the normal
-// lunch/dinner/capital_hours flow — the model is instructed NOT to surface this
-// data unless the user mentions "Generous Pour" explicitly.
+// One program at a time; the next card replaces it wholesale. It lives outside
+// the normal lunch/dinner/capital_hours flow — the model surfaces it only when
+// the user asks about the program or one of its dishes or wines.
 
-struct GenerousPour: Codable {
-    let meta: GenerousPourMeta
-    let wines: [GenerousPourWine]
-    let courses: [GenerousPourCourse]
+struct SeasonalProgram: Codable {
+    let meta: SeasonalProgramMeta
+    let wines: [SeasonalWine]
+    let sections: [SeasonalSection]
 }
 
-struct GenerousPourMeta: Codable {
+struct SeasonalProgramMeta: Codable {
+    let title: String
     let dates_active: String
-    let wine_only_price: Int
-    let tasting_menu_price: Int
-    let tasting_menu_includes_wine: Bool?
-    let glass_pour_oz: Double?
-    let glassware: GenerousPourGlassware?
     let notes: [String]?
 }
 
-struct GenerousPourGlassware: Codable {
-    let item_number: String?
-    let description: String?
-    let case_pack: String?
-}
-
-struct GenerousPourWine: Codable, Identifiable, Hashable {
+struct SeasonalWine: Codable, Identifiable, Hashable {
     var id: String { name }
     let name: String
     let producer: String?
@@ -49,8 +39,8 @@ struct GenerousPourWine: Codable, Identifiable, Hashable {
     let image_url: String?
 }
 
-struct GenerousPourCourse: Codable {
-    let course: String
+struct SeasonalSection: Codable {
+    let title: String
     let paired_wines: [String]
     let dishes: [Dish]
 }
@@ -226,7 +216,7 @@ final class MenuStore: ObservableObject {
         }
     }
 
-    /// Fetch the menu from Supabase (per-dish rows + Generous Pour blob) and swap
+    /// Fetch the menu from Supabase (per-dish rows + seasonal program blob) and swap
     /// it in. On any failure or empty result, the bundled menu stays in place.
     @MainActor
     func refreshFromRemote() async {
@@ -247,9 +237,9 @@ final class MenuStore: ObservableObject {
             default: break
             }
         }
-        if let gp: [GenerousPourRow] = try? await SupabaseClient.shared.get(
-                path: "app_content?key=eq.generous_pour&select=data") {
-            data.generous_pour = gp.first?.data
+        if let rows: [SeasonalProgramRow] = try? await SupabaseClient.shared.get(
+                path: "app_content?key=eq.seasonal_program&select=data") {
+            data.seasonal_program = rows.first?.data
         }
         return data
     }
@@ -267,7 +257,7 @@ private struct MenuDishRow: Decodable {
     }
 }
 
-private struct GenerousPourRow: Decodable { let data: GenerousPour }
+private struct SeasonalProgramRow: Decodable { let data: SeasonalProgram }
 
 // MARK: - Section ordering helpers
 
@@ -310,28 +300,28 @@ enum MenuGroup: String, CaseIterable, Identifiable {
     }
 }
 
-// MARK: - Generous Pour search helpers
+// MARK: - Seasonal program search helpers
 
-func gpWineMatches(_ w: GenerousPourWine, query q: String) -> Bool {
+func seasonalWineMatches(_ w: SeasonalWine, query q: String) -> Bool {
     let fields = [w.name, w.producer, w.region, w.varietal, w.description, w.tasting_notes, w.suggested_pairing]
     return fields.contains { ($0?.lowercased().contains(q)) == true }
 }
 
-func gpDishMatches(_ d: Dish, query q: String) -> Bool {
+func seasonalDishMatches(_ d: Dish, query q: String) -> Bool {
     if d.name.lowercased().contains(q) { return true }
     if let desc = d.description?.lowercased(), desc.contains(q) { return true }
     if let mn = d.menu_name?.lowercased(), mn.contains(q) { return true }
     return false
 }
 
-// MARK: - Generous Pour → full-recipe resolution
+// MARK: - Seasonal program → full-recipe resolution
 //
-// Generous Pour course dishes are stubs (menu-line only). Many of them are the
+// Seasonal program dishes are stubs (menu-line only). Some of them are the
 // exact same dish that appears on the regular menu with full recipe details
 // (portion, talking points, etc.). Resolve a stub to its full menu dish by an
 // exact *normalized* name match so the detail view shows the real recipe. Only
-// confident (normalized-equal) matches substitute — GP-specific platings that
-// have no twin on the regular menu keep their stub.
+// confident (normalized-equal) matches substitute — program-specific platings
+// that have no twin on the regular menu keep their stub.
 
 func normalizeDishName(_ s: String) -> String {
     var t = s.lowercased()
@@ -357,11 +347,11 @@ func fullMenuDishIndex(_ menu: MenuData) -> [String: Dish] {
 
 extension Dish {
     /// Fills in only the missing *qualitative* recipe details from a regular-menu
-    /// twin. Every field the Generous Pour entry already specifies is kept exactly
-    /// (GP spec trumps). Portion sizes, à-la-carte price, calories, and serving
-    /// counts are intentionally NOT borrowed — those don't transfer to the GP
-    /// tasting-menu plating. A stub's "recipe details to follow" placeholder note
-    /// is dropped once the real details are filled in.
+    /// twin. Every field the seasonal entry already specifies is kept exactly
+    /// (the program's spec trumps). Portion sizes, à-la-carte price, calories, and
+    /// serving counts are intentionally NOT borrowed — those don't transfer to the
+    /// program's own plating and pricing. A stub's "recipe details to follow"
+    /// placeholder note is dropped once the real details are filled in.
     func fillingRecipeDetails(from source: Dish) -> Dish {
         let gpRealNotes = (notes ?? []).filter { !$0.lowercased().contains("recipe details to follow") }
         let mergedNotes = gpRealNotes.isEmpty ? source.notes : gpRealNotes
@@ -369,14 +359,14 @@ extension Dish {
             name: name,
             section: section,
             page: page ?? source.page,
-            price: price,                 // GP is prix-fixe — never borrow à-la-carte price
+            price: price,                 // the program prices its own items — never borrow à-la-carte price
             calories: calories,           // portion-dependent — never borrow
             serves: serves,               // never borrow
             menu_name: menu_name ?? source.menu_name,
             description: description ?? source.description,
             image: image ?? source.image,
             serving_piece: serving_piece ?? source.serving_piece,
-            portion: portion,             // portion sizes don't transfer — keep GP's own only
+            portion: portion,             // portion sizes don't transfer — keep the program's own only
             garnish: garnish ?? source.garnish,
             to_bring: to_bring ?? source.to_bring,
             questions_to_ask: questions_to_ask ?? source.questions_to_ask,
@@ -384,7 +374,7 @@ extension Dish {
             station: station ?? source.station,
             notes: mergedNotes,
             talking_points: talking_points ?? source.talking_points,
-            sizes: sizes,                 // portion sizes don't transfer — keep GP's own only
+            sizes: sizes,                 // portion sizes don't transfer — keep the program's own only
             variants: variants ?? source.variants,
             tasting_notes: tasting_notes ?? source.tasting_notes,
             ingredients: ingredients ?? source.ingredients
@@ -392,14 +382,30 @@ extension Dish {
     }
 }
 
-/// Resolves a Generous Pour stub against the regular menu by exact normalized
+/// Resolves a seasonal stub against the regular menu by exact normalized
 /// name. On a confident match, the stub is enriched with the twin's recipe
-/// details (GP spec always wins; portion/price specs are not borrowed).
+/// details (the program's spec always wins; portion/price specs are not borrowed).
 /// No match → returned unchanged.
-func resolveGenerousPourDish(_ dish: Dish, using index: [String: Dish]) -> Dish {
+func resolveSeasonalDish(_ dish: Dish, using index: [String: Dish]) -> Dish {
     if let full = index[normalizeDishName(dish.name)] { return dish.fillingRecipeDetails(from: full) }
     if let mn = dish.menu_name, let full = index[normalizeDishName(mn)] { return dish.fillingRecipeDetails(from: full) }
     return dish
+}
+
+/// One-glance summary of the seasonal program for the assistant's prompt —
+/// title, dates, notes, and the names of its dishes and wines — so the model
+/// can recognise a question about the program and route it to the tool that
+/// returns the full data.
+func seasonalProgramSkeleton(_ program: SeasonalProgram?) -> String {
+    guard let p = program else { return "SEASONAL PROGRAM: none running." }
+    var header = "SEASONAL PROGRAM: \(p.meta.title) (\(p.meta.dates_active))"
+    if let notes = p.meta.notes, !notes.isEmpty { header += " — " + notes.joined(separator: "; ") }
+    var out = [header]
+    for s in p.sections where !s.dishes.isEmpty {
+        out.append("  \(s.title): " + s.dishes.map(\.name).joined(separator: "; "))
+    }
+    if !p.wines.isEmpty { out.append("  Wines: " + p.wines.map(\.name).joined(separator: "; ")) }
+    return out.joined(separator: "\n")
 }
 
 /// Compact food menu for the assistant's prompt — name, price, a short

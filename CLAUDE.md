@@ -8,7 +8,7 @@ iOS + watchOS app, xcodegen-generated (`project.yml`). Team `XMH4AVFC78`.
 
 ## Build & install
 ```
-cd ~/workspace/CapitalGrilleApp
+cd ~/repos/CapitalGrilleApp
 xcodegen generate                           # only if project.yml changed
 xcodebuild -project CapitalGrille.xcodeproj -scheme CapitalGrille \
   -destination "id=43E696C5-1412-5026-BEBF-914C7818B296" -configuration Debug build
@@ -56,7 +56,8 @@ Each TestFlight tester provides their own Anthropic API key in Settings on first
 - Shared chat engine at `CapitalGrilleApp/ChatEngine.swift` — both iOS and watch use it
 - Watch's `MacClient.ask` routes through `WatchPhoneRelay` (WatchConnectivity) when Backend is `.mac`
 - Watch defaults to API backend (separate UserDefaults key `backendWatch`); iOS defaults to Mac (`backend`)
-- `food-menu.json` bundled in both targets so chat tools can resolve dish lookups offline
+- `food-menu.json` bundled in both targets so chat tools can resolve dish lookups offline. The app itself refreshes the menu from Supabase (`menu_dishes` rows + the `app_content` `seasonal_program` blob) on launch, but the **Mac MCP reads this checkout's JSON, not Supabase** — so a menu edit made in Supabase has to land in the JSON too, or the Mac backend answers from stale data.
+- **Seasonal program** — one limited-time card at a time (currently Wagyu & Wine, Sept 4 – Nov 15, 2026), stored as `app_content` key `seasonal_program` with the same block in `food-menu.json`. Shape: `meta{title, dates_active, notes[]}`, `wines[]` (name/producer/region/varietal/description/tasting_notes/suggested_pairing/image_url), `sections[{title, paired_wines[], dishes[]}]`. The card title, section headers, and the prompt summary are all derived from the data, so the next card is a data swap (overwrite the row + the JSON block), not a build. Section dishes are stubs; a stub whose `name` or `menu_name` normalizes to a regular-menu dish borrows that dish's qualitative recipe details in the detail view (never its portion, price, or calories). Chat reaches it through `get_seasonal_program` (`mcp__bottle__get_seasonal_program` on the Mac); the routing rule in the remote `base_rules` block uses `{{seasonal_tool}}` and `{{seasonal_skeleton}}` placeholders. The program's wines are deliberately NOT rows in `bottles` — that table is what the bar physically stocks.
 
 ## In-app AI assistant — two backends
 `ChatEngine.swift`'s AI chat has **two backends**, chosen by `Backend.current` (`MacClient.swift`); iOS defaults to **`.mac`**:
@@ -84,7 +85,7 @@ Architecture preference: the **backend is the source of truth**; the app derives
     -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
     -d '{"query":"<SQL HERE>"}'
   ```
-  The Supabase CLI (`/opt/homebrew/bin/supabase`) is authenticated and linked (`~/workspace/CapitalGrilleApp/supabase`). `psql` is NOT installed — use the Management API.
+  The Supabase CLI (`/opt/homebrew/bin/supabase`) is authenticated and linked (`~/repos/CapitalGrilleApp/supabase`). `psql` is NOT installed — use the Management API.
 
 ## Working agreements (behavioral — these are firm)
 - **Bottle catalog (`bottles` table):** NEVER add a bottle on my own initiative or from web research — the only valid reason a bottle exists is "we physically carry it," and only Jared knows that. Adding is allowed ONLY when he explicitly asks. **Editing/correcting and deleting ARE allowed without asking each time, once I've confirmed the facts via sources** (e.g. delete a phantom row, enrich a tasting note). He wants rich, accurate, sourced detail in the data, not thin notes. Phantom rows have null locations; real bottles occupy a shelf slot (primary_area/column/row).
