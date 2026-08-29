@@ -31,6 +31,11 @@ struct WatchSettingsView: View {
                         }
                     }
                 }
+
+                section(title: "About") {
+                    infoRow(label: "Version", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—")
+                    infoRow(label: "Build", value: Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "—")
+                }
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 8)
@@ -49,6 +54,20 @@ struct WatchSettingsView: View {
                 content()
             }
         }
+    }
+
+    @ViewBuilder
+    private func infoRow(label: String, value: String) -> some View {
+        HStack {
+            Text(label)
+                .font(.system(size: 14))
+                .foregroundColor(.white)
+            Spacer()
+            Text(value)
+                .font(.system(size: 14))
+                .foregroundColor(.secondary)
+        }
+        .padding(.vertical, 2)
     }
 
     @ViewBuilder
