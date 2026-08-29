@@ -6,14 +6,15 @@ struct MenuData: Codable {
     var lunch: [Dish] = []
     var dinner: [Dish] = []
     var capital_hours: [Dish] = []
-    var seasonal_program: SeasonalProgram?
+    var seasonal_programs: [SeasonalProgram] = []
 }
 
-// MARK: - Seasonal program (the current limited-time card, e.g. Wagyu & Wine)
+// MARK: - Seasonal programs (limited-time cards, e.g. Generous Pour, Wagyu & Wine)
 //
-// One program at a time; the next card replaces it wholesale. It lives outside
-// the normal lunch/dinner/capital_hours flow — the model surfaces it only when
-// the user asks about the program or one of its dishes or wines.
+// Any number can run at once — one card each, shown in list order. A card is
+// added or removed only when Jared says so; overlapping dates are normal. They
+// live outside the normal lunch/dinner/capital_hours flow — the model surfaces
+// them only when the user asks about a program or one of its dishes or wines.
 
 struct SeasonalProgram: Codable {
     let meta: SeasonalProgramMeta
@@ -216,7 +217,7 @@ final class MenuStore: ObservableObject {
         }
     }
 
-    /// Fetch the menu from Supabase (per-dish rows + seasonal program blob) and swap
+    /// Fetch the menu from Supabase (per-dish rows + seasonal programs blob) and swap
     /// it in. On any failure or empty result, the bundled menu stays in place.
     @MainActor
     func refreshFromRemote() async {
@@ -237,9 +238,9 @@ final class MenuStore: ObservableObject {
             default: break
             }
         }
-        if let rows: [SeasonalProgramRow] = try? await SupabaseClient.shared.get(
-                path: "app_content?key=eq.seasonal_program&select=data") {
-            data.seasonal_program = rows.first?.data
+        if let rows: [SeasonalProgramsRow] = try? await SupabaseClient.shared.get(
+                path: "app_content?key=eq.seasonal_programs&select=data") {
+            data.seasonal_programs = rows.first?.data ?? []
         }
         return data
     }
@@ -257,7 +258,7 @@ private struct MenuDishRow: Decodable {
     }
 }
 
-private struct SeasonalProgramRow: Decodable { let data: SeasonalProgram }
+private struct SeasonalProgramsRow: Decodable { let data: [SeasonalProgram] }
 
 // MARK: - Section ordering helpers
 
@@ -392,19 +393,22 @@ func resolveSeasonalDish(_ dish: Dish, using index: [String: Dish]) -> Dish {
     return dish
 }
 
-/// One-glance summary of the seasonal program for the assistant's prompt —
+/// One-glance summary of every seasonal program for the assistant's prompt —
 /// title, dates, notes, and the names of its dishes and wines — so the model
-/// can recognise a question about the program and route it to the tool that
+/// can recognise a question about a program and route it to the tool that
 /// returns the full data.
-func seasonalProgramSkeleton(_ program: SeasonalProgram?) -> String {
-    guard let p = program else { return "SEASONAL PROGRAM: none running." }
-    var header = "SEASONAL PROGRAM: \(p.meta.title) (\(p.meta.dates_active))"
-    if let notes = p.meta.notes, !notes.isEmpty { header += " — " + notes.joined(separator: "; ") }
-    var out = [header]
-    for s in p.sections where !s.dishes.isEmpty {
-        out.append("  \(s.title): " + s.dishes.map(\.name).joined(separator: "; "))
+func seasonalProgramSkeleton(_ programs: [SeasonalProgram]) -> String {
+    guard !programs.isEmpty else { return "SEASONAL PROGRAMS: none running." }
+    var out: [String] = []
+    for p in programs {
+        var header = "SEASONAL PROGRAM: \(p.meta.title) (\(p.meta.dates_active))"
+        if let notes = p.meta.notes, !notes.isEmpty { header += " — " + notes.joined(separator: "; ") }
+        out.append(header)
+        for s in p.sections where !s.dishes.isEmpty {
+            out.append("  \(s.title): " + s.dishes.map(\.name).joined(separator: "; "))
+        }
+        if !p.wines.isEmpty { out.append("  Wines: " + p.wines.map(\.name).joined(separator: "; ")) }
     }
-    if !p.wines.isEmpty { out.append("  Wines: " + p.wines.map(\.name).joined(separator: "; ")) }
     return out.joined(separator: "\n")
 }
 

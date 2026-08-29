@@ -364,7 +364,7 @@ struct ContentView: View {
             var n = MenuGroup.allCases.reduce(0) { acc, g in
                 acc + g.dishes(from: menu).filter { matches(dish: $0, query: q) }.count
             }
-            if let program = menu.seasonal_program {
+            for program in menu.seasonal_programs {
                 n += program.wines.filter { seasonalWineMatches($0, query: q) }.count
                 n += program.sections.reduce(0) { $0 + $1.dishes.filter { seasonalDishMatches($0, query: q) }.count }
             }
@@ -610,7 +610,7 @@ struct ContentView: View {
                                 .id("\(group.rawValue)-\(searchText)")
                             }
                         }
-                        if let program = menu.seasonal_program {
+                        ForEach(menu.seasonal_programs, id: \.meta.title) { program in
                             SeasonalProgramView(
                                 program: program,
                                 menu: menu,
@@ -619,7 +619,7 @@ struct ContentView: View {
                                 onTapDish: { selectedDish = $0 },
                                 onTapWine: { selectedSeasonalWine = $0 }
                             )
-                            .id("seasonal-\(searchText)")
+                            .id("seasonal-\(program.meta.title)-\(searchText)")
                         }
                     } else if let err = store.loadError {
                         Text(err).foregroundColor(.red).padding()

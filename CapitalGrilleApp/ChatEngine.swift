@@ -193,7 +193,7 @@ final class ChatEngine {
         let cocktailsList = liveCocktails.isEmpty ? CocktailStore.loadFromBundle() : liveCocktails
         let cocktailSkel = cocktailsList.isEmpty ? "" : cocktailSkeleton(cocktailsList)
         let foodSkeleton = foodMenuSkeleton(menuStore.menu)
-        let seasonalSkeleton = seasonalProgramSkeleton(menuStore.menu?.seasonal_program)
+        let seasonalSkeleton = seasonalProgramSkeleton(menuStore.menu?.seasonal_programs ?? [])
 
         // Editable rule blocks live in Supabase (app_content/system_prompt). A remote
         // block (which uses {{placeholders}}) overrides the in-code literal; either
@@ -226,7 +226,7 @@ final class ChatEngine {
         - For questions about a category ("what are the smoky scotches", "which gins do you have"), ALWAYS call get_bottles_by_varietal to see every option with full notes — even if you think you know the answer.
         - A single producer's lineup can span multiple varietals. E.g. "Colonel E.H. Taylor" has bourbons AND a rye (Straight Rye, varietal "Rye"). "Angel's Envy" has a bourbon AND a rye (Angel's Envy Rye, varietal "Rye"). "WhistlePig" is all ryes. When asked about a brand or lineup, scan the WHOLE skeleton for every matching name across ALL varietal groups, then call get_bottle_details for each one. Don't assume a single varietal covers the whole lineup.
         - For food/dish questions, answer from the FOOD MENU section in this prompt (every dish is listed with its description and key ingredients). Call get_food_menu ONLY for details not shown there — exact portion amounts (oz/Tbsp) or full step-by-step prep. NEVER guess menu facts: if it isn't in the FOOD MENU and you haven't called the tool, say you would verify rather than invent.
-        - SEASONAL PROGRAM: a limited-time card that runs alongside the regular menu. Its title, dates, and the names of its dishes and wines are listed just below; everything else about it (descriptions, tasting notes, pairings, prices, notes) lives behind a dedicated tool, \(seasonalTool), which returns the whole program in one shot. Call \(seasonalTool) when the user names the program, asks about one of its dishes or wines, or asks what is new, seasonal, or featured. Its wines and dishes are NOT part of the regular food/wine catalog — do not include them in answers to ordinary catalog or recommendation questions.
+        - SEASONAL PROGRAMS: limited-time cards that run alongside the regular menu; more than one can be running at once. Each program's title, dates, and the names of its dishes and wines are listed just below; everything else about them (descriptions, tasting notes, pairings, prices, notes) lives behind a dedicated tool, \(seasonalTool), which returns every program in one shot. Call \(seasonalTool) when the user names a program, asks about one of its dishes or wines, or asks what is new, seasonal, or featured. Their wines and dishes are NOT part of the regular food/wine catalog — do not include them in answers to ordinary catalog or recommendation questions.
         \(seasonalSkeleton)
         - Tool calls are cheap — when in doubt, call the tool. Better to verify with data than guess.
 
@@ -409,7 +409,7 @@ final class ChatEngine {
 
         let getSeasonalProgramTool = AnthropicTool(
             name: "get_seasonal_program",
-            description: "Get the current seasonal program — the limited-time card that runs alongside the regular menu (its title, dates, and item names are in the system prompt). Returns every dish with its description and notes, and every wine with its description, tasting notes, and suggested pairing. Call this when the user names the program, asks about one of its dishes or wines, or asks what is new, seasonal, or featured. It is NOT part of the regular menu — never call it for ordinary food, wine, or dish questions.",
+            description: "Get the current seasonal programs — the limited-time cards that run alongside the regular menu (their titles, dates, and item names are in the system prompt). Returns every program: each dish with its description and notes, each wine with its description, tasting notes, and suggested pairing. Call this when the user names a program, asks about one of its dishes or wines, or asks what is new, seasonal, or featured. They are NOT part of the regular menu — never call it for ordinary food, wine, or dish questions.",
             inputSchema: [
                 "type": "object",
                 "properties": [:],
@@ -417,10 +417,11 @@ final class ChatEngine {
             ],
             handler: { input in
                 _ = input
-                guard let program = await menuStore.menu?.seasonal_program else { return "(no seasonal program data)" }
+                let programs = await menuStore.menu?.seasonal_programs ?? []
+                guard !programs.isEmpty else { return "(no seasonal programs running)" }
                 let enc = JSONEncoder()
                 enc.outputFormatting = [.prettyPrinted]
-                if let data = try? enc.encode(program), let s = String(data: data, encoding: .utf8) { return s }
+                if let data = try? enc.encode(programs), let s = String(data: data, encoding: .utf8) { return s }
                 return "(encode error)"
             }
         )
