@@ -26,6 +26,9 @@ final class WatchPhoneRelay: NSObject, ObservableObject, WCSessionDelegate {
     private func ingestContext(_ ctx: [String: Any]) {
         if let key = ctx["anthropic_api_key"] as? String, !key.isEmpty {
             _ = APIKeyStore.set(key)
+            // The key picks the gating profile (owner vs default), so re-resolve it.
+            AppGate.apply()
+            Task { await AppGate.refreshFromSupabase() }
         }
     }
 

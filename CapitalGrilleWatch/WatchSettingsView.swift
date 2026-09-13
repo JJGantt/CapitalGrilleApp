@@ -16,7 +16,8 @@ struct WatchSettingsView: View {
 
                 section(title: "Backend") {
                     ForEach(Backend.allCases, id: \.self) { b in
-                        radioRow(label: b.label, selected: backend == b) {
+                        radioRow(label: b.label, selected: backend == b,
+                                 allowed: AppGate.allowedBackends.contains(b.rawValue)) {
                             backend = b
                             Backend.current = b
                         }
@@ -25,7 +26,8 @@ struct WatchSettingsView: View {
 
                 section(title: "Model") {
                     ForEach(AIModel.allCases) { m in
-                        radioRow(label: m.label, selected: model == m) {
+                        radioRow(label: m.label, selected: model == m,
+                                 allowed: AppGate.allowedModels.contains(m.key)) {
                             model = m
                             AIModel.current = m
                         }
@@ -71,7 +73,7 @@ struct WatchSettingsView: View {
     }
 
     @ViewBuilder
-    private func radioRow(label: String, selected: Bool, action: @escaping () -> Void) -> some View {
+    private func radioRow(label: String, selected: Bool, allowed: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack {
                 Image(systemName: selected ? "largecircle.fill.circle" : "circle")
@@ -86,5 +88,7 @@ struct WatchSettingsView: View {
             .padding(.vertical, 6)
         }
         .buttonStyle(.plain)
+        .disabled(!allowed)
+        .opacity(allowed ? 1 : 0.35)
     }
 }

@@ -40,24 +40,28 @@ actor AppLogger {
     private static func post(events: [Event]) async {
         let iso = ISO8601DateFormatter()
         iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        // PostgREST rejects a bulk insert unless every object has the same keys
+        // (PGRST102), and one interaction's events fill different fields — an
+        // api_request has tokens, a tool_call has a tool name. So every row names
+        // every column, with JSON null where this event has no value.
+        func orNull(_ value: Any?) -> Any { value ?? NSNull() }
         let rows: [[String: Any]] = events.map { e in
-            var r: [String: Any] = [
-                "timestamp": iso.string(from: e.timestamp),
+            [
+                "timestamp":      iso.string(from: e.timestamp),
                 "interaction_id": e.interactionId.uuidString,
-                "kind": e.kind
+                "kind":           e.kind,
+                "session_id":     orNull(e.sessionId),
+                "backend":        orNull(e.backend),
+                "tool_name":      orNull(e.toolName),
+                "input":          orNull(e.input),
+                "output":         orNull(e.output),
+                "error":          orNull(e.error),
+                "latency_ms":     orNull(e.latencyMs),
+                "tokens_in":      orNull(e.tokensIn),
+                "tokens_out":     orNull(e.tokensOut),
+                "user_input":     orNull(e.userInput),
+                "final_answer":   orNull(e.finalAnswer),
             ]
-            if let v = e.sessionId    { r["session_id"]   = v }
-            if let v = e.backend      { r["backend"]      = v }
-            if let v = e.toolName     { r["tool_name"]    = v }
-            if let v = e.input        { r["input"]        = v }
-            if let v = e.output       { r["output"]       = v }
-            if let v = e.error        { r["error"]        = v }
-            if let v = e.latencyMs    { r["latency_ms"]   = v }
-            if let v = e.tokensIn     { r["tokens_in"]    = v }
-            if let v = e.tokensOut    { r["tokens_out"]   = v }
-            if let v = e.userInput    { r["user_input"]   = v }
-            if let v = e.finalAnswer  { r["final_answer"] = v }
-            return r
         }
         do {
             try await SupabaseClient.shared.upsert(path: "app_logs", body: rows, onConflict: "id")
