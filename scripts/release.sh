@@ -23,6 +23,12 @@ ARCHIVE_PATH="/tmp/CapitalGrille.xcarchive"
 EXPORT_PATH="/tmp/CapitalGrille-export"
 EXPORT_OPTIONS="/tmp/CapitalGrille-ExportOptions.plist"
 
+# The team's signing identities live in the gnarcast-build keychain (made by surf-app's
+# tools/testflight.sh), which locks itself after two hours idle. Unlocked with its own saved password,
+# the same way that script does; left locked, codesign stops the archive on a password dialog.
+security unlock-keychain -p "$(cat "$HOME/.appstoreconnect/private_keys/gnarcast-build-keychain.password")" \
+    "$HOME/Library/Keychains/gnarcast-build.keychain-db"
+
 # --- bump build number in project.yml ---
 current=$(awk '/^[[:space:]]+CURRENT_PROJECT_VERSION:/ {gsub(/"/,"",$2); print $2; exit}' project.yml)
 next=$((current + 1))
