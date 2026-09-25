@@ -196,6 +196,7 @@ struct AnthropicClient {
             "system": systemBlocks,
             "messages": messages
         ]
+        for (k, v) in AIModel.current.thinkingParams { body[k] = v }
         if !tools.isEmpty {
             body["tools"] = tools.map { tool in
                 [

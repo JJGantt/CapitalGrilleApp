@@ -40,6 +40,7 @@
 		27A35E6B9BFD05A118E0B521 /* warm-apple-tarte.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 09C7C7811EEBE1B1856DF100 /* warm-apple-tarte.jpg */; };
 		28C2CFC6D92F1B67613E284C /* tomato-bisque.jpg in Resources */ = {isa = PBXBuildFile; fileRef = C03F47B89712E33BB0CD3873 /* tomato-bisque.jpg */; };
 		28EF126F760EE0026BAC6791 /* jumbo-lump-crab-cocktail.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 397B86D24792B47313966232 /* jumbo-lump-crab-cocktail.jpg */; };
+		2BB064DCA4DD5126955FEF70 /* VoiceBorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7055621F33D133D34DB003F0 /* VoiceBorder.swift */; };
 		2CE8C695D86B3AAF27B7E909 /* dry-aged-ny-strip-14oz.jpg in Resources */ = {isa = PBXBuildFile; fileRef = FEC9CD034DA11A05C1685F95 /* dry-aged-ny-strip-14oz.jpg */; };
 		2FA400501BE3619C4E7BFCC8 /* strawberries-cream-creme-anglaise.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 316EC45DF80D4CA4873D1149 /* strawberries-cream-creme-anglaise.jpg */; };
 		394F8472185E4F8341A9FD0F /* nueskes-bacon.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 95CB6EC47BF001D6E64DAC9B /* nueskes-bacon.jpg */; };
@@ -98,6 +99,7 @@
 		AF14D8CE55B3459EE721102F /* LiquorListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2121D56C9BAD13E6905337C0 /* LiquorListView.swift */; };
 		AF36FE8501303F071CEBF231 /* ChatEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164E75E5C597BADF06FD492D /* ChatEngine.swift */; };
 		AF3C63F4AD4C931E06F1F3DC /* caviar-onion-dip.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 6DE7AAEB4DB9075D2C6E16D3 /* caviar-onion-dip.jpg */; };
+		B1392F6F99F84A689767EB7B /* Recorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFF205287F4D3E9EB90F6A52 /* Recorder.swift */; };
 		B22DE8AFC1C23D4664CE1598 /* snake-river-wagyu-steak-tartare.jpg in Resources */ = {isa = PBXBuildFile; fileRef = C3CA26471C3D2FB64391D803 /* snake-river-wagyu-steak-tartare.jpg */; };
 		B5A3C6C2324E8B2EE980A291 /* MenuModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4337C689418114168D2AE628 /* MenuModels.swift */; };
 		B81FB3533CB1944CD91A4195 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 93B6639A5801ACB90BCE11CF /* Assets.xcassets */; };
@@ -116,6 +118,7 @@
 		CB9408E1ADA330B2D2CA50E4 /* CapitalGrilleWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 79B0DACA6324223B1C1767AD /* CapitalGrilleWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		CBBE35F1E839F7928BC2067E /* mushroom-truffle-arancini.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E1AEDB6614C31577220CD523 /* mushroom-truffle-arancini.jpg */; };
 		CCA4CC29B1A035F64F143248 /* chicken-sandwich.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 0E42021D53067F7887B213E2 /* chicken-sandwich.jpg */; };
+		CD752AD0E3D62ABFDC3AA2E4 /* VoiceCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92DF74F8D1D1902BF2AEC66 /* VoiceCapture.swift */; };
 		CF4B064F647B21F827007A56 /* WatchAIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C028DB6B96EA521D888CD4AB /* WatchAIClient.swift */; };
 		D11647378FC36F267D88783F /* RestockListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD3C06AA6D1FA5048C62BD9 /* RestockListView.swift */; };
 		D386F69517318730A5DC86FB /* seasonal-chopped-salad.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 0E7C4C9BB10E7C614F5995A6 /* seasonal-chopped-salad.jpg */; };
@@ -231,6 +234,7 @@
 		6B29A0FAE14B18E4443DE059 /* CocktailModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CocktailModels.swift; sourceTree = "<group>"; };
 		6CD9CEC76D5BC70EF491F6D6 /* tuna-tartare.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "tuna-tartare.jpg"; sourceTree = "<group>"; };
 		6DE7AAEB4DB9075D2C6E16D3 /* caviar-onion-dip.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "caviar-onion-dip.jpg"; sourceTree = "<group>"; };
+		7055621F33D133D34DB003F0 /* VoiceBorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceBorder.swift; sourceTree = "<group>"; };
 		706432D6F6226F0B4C4F0E15 /* signature-cheeseburger.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "signature-cheeseburger.jpg"; sourceTree = "<group>"; };
 		71554734948F61C28E503185 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		737DD2408301B9EAD272AD3A /* pan-seared-sea-bass.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "pan-seared-sea-bass.jpg"; sourceTree = "<group>"; };
@@ -270,6 +274,7 @@
 		AE82E34CB60D728F0558D74D /* shrimp-cocktail.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "shrimp-cocktail.jpg"; sourceTree = "<group>"; };
 		B3E0732C5DA81B633D9B465C /* petite-filet-sandwiches.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "petite-filet-sandwiches.jpg"; sourceTree = "<group>"; };
 		B3F587E7583AC27A4AB25FFA /* oysters-casino.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "oysters-casino.jpg"; sourceTree = "<group>"; };
+		B92DF74F8D1D1902BF2AEC66 /* VoiceCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceCapture.swift; sourceTree = "<group>"; };
 		B9BBB5B2AD7FAD1D8E74D8CA /* seared-tenderloin-lobster.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "seared-tenderloin-lobster.jpg"; sourceTree = "<group>"; };
 		BA4D7F31B37FE3DEF74AA32F /* capital-grille-cobb.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "capital-grille-cobb.jpg"; sourceTree = "<group>"; };
 		BD9376A2E6E04C715CAE813A /* porcini-lollipop-lamb-chops.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "porcini-lollipop-lamb-chops.jpg"; sourceTree = "<group>"; };
@@ -284,6 +289,7 @@
 		CA0D0663DAB64054D9618A96 /* seared-salmon-avocado.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "seared-salmon-avocado.jpg"; sourceTree = "<group>"; };
 		CA6C36FAC916842C0719D2B1 /* RemoteImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteImage.swift; sourceTree = "<group>"; };
 		CB125AEEFEA72A075892AC84 /* soy-glazed-brussels-sprouts.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "soy-glazed-brussels-sprouts.jpg"; sourceTree = "<group>"; };
+		CFF205287F4D3E9EB90F6A52 /* Recorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recorder.swift; sourceTree = "<group>"; };
 		D170400AD1A131DC2B870CEA /* grilled-asparagus-lemon-mosto.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "grilled-asparagus-lemon-mosto.jpg"; sourceTree = "<group>"; };
 		D62B664BD58B0ADB14148543 /* WineModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WineModels.swift; sourceTree = "<group>"; };
 		DB2111CE25AF609ED13A6532 /* CapitalGrilleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapitalGrilleApp.swift; sourceTree = "<group>"; };
@@ -414,6 +420,9 @@
 				DF80FFB427C29754920195B2 /* CapitalGrilleWatch.entitlements */,
 				07B354C3ACE6BDE4DD02D669 /* CapitalGrilleWatchApp.swift */,
 				017A594C7E3C5DA58D1E6BDA /* Info.plist */,
+				CFF205287F4D3E9EB90F6A52 /* Recorder.swift */,
+				7055621F33D133D34DB003F0 /* VoiceBorder.swift */,
+				B92DF74F8D1D1902BF2AEC66 /* VoiceCapture.swift */,
 				C028DB6B96EA521D888CD4AB /* WatchAIClient.swift */,
 				C40C44089E55653968CFDBFA /* WatchChatHistory.swift */,
 				7764442E144595EC94228124 /* WatchChatView.swift */,
@@ -729,9 +738,12 @@
 				E2A6D7A9B951270200956A2A /* ConfigModels.swift in Sources */,
 				BCD282017C33E96911952C94 /* MacClient.swift in Sources */,
 				FF51AB01505B522143677C70 /* MenuModels.swift in Sources */,
+				B1392F6F99F84A689767EB7B /* Recorder.swift in Sources */,
 				18D8EDBFE5EB1971E93B66DE /* RestockModels.swift in Sources */,
 				F930CB714E6888C1E705EE5D /* Secrets.swift in Sources */,
 				22ED1E68693D7E2FA7D71368 /* SupabaseClient.swift in Sources */,
+				2BB064DCA4DD5126955FEF70 /* VoiceBorder.swift in Sources */,
+				CD752AD0E3D62ABFDC3AA2E4 /* VoiceCapture.swift in Sources */,
 				CF4B064F647B21F827007A56 /* WatchAIClient.swift in Sources */,
 				01BF657F34D293AEB2A48CE6 /* WatchChatHistory.swift in Sources */,
 				A9C5D17FC0C666B8BB5E803B /* WatchChatView.swift in Sources */,

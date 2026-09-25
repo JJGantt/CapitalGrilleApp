@@ -12,6 +12,7 @@ struct WatchChatView: View {
     @State private var errorMsg: String?
     @State private var activity: String?
     @State private var currentTask: Task<Void, Never>?
+    @ObservedObject private var capture = VoiceCapture.shared
 
     enum ChatState { case idle, thinking }
 
@@ -70,6 +71,27 @@ struct WatchChatView: View {
                 }
             }
         }
+        .overlay {
+            ZStack {
+                // Double tap is the press: start, lock, send (`press`). It needs a control to bind to,
+                // and there is none on screen, so this is one: a point of nothing.
+                Button(action: press) { Color.clear.frame(width: 1, height: 1) }
+                    .buttonStyle(.plain)
+                    .handGestureShortcut(.primaryAction)
+                    .disabled(chatState == .thinking)
+                    .accessibilityHidden(true)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                // While recording, the whole glass is the press, and holding it throws the recording away.
+                if capture.recording {
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .onTapGesture(perform: press)
+                        .onLongPressGesture(perform: cancelRecording)
+                        .ignoresSafeArea()
+                }
+                VoiceBorder(state: borderState)
+            }
+        }
         .toolbar(.hidden, for: .navigationBar)
         .task {
             if menuStore.menu == nil { menuStore.load() }
@@ -78,23 +100,12 @@ struct WatchChatView: View {
         }
     }
 
-    /// Opens system dictation. Double-tap also triggers this hands-free.
-    private func dictationLink<Label: View>(@ViewBuilder label: () -> Label) -> some View {
-        TextFieldLink(prompt: Text("Ask the assistant…"), label: label) { text in
-            let prompt = text.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !prompt.isEmpty else { return }
-            send(prompt: prompt)
-        }
-        .handGestureShortcut(.primaryAction)
-        .disabled(chatState == .thinking)
-    }
-
     @ViewBuilder
     private var mainContent: some View {
         switch chatState {
         case .idle:
             if history.pairs.isEmpty {
-                dictationLink {
+                Button(action: press) {
                     VStack {
                         HStack {
                             Text(">")
@@ -106,6 +117,7 @@ struct WatchChatView: View {
                     }
                     .padding(.leading, 6)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
             } else {
@@ -131,6 +143,9 @@ struct WatchChatView: View {
                         .padding(.bottom, 8)
                     }
                     .scrollIndicators(.never)
+                    .onTapGesture(coordinateSpace: .global) { at in
+                        if at.y > WKInterfaceDevice.current().screenBounds.height / 2 { press() }
+                    }
                     // Reserve a 32pt strip at the top so the newest response
                     // settles below the time + X button row when we scroll to
                     // the responseAnchor.
@@ -148,17 +163,6 @@ struct WatchChatView: View {
                         }
                     }
                 }
-                .background(
-                    // Invisible dictation link so the hand-gesture double-tap
-                    // (handGestureShortcut(.primaryAction)) still opens
-                    // dictation when history is showing. Not user-tappable —
-                    // exists only so the gesture-shortcut has a target.
-                    dictationLink { Color.clear }
-                        .buttonStyle(.plain)
-                        .frame(width: 1, height: 1)
-                        .opacity(0)
-                        .allowsHitTesting(false)
-                )
                 // History scrolls up under the clock row; the idle prompt above
                 // keeps the top safe area so the screen's corner doesn't clip it.
                 .ignoresSafeArea(edges: .top)
@@ -184,6 +188,62 @@ struct WatchChatView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.horizontal, 6)
+        }
+    }
+
+    private var borderState: VoiceBorder.State {
+        if capture.recording { return capture.locked ? .locked : .recording }
+        return chatState == .thinking ? .working : .idle
+    }
+
+    /// **The one press**, as on StatusHub's watch: start (amber, sends itself at his silence), then lock
+    /// (red, only a press ends it), then send.
+    private func press() {
+        guard chatState != .thinking else { return }
+        if !capture.recording {
+            errorMsg = nil
+            capture.start(onSilence: stopRecording, onTaken: stopRecording) { error in
+                errorMsg = error.localizedDescription
+            }
+        } else if capture.locked {
+            stopRecording()
+        } else {
+            capture.toggleLock()
+            WKInterfaceDevice.current().play(.click)
+        }
+    }
+
+    private func cancelRecording() {
+        guard capture.recording else { return }
+        capture.cancel()
+        WKInterfaceDevice.current().play(.failure)
+    }
+
+    /// Ends the recording, has the hub transcribe it, and asks the question.
+    private func stopRecording() {
+        guard let clip = capture.stop() else { return }
+        WKInterfaceDevice.current().play(.stop)
+        chatState = .thinking
+        errorMsg = nil
+        activity = nil
+        currentTask = Task {
+            defer { try? FileManager.default.removeItem(at: clip.url) }
+            do {
+                let words = try await Transcriber.transcribe(clip)
+                if Task.isCancelled { return }
+                guard !words.isEmpty else {
+                    chatState = .idle
+                    currentTask = nil
+                    WKInterfaceDevice.current().play(.failure)
+                    return
+                }
+                currentTask = nil
+                send(prompt: words)
+            } catch {
+                if !Task.isCancelled { errorMsg = error.localizedDescription }
+                chatState = .idle
+                currentTask = nil
+            }
         }
     }
 

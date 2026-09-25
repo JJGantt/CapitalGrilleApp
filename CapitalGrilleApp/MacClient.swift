@@ -168,8 +168,9 @@ enum Backend: String, CaseIterable {
             let key = "backendWatch"
             let fallback = Backend.api.rawValue
             #else
+            // Unset, the phone follows the gating profile's default (Supabase `app_config`).
             let key = "backend"
-            let fallback = Backend.mac.rawValue
+            let fallback = AppGate.defaultBackend
             #endif
             let raw = UserDefaults.standard.string(forKey: key) ?? fallback
             let b = Backend(rawValue: raw) ?? .mac
@@ -190,8 +191,8 @@ enum Backend: String, CaseIterable {
 
 enum AIModel: String, CaseIterable, Identifiable {
     case haiku  = "claude-haiku-4-5"
-    case sonnet = "claude-sonnet-4-6"
-    case opus   = "claude-opus-4-7"
+    case sonnet = "claude-sonnet-5"
+    case opus   = "claude-opus-5-5"
 
     var id: String { rawValue }
     var label: String {
@@ -199,6 +200,17 @@ enum AIModel: String, CaseIterable, Identifiable {
         case .haiku:  return "Haiku"
         case .sonnet: return "Sonnet"
         case .opus:   return "Opus"
+        }
+    }
+
+    /// The request's thinking settings. Answers here are short lookups where speed matters most, so
+    /// thinking is off wherever the model allows it. Opus 5.5 cannot turn it off (the API rejects
+    /// `disabled`), so it runs at the lowest effort instead. Haiku 4.5 thinks only when asked.
+    var thinkingParams: [String: Any] {
+        switch self {
+        case .haiku:  return [:]
+        case .sonnet: return ["thinking": ["type": "disabled"]]
+        case .opus:   return ["output_config": ["effort": "low"]]
         }
     }
 
