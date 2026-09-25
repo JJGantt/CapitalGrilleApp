@@ -1,12 +1,9 @@
 import AVFoundation
 
 /// The watch's microphone, recorded to temporary .m4a files (AAC, mono, 16 kHz). Ported from StatusHub's
-/// watch app (status-hub/apps/Watch/Recorder.swift); the hub transcribes each clip (`Transcriber`), so
-/// nothing here listens for words — it only reports how loud each stretch of audio was (`onLevel`),
-/// which is what the silence endpoint in `VoiceCapture` runs on.
-///
-/// An AVAudioEngine tap rather than AVAudioRecorder, because the level arrives WITH the audio, buffer by
-/// buffer; AVAudioRecorder's meters only answer when asked, on a timer.
+/// watch app (status-hub/apps/Watch/Recorder.swift), which is why it is an AVAudioEngine tap: the start
+/// chirp plays on the same engine and the tap drops it, so no clip contains it. The hub transcribes each
+/// clip (`Transcriber`); nothing here listens for words.
 @MainActor
 final class Recorder {
     struct Clip {
@@ -19,9 +16,6 @@ final class Recorder {
         case notStarted
     }
 
-    /// Each buffer's RMS level (0…1) and how many seconds of audio it held, delivered on the main actor in
-    /// the order they were recorded.
-    var onLevel: ((Float, TimeInterval) -> Void)?
     /// The system took the microphone (Siri, a call, another app recording) — `true` — or gave it back,
     /// `false`. A recording cannot survive the first; the second is when a new one may start.
     var onInterruption: ((Bool) -> Void)?
@@ -52,15 +46,10 @@ final class Recorder {
         guard format.sampleRate > 0, format.channelCount > 0 else { throw Failure.notStarted }
         let sink = try Sink(input: format)
         let gate = self.gate
-        input.installTap(onBus: 0, bufferSize: 4096, format: format) { [weak self] buffer, _ in
-            // The chirp is not his voice: it is neither kept in the clip nor counted by the endpoint,
-            // where it would read as speech and let the silence after it send an empty command.
+        input.installTap(onBus: 0, bufferSize: 4096, format: format) { buffer, _ in
+            // The chirp is not his voice, so it is not kept in the clip.
             if gate.closed { return }
-            let level = sink.write(buffer)
-            let seconds = Double(buffer.frameLength) / format.sampleRate
-            // Main queue, not a Task: a queue keeps the buffers in order, which the endpoint's running
-            // count of silent seconds depends on.
-            DispatchQueue.main.async { MainActor.assumeIsolated { self?.onLevel?(level, seconds) } }
+            sink.write(buffer)
         }
         NotificationCenter.default.addObserver(forName: AVAudioSession.interruptionNotification,
                                                object: session, queue: .main) { [weak self] note in
@@ -155,11 +144,10 @@ private final class Sink: @unchecked Sendable {
         self.file = file
     }
 
-    /// Converts one buffer to the file's 16 kHz mono and appends it. Returns the buffer's RMS level.
-    func write(_ buffer: AVAudioPCMBuffer) -> Float {
-        let level = Self.rms(buffer)
+    /// Converts one buffer to the file's 16 kHz mono and appends it.
+    func write(_ buffer: AVAudioPCMBuffer) {
         let frames = AVAudioFrameCount(Double(buffer.frameLength) * format.sampleRate / buffer.format.sampleRate) + 64
-        guard let out = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: frames) else { return level }
+        guard let out = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: frames) else { return }
         var fed = false
         var error: NSError?
         // `.noDataNow` rather than end-of-stream, so the resampler carries its state into the next buffer.
@@ -172,7 +160,6 @@ private final class Sink: @unchecked Sendable {
         lock.lock()
         defer { lock.unlock() }
         if out.frameLength > 0 { try? file?.write(from: out) }
-        return level
     }
 
     /// Closes the file and returns where it is.
@@ -200,13 +187,6 @@ private final class Sink: @unchecked Sendable {
             // Starved bitrates cost Whisper words (status-hub HUB-INTERNALS, the phone's VOICE_BPS).
                     AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue,
         ], commonFormat: .pcmFormatFloat32, interleaved: false)
-    }
-
-    private static func rms(_ buffer: AVAudioPCMBuffer) -> Float {
-        guard let samples = buffer.floatChannelData?[0], buffer.frameLength > 0 else { return 0 }
-        var sum: Float = 0
-        for i in 0..<Int(buffer.frameLength) { sum += samples[i] * samples[i] }
-        return (sum / Float(buffer.frameLength)).squareRoot()
     }
 }
 

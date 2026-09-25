@@ -6,19 +6,17 @@ import WatchKit
 ///
 /// | state | edge |
 /// |---|---|
-/// | recording, and the silence will end it | amber |
-/// | locked open through the silence | red |
+/// | recording (only a press ends it) | red — StatusHub's colour for a recording held open |
 /// | transcribing or answering | white, a sweep travelling round |
 /// | idle | none |
 struct VoiceBorder: View {
-    enum State { case idle, recording, locked, working }
+    enum State { case idle, recording, working }
     let state: State
 
     /// Wrist down: the system redraws too seldom to animate, so a sweep would freeze mid-way.
     @Environment(\.isLuminanceReduced) private var lowered
 
-    private static let recording = Color(red: 0xf2 / 255, green: 0xa1 / 255, blue: 0x3d / 255)
-    private static let locked = Color(red: 0xe5 / 255, green: 0x48 / 255, blue: 0x4d / 255)
+    private static let recording = Color(red: 0xe5 / 255, green: 0x48 / 255, blue: 0x4d / 255)
     private static let working = Color.white
     private static let ring = Color(white: 0x40 / 255)
     /// Thickness of the line and of the opaque black band just inside it, in PIXELS.
@@ -35,7 +33,6 @@ struct VoiceBorder: View {
         switch state {
         case .idle: EmptyView()
         case .recording: line(Self.recording)
-        case .locked: line(Self.locked)
         case .working where lowered: line(Self.working)
         case .working:
             TimelineView(.animation) { ctx in

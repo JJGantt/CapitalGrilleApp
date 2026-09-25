@@ -73,7 +73,7 @@ struct WatchChatView: View {
         }
         .overlay {
             ZStack {
-                // Double tap is the press: start, lock, send (`press`). It needs a control to bind to,
+                // Double tap is the press: start, then send (`press`). It needs a control to bind to,
                 // and there is none on screen, so this is one: a point of nothing.
                 Button(action: press) { Color.clear.frame(width: 1, height: 1) }
                     .buttonStyle(.plain)
@@ -81,13 +81,26 @@ struct WatchChatView: View {
                     .disabled(chatState == .thinking)
                     .accessibilityHidden(true)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                // While recording, the whole glass is the press, and holding it throws the recording away.
+                // While recording, the whole glass is the press, and the x at the bottom throws it away.
                 if capture.recording {
                     Color.clear
                         .contentShape(Rectangle())
                         .onTapGesture(perform: press)
-                        .onLongPressGesture(perform: cancelRecording)
                         .ignoresSafeArea()
+                    VStack {
+                        Spacer()
+                        Button(action: cancelRecording) {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundColor(.white)
+                                .frame(width: 36, height: 36)
+                                .background(Circle().fill(Color.white.opacity(0.15)))
+                                .contentShape(Circle())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    .padding(.bottom, 4)
+                    .ignoresSafeArea(edges: .bottom)
                 }
                 VoiceBorder(state: borderState)
             }
@@ -192,24 +205,20 @@ struct WatchChatView: View {
     }
 
     private var borderState: VoiceBorder.State {
-        if capture.recording { return capture.locked ? .locked : .recording }
+        if capture.recording { return .recording }
         return chatState == .thinking ? .working : .idle
     }
 
-    /// **The one press**, as on StatusHub's watch: start (amber, sends itself at his silence), then lock
-    /// (red, only a press ends it), then send.
+    /// **The one press**: the first starts a recording, the next sends it. Only a press ends it.
     private func press() {
         guard chatState != .thinking else { return }
-        if !capture.recording {
-            errorMsg = nil
-            capture.start(onSilence: stopRecording, onTaken: stopRecording) { error in
-                errorMsg = error.localizedDescription
-            }
-        } else if capture.locked {
+        if capture.recording {
             stopRecording()
         } else {
-            capture.toggleLock()
-            WKInterfaceDevice.current().play(.click)
+            errorMsg = nil
+            capture.start(onTaken: stopRecording) { error in
+                errorMsg = error.localizedDescription
+            }
         }
     }
 
