@@ -35,6 +35,7 @@ struct WatchChatView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .ignoresSafeArea(edges: .top)
             }
             if let err = errorMsg, !lastPrompt.isEmpty {
                 VStack {
@@ -70,7 +71,6 @@ struct WatchChatView: View {
             }
         }
         .toolbar(.hidden, for: .navigationBar)
-        .ignoresSafeArea(edges: .top)
         .task {
             if menuStore.menu == nil { menuStore.load() }
             await bottleStore.refreshFromSupabase()
@@ -159,6 +159,9 @@ struct WatchChatView: View {
                         .opacity(0)
                         .allowsHitTesting(false)
                 )
+                // History scrolls up under the clock row; the idle prompt above
+                // keeps the top safe area so the screen's corner doesn't clip it.
+                .ignoresSafeArea(edges: .top)
             }
 
         case .thinking:
