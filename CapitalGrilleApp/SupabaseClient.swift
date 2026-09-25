@@ -1,7 +1,8 @@
 import Foundation
 
-// Lightweight Supabase REST client. Uses the service-role key from Secrets.swift.
-// Single-user personal project — no RLS, no per-user auth.
+// Lightweight Supabase REST client. Uses the anon key from Secrets.swift: the app
+// ships to testers, so its key is public, and RLS policies (data-layer migration
+// 00116) confine the anon key to this app's own tables.
 struct SupabaseClient {
     static let shared = SupabaseClient()
 
@@ -60,6 +61,15 @@ struct SupabaseClient {
         let data = try JSONSerialization.data(withJSONObject: body)
         let p = "\(path)?on_conflict=\(onConflict)"
         let (resp, http) = try await URLSession.shared.data(for: request(p, method: "POST", body: data, prefer: "resolution=merge-duplicates,return=minimal"))
+        try Self.check(http, data: resp)
+        return resp
+    }
+
+    /// Plain INSERT. app_logs is insert-only for the anon key, so it cannot upsert.
+    @discardableResult
+    func insert(path: String, body: [[String: Any]]) async throws -> Data {
+        let data = try JSONSerialization.data(withJSONObject: body)
+        let (resp, http) = try await URLSession.shared.data(for: request(path, method: "POST", body: data, prefer: "return=minimal"))
         try Self.check(http, data: resp)
         return resp
     }

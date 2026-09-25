@@ -82,7 +82,8 @@ The **system prompt** is built in-app (`buildPromptAndTools`) and sent to both b
 Architecture preference: the **backend is the source of truth**; the app derives structure dynamically from relational data (e.g. a `section_views`/grouping table defines view modes). Do NOT stuff this config into an `app_content` JSON blob — use real relational tables.
 
 ## Supabase access (project ref `felyggqjjhltwokdfhop`, "life-data")
-- **Data reads/writes** (no DDL): PostgREST `https://felyggqjjhltwokdfhop.supabase.co/rest/v1/` with the service-role key.
+- **Data reads/writes** (no DDL): PostgREST `https://felyggqjjhltwokdfhop.supabase.co/rest/v1/` with the service-role key (from `~/repos/data-layer/.env`).
+- **The app itself carries the anon key, never the service-role key.** Every build is public to testers, and this project holds all of Jared's life data. RLS policies in data-layer migration `00116` are the whole of what the anon key can do: read the catalog/menu tables, edit `bottles`/`bottle_areas`/`restock_items`, insert into `app_logs` (no read, so testers' questions stay private). A new table the app reads or writes needs a policy there, or the app gets an empty result or a 401 with no other symptom.
 - **DDL / arbitrary SQL** (runs as `postgres` superuser): the Management API, authed with the Supabase CLI token in the macOS keychain:
   ```bash
   RAW=$(security find-generic-password -s "Supabase CLI" -w)

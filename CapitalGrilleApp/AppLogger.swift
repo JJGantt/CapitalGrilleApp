@@ -64,7 +64,7 @@ actor AppLogger {
             ]
         }
         do {
-            try await SupabaseClient.shared.upsert(path: "app_logs", body: rows, onConflict: "id")
+            try await SupabaseClient.shared.insert(path: "app_logs", body: rows)
         } catch {
             // Logging must never crash anything. Swallow.
         }
