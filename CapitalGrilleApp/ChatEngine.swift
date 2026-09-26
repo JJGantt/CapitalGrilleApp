@@ -240,7 +240,7 @@ final class ChatEngine {
           - X is a dish, sauce, rub, side, dessert, etc. → call get_food_menu and use its data as the source of truth. List the menu's exact ingredients verbatim, do not paraphrase or summarize.
           - X is a cocktail (Manhattan, Old Fashioned, Margarita, Negroni, White Russian, etc.) → apply COCKTAIL ROUTING (see OUR COCKTAILS below): prefer our version when X maps to one of ours, otherwise answer from general knowledge. No tool call needed — the recipes are in your prompt. Use this exact structure:
             Ingredients:
-            <one per line with measurements>
+            <one per line, QUANTITY FIRST so the amounts line up down the left edge: "2 oz rye whiskey", "3/4 oz lemon juice", "2 dashes Angostura bitters", "1 egg white">
 
             Glass:
             <glass type>
