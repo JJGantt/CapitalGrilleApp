@@ -58,6 +58,10 @@ Each TestFlight tester provides their own Anthropic API key in Settings on first
 
 ## Architecture notes
 - Shared chat engine at `CapitalGrilleApp/ChatEngine.swift` — both iOS and watch use it
+- **The watch keeps running wrist-down while it answers** (`CapitalGrilleWatch/StayAwake.swift`): the
+  watch target has `UIBackgroundModes: audio`, and while the chat is `thinking` (transcribing, then
+  waiting on the model) it plays mixable silence, so the answer lands and its tap comes with the wrist
+  down instead of the app being suspended mid-request. It does not speed up the dimmed screen's redraw.
 - Watch's `MacClient.ask` routes through `WatchPhoneRelay` (WatchConnectivity) when Backend is `.mac`
 - Watch defaults to API backend (separate UserDefaults key `backendWatch`); iOS, when `backend` is unset, takes the gating profile's `default_backend` (the owner profile says `api`)
 - **Watch voice input is recorded audio, not Apple dictation.** A press (double tap, or a tap on the screen) starts `VoiceCapture`/`Recorder` (ported from StatusHub's watch app) and the next press sends; nothing ends a recording on its own, and the x at the bottom throws away whatever is under way (the recording, or the question being transcribed and answered). While a question is worked on there is no spinner, status text or cancel screen — the edge is the indicator, as on StatusHub's watch. What the page does show, as on StatusHub's: the transcript the moment it is back (so a wrong one can be cancelled before it is answered), and under it each tool call as it is made, one small violet monospace line apiece; both give way to the answer when it lands. The clip goes to the hub's `/api/cg/transcribe` (status-hub `server.js`), the same Groq Whisper as the hub's own voice input, authenticated by this device's Anthropic key as `X-Owner-Key` — so only the owner's device can transcribe; a tester's watch gets a 401. The edge of the glass shows the state as StatusHub's does (`VoiceBorder`: red while recording, white sweep while transcribing and answering). The hub's copy of the owner-key hash must change with `AppGate.ownerKeyHash`.

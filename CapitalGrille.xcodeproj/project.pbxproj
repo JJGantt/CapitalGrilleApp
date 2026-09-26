@@ -19,6 +19,7 @@
 		0BA0FA6002C768789C008A68 /* ribeye-steak-sandwich.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 163FF0E12E5F6631F622AD57 /* ribeye-steak-sandwich.jpg */; };
 		0E95B5573B2A4C3F0FF97534 /* dry-aged-porterhouse-24oz.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 1E58FE7154274FCE8B3A6C3E /* dry-aged-porterhouse-24oz.jpg */; };
 		13893CFE9EEE852CE03C86C8 /* CocktailsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062E4AAA7A4389E48302A41F /* CocktailsListView.swift */; };
+		142D72AA7BA47B7EE4E4C322 /* StayAwake.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6C4FC07CA4C63DD183D831B /* StayAwake.swift */; };
 		14A95D26F6B72236B2FC11C0 /* WineListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C502125F038A23F3D73460C /* WineListView.swift */; };
 		171F16082407401061CA16EC /* lobster-crab-cake.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 2B5F59C5B5E75A437209076B /* lobster-crab-cake.jpg */; };
 		179BCB396B503AD4244B794E /* mini-tenderloin-sandwiches.jpg in Resources */ = {isa = PBXBuildFile; fileRef = BF778B171C2CDCD3D52E5AD1 /* mini-tenderloin-sandwiches.jpg */; };
@@ -293,6 +294,7 @@
 		CFF205287F4D3E9EB90F6A52 /* Recorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recorder.swift; sourceTree = "<group>"; };
 		D170400AD1A131DC2B870CEA /* grilled-asparagus-lemon-mosto.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "grilled-asparagus-lemon-mosto.jpg"; sourceTree = "<group>"; };
 		D62B664BD58B0ADB14148543 /* WineModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WineModels.swift; sourceTree = "<group>"; };
+		D6C4FC07CA4C63DD183D831B /* StayAwake.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StayAwake.swift; sourceTree = "<group>"; };
 		DB2111CE25AF609ED13A6532 /* CapitalGrilleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapitalGrilleApp.swift; sourceTree = "<group>"; };
 		DD4334D8A753E69268000788 /* WatchRelayHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchRelayHandler.swift; sourceTree = "<group>"; };
 		E1972A7C98F3E3B5549D5CF8 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -421,6 +423,7 @@
 				07B354C3ACE6BDE4DD02D669 /* CapitalGrilleWatchApp.swift */,
 				017A594C7E3C5DA58D1E6BDA /* Info.plist */,
 				CFF205287F4D3E9EB90F6A52 /* Recorder.swift */,
+				D6C4FC07CA4C63DD183D831B /* StayAwake.swift */,
 				7055621F33D133D34DB003F0 /* VoiceBorder.swift */,
 				B92DF74F8D1D1902BF2AEC66 /* VoiceCapture.swift */,
 				C028DB6B96EA521D888CD4AB /* WatchAIClient.swift */,
@@ -742,6 +745,7 @@
 				B1392F6F99F84A689767EB7B /* Recorder.swift in Sources */,
 				18D8EDBFE5EB1971E93B66DE /* RestockModels.swift in Sources */,
 				F930CB714E6888C1E705EE5D /* Secrets.swift in Sources */,
+				142D72AA7BA47B7EE4E4C322 /* StayAwake.swift in Sources */,
 				22ED1E68693D7E2FA7D71368 /* SupabaseClient.swift in Sources */,
 				2BB064DCA4DD5126955FEF70 /* VoiceBorder.swift in Sources */,
 				CD752AD0E3D62ABFDC3AA2E4 /* VoiceCapture.swift in Sources */,

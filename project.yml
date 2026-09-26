@@ -79,6 +79,10 @@ targets:
         WKApplication: true
         WKCompanionAppBundleIdentifier: com.jaredgantt.CapitalGrille
         NSMicrophoneUsageDescription: Voice prompts to the AI assistant.
+        # Audio is what keeps a watch app running with the wrist down: the recording itself, and the
+        # silence StayAwake plays while an answer is on its way (CapitalGrilleWatch/StayAwake.swift).
+        UIBackgroundModes:
+          - audio
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
           NSExceptionDomains:

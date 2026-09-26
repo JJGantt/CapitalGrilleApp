@@ -109,6 +109,8 @@ struct WatchChatView: View {
         }
         .onAppear(perform: startIfAsked)
         .onChange(of: phase) { _, _ in startIfAsked() }
+        // Kept running wrist-down while the answer is on its way (StayAwake), and let go when it lands.
+        .onChange(of: chatState) { _, now in StayAwake.shared.set(now == .thinking) }
         .onChange(of: capture.recordRequested) { _, _ in startIfAsked() }
         .task {
             if menuStore.menu == nil { menuStore.load() }
