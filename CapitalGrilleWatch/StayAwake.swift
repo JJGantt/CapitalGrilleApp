@@ -17,12 +17,19 @@ final class StayAwake {
     private let player = AVAudioPlayerNode()
     private var wired = false
     private var holding = false
+    /// The most it holds for in one go, his number: past this an answer that has not come is not worth
+    /// the battery to wait on awake, and the app goes back to being suspended as usual.
+    private static let longest: TimeInterval = 60
+    /// Counts each hold, so the cut-off for an earlier one cannot end a later one.
+    private var hold = 0
+    /// The minute ran out on this wait: nothing restarts the hold until the chat stops thinking.
+    private var spent = false
 
     private init() {}
 
     /// Holds while `on`, lets go when not. Called whenever the chat's thinking state changes.
     func set(_ on: Bool) {
-        if on { start() } else { stop() }
+        if !on { spent = false; stop() } else if !spent { start() }
     }
 
     private func start() {
@@ -39,6 +46,16 @@ final class StayAwake {
             if !engine.isRunning { try engine.start() }
             player.scheduleBuffer(Self.silence, at: nil, options: .loops)
             player.play()
+            if !holding {
+                hold += 1
+                let this = hold
+                Task { [weak self] in
+                    try? await Task.sleep(for: .seconds(Self.longest))
+                    guard let self, self.holding, self.hold == this else { return }
+                    self.spent = true
+                    self.stop()
+                }
+            }
             holding = true
         } catch {
             VoiceLog.record("voice_stay_awake_failed", id: UUID(), sessionId: "",
