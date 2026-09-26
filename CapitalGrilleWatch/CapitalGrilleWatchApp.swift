@@ -2,8 +2,6 @@ import SwiftUI
 
 @main
 struct CapitalGrilleWatchApp: App {
-    @StateObject private var workoutSession = WorkoutSessionManager()
-
     init() {
         APIKeyStore.seedFromSecretsIfNeeded()
         // Force WatchPhoneRelay to spin up so it activates WCSession early
@@ -20,7 +18,6 @@ struct CapitalGrilleWatchApp: App {
     var body: some Scene {
         WindowGroup {
             WatchContentView()
-                .environmentObject(workoutSession)
         }
     }
 }

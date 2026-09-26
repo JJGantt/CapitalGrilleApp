@@ -54,6 +54,7 @@
 		44086A0B605756863DC3F2D4 /* parmesan-truffle-fries.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 790D8AF820853C331E3A94BB /* parmesan-truffle-fries.jpg */; };
 		4628EF5FAA5032EA7C068D09 /* caesar-salad.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 452908D7714D76A2CB91B12C /* caesar-salad.jpg */; };
 		475224F9D50B35E71532D1E6 /* sauteed-spinach-garlic-confit.jpg in Resources */ = {isa = PBXBuildFile; fileRef = A1AF6E3D00FA85B268C8A70A /* sauteed-spinach-garlic-confit.jpg */; };
+		4779492C90B599C97EAFDB29 /* OpenAppIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BAEACB6DC38EA24F5F57FF9 /* OpenAppIntent.swift */; };
 		48DDB76A028945BAB89D8215 /* roasted-wild-mushrooms.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 87A04D1D11CF10A9BA05A701 /* roasted-wild-mushrooms.jpg */; };
 		4CBE05AF30E107EE7F0904AF /* AnthropicClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 955F351299175ED53105B74E /* AnthropicClient.swift */; };
 		4DD73253EDA4052BBAA439D3 /* maine-lobster-salad.jpg in Resources */ = {isa = PBXBuildFile; fileRef = C796225A3A39A5607EB8CCB2 /* maine-lobster-salad.jpg */; };
@@ -61,7 +62,6 @@
 		51252EEA94980CA44197EDDF /* APIKeyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 775CA20F06366853C112AB0B /* APIKeyStore.swift */; };
 		540FEDAA8739B614543FF2A3 /* SupabaseClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A40AA294F30B5EF8ACE25CD /* SupabaseClient.swift */; };
 		556F5013EC496FA07CD0051F /* lobster-bisque.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E5395EEB085013FA2B488205 /* lobster-bisque.jpg */; };
-		594F19B1F81BF65152E57A7D /* WorkoutSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55C4FD1FB1D01C179DD201B6 /* WorkoutSessionManager.swift */; };
 		5AF75FD9A4E71908DF8531D2 /* seared-salmon-avocado.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CA0D0663DAB64054D9618A96 /* seared-salmon-avocado.jpg */; };
 		5B00454C3B68F2B6F9E52F63 /* oysters-on-the-half-shell.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8B3933FE6BDBF44243AC37B2 /* oysters-on-the-half-shell.jpg */; };
 		5D0BD83E53B027CF0A9DB7D6 /* cocktails.json in Resources */ = {isa = PBXBuildFile; fileRef = 9FC97BB6CD318F8AB9EA761B /* cocktails.json */; };
@@ -72,6 +72,7 @@
 		69C8ED14C6C2C57767F8F357 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1972A7C98F3E3B5549D5CF8 /* SettingsView.swift */; };
 		6CB9657ACCD4A93F04B19CE0 /* coconut-cream-pie.jpg in Resources */ = {isa = PBXBuildFile; fileRef = AB39F0844FF96F577F6AD07C /* coconut-cream-pie.jpg */; };
 		6EE3ED923252032C4FC6649C /* CapitalGrilleWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B354C3ACE6BDE4DD02D669 /* CapitalGrilleWatchApp.swift */; };
+		6F0C5BB9FDEA7645C19CB8E5 /* OpenAppIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BAEACB6DC38EA24F5F57FF9 /* OpenAppIntent.swift */; };
 		7D8744370A25AB61C8E025DC /* au-gratin-potatoes.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 9B638EBA55D2435DB067BB10 /* au-gratin-potatoes.jpg */; };
 		7EACB6ED5505EF7D09AEA5E7 /* WatchSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC8D526E74CBD2E1BD677DC /* WatchSettingsView.swift */; };
 		84E2FFBE338E7E148F5792D5 /* sliced-dry-aged-ny-strip.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 50FBA509B385A2DF0102A378 /* sliced-dry-aged-ny-strip.jpg */; };
@@ -204,6 +205,7 @@
 		163FF0E12E5F6631F622AD57 /* ribeye-steak-sandwich.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "ribeye-steak-sandwich.jpg"; sourceTree = "<group>"; };
 		164E75E5C597BADF06FD492D /* ChatEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatEngine.swift; sourceTree = "<group>"; };
 		19B2DBF0FA742FF7EFB09FA9 /* CapitalGrilleWatchWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = CapitalGrilleWatchWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		1BAEACB6DC38EA24F5F57FF9 /* OpenAppIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAppIntent.swift; sourceTree = "<group>"; };
 		1E58FE7154274FCE8B3A6C3E /* dry-aged-porterhouse-24oz.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "dry-aged-porterhouse-24oz.jpg"; sourceTree = "<group>"; };
 		1ED80AC00ABF2B0E541EC13E /* dry-aged-strip-au-poivre.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "dry-aged-strip-au-poivre.jpg"; sourceTree = "<group>"; };
 		2121D56C9BAD13E6905337C0 /* LiquorListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquorListView.swift; sourceTree = "<group>"; };
@@ -226,7 +228,6 @@
 		4FB5C43EFE3CCA38461711D0 /* bone-in-ny-kc-strip-lunch.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "bone-in-ny-kc-strip-lunch.jpg"; sourceTree = "<group>"; };
 		50FBA509B385A2DF0102A378 /* sliced-dry-aged-ny-strip.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "sliced-dry-aged-ny-strip.jpg"; sourceTree = "<group>"; };
 		520A64BC913EC5AD0B2726CD /* bone-in-ribeye-22oz.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "bone-in-ribeye-22oz.jpg"; sourceTree = "<group>"; };
-		55C4FD1FB1D01C179DD201B6 /* WorkoutSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutSessionManager.swift; sourceTree = "<group>"; };
 		5D07AA2E87FCCF3A1EEA64AD /* DishDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DishDetailView.swift; sourceTree = "<group>"; };
 		5FF91A7710F08B1C33D1101F /* WineDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WineDetailView.swift; sourceTree = "<group>"; };
 		61FE4B5AAD5C1ED744CCE729 /* CapitalGrille.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = CapitalGrille.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -294,7 +295,6 @@
 		D62B664BD58B0ADB14148543 /* WineModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WineModels.swift; sourceTree = "<group>"; };
 		DB2111CE25AF609ED13A6532 /* CapitalGrilleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapitalGrilleApp.swift; sourceTree = "<group>"; };
 		DD4334D8A753E69268000788 /* WatchRelayHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchRelayHandler.swift; sourceTree = "<group>"; };
-		DF80FFB427C29754920195B2 /* CapitalGrilleWatch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CapitalGrilleWatch.entitlements; sourceTree = "<group>"; };
 		E1972A7C98F3E3B5549D5CF8 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		E1AEDB6614C31577220CD523 /* mushroom-truffle-arancini.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "mushroom-truffle-arancini.jpg"; sourceTree = "<group>"; };
 		E5395EEB085013FA2B488205 /* lobster-bisque.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "lobster-bisque.jpg"; sourceTree = "<group>"; };
@@ -317,6 +317,7 @@
 			children = (
 				02F9B2F2EDAE90280C84F7E4 /* CapitalGrilleWatchWidgets.swift */,
 				F4DF8F46DD29684B485C79F3 /* Info.plist */,
+				1BAEACB6DC38EA24F5F57FF9 /* OpenAppIntent.swift */,
 			);
 			path = CapitalGrilleWatchWidgets;
 			sourceTree = "<group>";
@@ -417,7 +418,6 @@
 			isa = PBXGroup;
 			children = (
 				93B6639A5801ACB90BCE11CF /* Assets.xcassets */,
-				DF80FFB427C29754920195B2 /* CapitalGrilleWatch.entitlements */,
 				07B354C3ACE6BDE4DD02D669 /* CapitalGrilleWatchApp.swift */,
 				017A594C7E3C5DA58D1E6BDA /* Info.plist */,
 				CFF205287F4D3E9EB90F6A52 /* Recorder.swift */,
@@ -430,7 +430,6 @@
 				24084D66E455EB83E580E4DA /* WatchPhoneRelay.swift */,
 				7994AF070EF92AC9B6DFEB48 /* WatchRestockView.swift */,
 				6AC8D526E74CBD2E1BD677DC /* WatchSettingsView.swift */,
-				55C4FD1FB1D01C179DD201B6 /* WorkoutSessionManager.swift */,
 			);
 			path = CapitalGrilleWatch;
 			sourceTree = "<group>";
@@ -691,6 +690,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C1C3D5B38836C8D741DAC40B /* CapitalGrilleWatchWidgets.swift in Sources */,
+				6F0C5BB9FDEA7645C19CB8E5 /* OpenAppIntent.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -738,6 +738,7 @@
 				E2A6D7A9B951270200956A2A /* ConfigModels.swift in Sources */,
 				BCD282017C33E96911952C94 /* MacClient.swift in Sources */,
 				FF51AB01505B522143677C70 /* MenuModels.swift in Sources */,
+				4779492C90B599C97EAFDB29 /* OpenAppIntent.swift in Sources */,
 				B1392F6F99F84A689767EB7B /* Recorder.swift in Sources */,
 				18D8EDBFE5EB1971E93B66DE /* RestockModels.swift in Sources */,
 				F930CB714E6888C1E705EE5D /* Secrets.swift in Sources */,
@@ -752,7 +753,6 @@
 				654771ABA64A635193CE3FAE /* WatchRestockView.swift in Sources */,
 				7EACB6ED5505EF7D09AEA5E7 /* WatchSettingsView.swift in Sources */,
 				1BAD306FE12EEEF9CE859E72 /* WineModels.swift in Sources */,
-				594F19B1F81BF65152E57A7D /* WorkoutSessionManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -956,7 +956,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = CapitalGrilleWatch/CapitalGrilleWatch.entitlements;
 				CURRENT_PROJECT_VERSION = 17;
 				INFOPLIST_FILE = CapitalGrilleWatch/Info.plist;
 				MARKETING_VERSION = 1.0;
@@ -991,7 +990,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = CapitalGrilleWatch/CapitalGrilleWatch.entitlements;
 				CURRENT_PROJECT_VERSION = 17;
 				INFOPLIST_FILE = CapitalGrilleWatch/Info.plist;
 				MARKETING_VERSION = 1.0;

@@ -67,6 +67,7 @@ targets:
         buildPhase: resources
       - path: CapitalGrilleApp/cocktails.json
         buildPhase: resources
+      - path: CapitalGrilleWatchWidgets/OpenAppIntent.swift
     info:
       path: CapitalGrilleWatch/Info.plist
       properties:
@@ -77,21 +78,12 @@ targets:
         CFBundleIconName: AppIcon
         WKApplication: true
         WKCompanionAppBundleIdentifier: com.jaredgantt.CapitalGrille
-        WKBackgroundModes:
-          - workout-processing
         NSMicrophoneUsageDescription: Voice prompts to the AI assistant.
-        NSSpeechRecognitionUsageDescription: Transcribes voice prompts for the assistant.
-        NSHealthShareUsageDescription: Capital Grille runs a workout session to stay foregrounded when you raise your wrist, so the assistant is always one glance away. No health data is read.
-        NSHealthUpdateUsageDescription: Capital Grille runs a workout session to stay foregrounded when you raise your wrist. No health data is written.
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
           NSExceptionDomains:
             "100.106.101.57":
               NSExceptionAllowsInsecureHTTPLoads: true
-    entitlements:
-      path: CapitalGrilleWatch/CapitalGrilleWatch.entitlements
-      properties:
-        com.apple.developer.healthkit: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.jaredgantt.CapitalGrille.watch
