@@ -11,13 +11,15 @@ struct CapitalGrilleWatchWidgets: WidgetBundle {
     }
 }
 
-/// A watch-face button that opens the app: the initials, bare on the face like StatusHub's microphone.
+/// A watch-face button that opens the app straight into a recording (`capitalgrille://record`, answered
+/// in WatchContentView): the initials, bare on the face like StatusHub's microphone.
 struct CapitalGrilleComplication: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: "CapitalGrilleComplication", provider: Provider()) { _ in
             Text("CG")
                 .font(.system(size: 18, weight: .semibold, design: .serif))
                 .widgetAccentable()
+                .widgetURL(URL(string: "capitalgrille://record"))
                 .containerBackground(for: .widget) { Color.clear }
         }
         .configurationDisplayName("Capital Grille")

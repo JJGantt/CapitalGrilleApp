@@ -15,6 +15,7 @@ struct WatchChatView: View {
     @ObservedObject private var capture = VoiceCapture.shared
     /// The `app_logs` interaction the recording under way belongs to (`VoiceLog`).
     @State private var voiceId = UUID()
+    @Environment(\.scenePhase) private var phase
 
     enum ChatState { case idle, thinking }
 
@@ -108,6 +109,9 @@ struct WatchChatView: View {
             }
         }
         .toolbar(.hidden, for: .navigationBar)
+        .onAppear(perform: startIfAsked)
+        .onChange(of: phase) { _, _ in startIfAsked() }
+        .onChange(of: capture.recordRequested) { _, _ in startIfAsked() }
         .task {
             if menuStore.menu == nil { menuStore.load() }
             await bottleStore.refreshFromSupabase()
@@ -226,6 +230,15 @@ struct WatchChatView: View {
                                 error: String(describing: error), ends: true)
             }
         }
+    }
+
+    /// Starts the recording the complication asked for, once the app is active — the same press as a
+    /// tap, so the same haptic and chirp. Nothing starts while a question is still being answered.
+    private func startIfAsked() {
+        guard capture.recordRequested, phase == .active else { return }
+        capture.recordRequested = false
+        guard capture.requestIsFresh, !capture.recording, chatState != .thinking else { return }
+        press()
     }
 
     private func cancelRecording() {

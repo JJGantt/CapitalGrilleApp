@@ -9,6 +9,21 @@ final class VoiceCapture: ObservableObject {
 
     @Published private(set) var recording = false
 
+    /// The complication asked for a recording (`capitalgrille://record`); the chat page starts it once
+    /// the app is active and showing. A request that could not be met right away (the app was not in
+    /// front) must not start a recording on whatever later raise of the wrist brings the app back, so
+    /// it lapses after `requestWindow` — StatusHub's watch does the same.
+    @Published var recordRequested = false
+    private(set) var requestedAt = Date.distantPast
+    static let requestWindow: TimeInterval = 20
+
+    func requestRecording() {
+        requestedAt = Date()
+        recordRequested = true
+    }
+
+    var requestIsFresh: Bool { Date().timeIntervalSince(requestedAt) < Self.requestWindow }
+
     private let recorder = Recorder()
     /// Started, microphone not open yet. A stop in this window cancels instead of sending.
     private var arming = false
