@@ -102,11 +102,13 @@ struct WatchRestockView: View {
             }
         } label: {
             Text(clearArmed ? "Confirm" : "Clear all")
-                .font(.system(size: 14))
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(clearArmed ? VoiceBorder.red : .white)
                 .frame(maxWidth: .infinity)
+                .padding(.vertical, 6)
+                .contentShape(Rectangle())
         }
-        .buttonStyle(.bordered)
-        .tint(clearArmed ? .red : nil)
+        .buttonStyle(.plain)
     }
 
     private func handleTap(on item: RestockItem) {

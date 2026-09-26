@@ -16,7 +16,9 @@ struct VoiceBorder: View {
     /// Wrist down: the system redraws too seldom to animate, so a sweep would freeze mid-way.
     @Environment(\.isLuminanceReduced) private var lowered
 
-    private static let recording = Color(red: 0xe5 / 255, green: 0x48 / 255, blue: 0x4d / 255)
+    /// StatusHub's red for a recording held open; the cancel X uses it too.
+    static let red = Color(red: 0xe5 / 255, green: 0x48 / 255, blue: 0x4d / 255)
+    private static let recording = red
     private static let working = Color.white
     private static let ring = Color(white: 0x40 / 255)
     /// Thickness of the line and of the opaque black band just inside it, in PIXELS.

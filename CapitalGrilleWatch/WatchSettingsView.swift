@@ -14,10 +14,13 @@ struct WatchSettingsView: View {
                     WKInterfaceDevice.current().play(.click)
                 } label: {
                     Text("Clear context")
-                        .font(.system(size: 14))
-                        .frame(maxWidth: .infinity)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.vertical, 4)
+                        .contentShape(Rectangle())
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(.plain)
 
                 section(title: "API key") {
                     Text(hasKey ? "Set (from iPhone)" : "Not set — open Settings on iPhone")

@@ -87,12 +87,12 @@ struct WatchChatView: View {
                     VStack {
                         Spacer()
                         Button(action: capture.recording ? cancelRecording : cancel) {
+                            // Bare on the black, in the recording border's red.
                             Image(systemName: "xmark")
-                                .font(.system(size: 15, weight: .semibold))
-                                .foregroundColor(.white)
-                                .frame(width: 36, height: 36)
-                                .background(Circle().fill(Color.white.opacity(0.15)))
-                                .contentShape(Circle())
+                                .font(.system(size: 22, weight: .semibold))
+                                .foregroundColor(VoiceBorder.red)
+                                .frame(width: 72, height: 52)
+                                .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                     }
