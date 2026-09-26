@@ -8,6 +8,14 @@ struct WatchChatView: View {
     @StateObject private var restockStore = RestockStore()
     @State private var chatState: ChatState = .idle
     @State private var lastPrompt = ""
+    /// What the hub heard, shown the moment the transcript is back and until the answer lands, so a
+    /// wrong transcription can be cancelled before the model has answered it.
+    @State private var pending: String?
+    /// The tool calls made so far for `pending`, oldest first, drawn under it as StatusHub's watch draws
+    /// a running turn's steps (`ActivityLines` there): one small violet monospace line each.
+    @State private var toolCalls: [String] = []
+    private static let toolInk = Color(red: 0xb3 / 255, green: 0x9d / 255, blue: 0xdb / 255)
+    private let pendingAnchor = "pending-anchor"
     @State private var response = ""
     @State private var errorMsg: String?
     @State private var currentTask: Task<Void, Never>?
@@ -126,7 +134,7 @@ struct WatchChatView: View {
     /// (`VoiceBorder`), as on StatusHub's watch.
     @ViewBuilder
     private var mainContent: some View {
-        if history.pairs.isEmpty {
+        if history.pairs.isEmpty && pending == nil {
             Button(action: press) {
                 VStack {
                     HStack {
@@ -160,6 +168,22 @@ struct WatchChatView: View {
                                     .id(isLatest ? responseAnchor : "pair-\(idx)")
                             }
                         }
+                        if let pending {
+                            Text(pending)
+                                .foregroundColor(.gray)
+                                .font(.system(size: 12, weight: .medium))
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .id(pendingAnchor)
+                            VStack(alignment: .leading, spacing: 4) {
+                                ForEach(Array(toolCalls.enumerated()), id: \.offset) { _, call in
+                                    Text(call)
+                                        .font(.system(size: 10, design: .monospaced))
+                                        .foregroundColor(Self.toolInk)
+                                        .lineLimit(2)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                }
+                            }
+                        }
                     }
                     .padding(.horizontal, 8)
                     .padding(.bottom, 8)
@@ -177,6 +201,12 @@ struct WatchChatView: View {
                 .onAppear {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
                         withAnimation(.none) { proxy.scrollTo(responseAnchor, anchor: .top) }
+                    }
+                }
+                .onChange(of: pending) { _, now in
+                    guard now != nil else { return }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                        withAnimation(.easeOut(duration: 0.2)) { proxy.scrollTo(pendingAnchor, anchor: .top) }
                     }
                 }
                 .onChange(of: history.pairs.count) { _, _ in
@@ -274,6 +304,7 @@ struct WatchChatView: View {
     private func cancel() {
         currentTask?.cancel()
         currentTask = nil
+        pending = nil
         chatState = .idle
         WKInterfaceDevice.current().play(.failure)
     }
@@ -297,6 +328,8 @@ struct WatchChatView: View {
         chatState = .thinking
         errorMsg = nil
         lastPrompt = prompt
+        pending = prompt
+        toolCalls = []
         currentTask = Task {
             do {
                 let answer = try await WatchAIClient.send(
@@ -306,9 +339,15 @@ struct WatchChatView: View {
                     menuStore: menuStore,
                     bottleStore: bottleStore,
                     restockStore: restockStore,
-                    interactionId: interactionId
+                    interactionId: interactionId,
+                    onActivity: { activity in
+                        // `name({…})` with the input pretty-printed; one line on the wrist.
+                        guard let activity else { return }
+                        toolCalls.append(activity.split(whereSeparator: \.isWhitespace).joined(separator: " "))
+                    }
                 )
                 if Task.isCancelled { return }
+                pending = nil
                 history.append(q: prompt, a: answer)
                 response = answer
                 // Strong two-pulse haptic when the answer lands.
@@ -317,6 +356,7 @@ struct WatchChatView: View {
                 // user cancelled — silent
             } catch {
                 if !Task.isCancelled {
+                    pending = nil
                     errorMsg = error.localizedDescription
                 }
             }
