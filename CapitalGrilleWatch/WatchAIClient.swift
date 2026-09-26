@@ -10,6 +10,7 @@ enum WatchAIClient {
                      menuStore: MenuStore,
                      bottleStore: BottleStore,
                      restockStore: RestockStore,
+                     interactionId: UUID,
                      onActivity: (@MainActor (String?) -> Void)? = nil) async throws -> String {
         let engine = ChatEngine(
             menuStore: menuStore,
@@ -25,6 +26,7 @@ enum WatchAIClient {
             """
         )
         let mapped = history.map { (question: $0.q, answer: $0.a) }
-        return try await engine.ask(question: prompt, history: mapped, sessionId: sessionId, onActivity: onActivity)
+        return try await engine.ask(question: prompt, history: mapped, sessionId: sessionId,
+                                    interactionId: interactionId, onActivity: onActivity)
     }
 }

@@ -38,8 +38,8 @@ final class ChatEngine {
     func ask(question: String,
              history: [(question: String, answer: String)],
              sessionId: String,
+             interactionId: UUID = UUID(),
              onActivity: (@MainActor (String?) -> Void)? = nil) async throws -> String {
-        let interactionId = UUID()
         let startedAt = Date()
 
         // Editable rule text comes from Supabase (app_content/system_prompt); on any

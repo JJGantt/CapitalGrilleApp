@@ -101,3 +101,22 @@ enum Transcriber {
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
+
+/// The voice path's steps, written to `app_logs` under the same `interaction_id` as the question they
+/// became, so a failed question shows every step from the press to the answer in one place. Kinds:
+/// `voice_mic_failed`, `voice_cancelled`, `voice_recorded` (latency = how long it recorded, output = the clip size),
+/// `voice_transcribed` (latency = the hub round trip, output = the words), `voice_transcribe_failed`,
+/// `voice_empty` (the hub heard no words). A step that ends the path flushes; otherwise `ChatEngine`
+/// flushes the whole interaction when it answers.
+enum VoiceLog {
+    static func record(_ kind: String, id: UUID, sessionId: String, output: String? = nil,
+                       error: String? = nil, latencyMs: Int? = nil, ends: Bool = false) {
+        Task {
+            await AppLogger.shared.record(.init(
+                timestamp: Date(), interactionId: id, sessionId: sessionId, backend: "watch:voice",
+                kind: kind, toolName: nil, input: nil, output: output, error: error,
+                latencyMs: latencyMs, tokensIn: nil, tokensOut: nil, userInput: nil, finalAnswer: nil))
+            if ends { await AppLogger.shared.flush(id) }
+        }
+    }
+}

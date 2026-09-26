@@ -10,7 +10,7 @@ actor AppLogger {
         let interactionId: UUID
         let sessionId: String?
         let backend: String?
-        let kind: String          // "interaction" | "api_request" | "api_error" | "tool_call" | "tool_error" | "fallback"
+        let kind: String          // "interaction" | "api_request" | "api_error" | "tool_call" | "tool_error" | "fallback" | "voice_*" (the watch's recording and transcription, VoiceLog)
         let toolName: String?
         let input: Any?           // JSON-serializable
         let output: String?

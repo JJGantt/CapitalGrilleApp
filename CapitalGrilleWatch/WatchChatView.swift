@@ -13,6 +13,8 @@ struct WatchChatView: View {
     @State private var activity: String?
     @State private var currentTask: Task<Void, Never>?
     @ObservedObject private var capture = VoiceCapture.shared
+    /// The `app_logs` interaction the recording under way belongs to (`VoiceLog`).
+    @State private var voiceId = UUID()
 
     enum ChatState { case idle, thinking }
 
@@ -216,8 +218,12 @@ struct WatchChatView: View {
             stopRecording()
         } else {
             errorMsg = nil
+            voiceId = UUID()
+            let id = voiceId
             capture.start(onTaken: stopRecording) { error in
                 errorMsg = error.localizedDescription
+                VoiceLog.record("voice_mic_failed", id: id, sessionId: history.sessionId,
+                                error: String(describing: error), ends: true)
             }
         }
     }
@@ -225,6 +231,7 @@ struct WatchChatView: View {
     private func cancelRecording() {
         guard capture.recording else { return }
         capture.cancel()
+        VoiceLog.record("voice_cancelled", id: voiceId, sessionId: history.sessionId, ends: true)
         WKInterfaceDevice.current().play(.failure)
     }
 
@@ -232,23 +239,38 @@ struct WatchChatView: View {
     private func stopRecording() {
         guard let clip = capture.stop() else { return }
         WKInterfaceDevice.current().play(.stop)
+        let id = voiceId
+        let session = history.sessionId
+        let bytes = (try? FileManager.default.attributesOfItem(atPath: clip.url.path)[.size] as? Int) ?? nil
+        VoiceLog.record("voice_recorded", id: id, sessionId: session, output: bytes.map { "\($0) bytes" },
+                        latencyMs: Int(clip.duration * 1000))
         chatState = .thinking
         errorMsg = nil
         activity = nil
         currentTask = Task {
             defer { try? FileManager.default.removeItem(at: clip.url) }
+            let sent = Date()
+            func elapsed() -> Int { Int(Date().timeIntervalSince(sent) * 1000) }
             do {
                 let words = try await Transcriber.transcribe(clip)
-                if Task.isCancelled { return }
+                if Task.isCancelled {
+                    VoiceLog.record("voice_cancelled", id: id, sessionId: session, output: words,
+                                    latencyMs: elapsed(), ends: true)
+                    return
+                }
                 guard !words.isEmpty else {
+                    VoiceLog.record("voice_empty", id: id, sessionId: session, latencyMs: elapsed(), ends: true)
                     chatState = .idle
                     currentTask = nil
                     WKInterfaceDevice.current().play(.failure)
                     return
                 }
+                VoiceLog.record("voice_transcribed", id: id, sessionId: session, output: words, latencyMs: elapsed())
                 currentTask = nil
-                send(prompt: words)
+                send(prompt: words, interactionId: id)
             } catch {
+                VoiceLog.record("voice_transcribe_failed", id: id, sessionId: session,
+                                error: String(describing: error), latencyMs: elapsed(), ends: true)
                 if !Task.isCancelled { errorMsg = error.localizedDescription }
                 chatState = .idle
                 currentTask = nil
@@ -283,7 +305,7 @@ struct WatchChatView: View {
         WKInterfaceDevice.current().play(.click)
     }
 
-    private func send(prompt: String) {
+    private func send(prompt: String, interactionId: UUID = UUID()) {
         chatState = .thinking
         errorMsg = nil
         activity = nil
@@ -297,6 +319,7 @@ struct WatchChatView: View {
                     menuStore: menuStore,
                     bottleStore: bottleStore,
                     restockStore: restockStore,
+                    interactionId: interactionId,
                     onActivity: { act in self.activity = act }
                 )
                 if Task.isCancelled { return }
