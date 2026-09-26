@@ -1,9 +1,16 @@
 import SwiftUI
+import WatchKit
 
 struct WatchRestockView: View {
     @StateObject private var store = RestockStore()
     @StateObject private var bottleStore = BottleStore()
     @State private var armedID: String?
+    /// The clear-all button has been pressed once and is waiting for the confirming press.
+    @State private var clearArmed = false
+
+    /// Where the first row sits, in points from the top of the glass: low enough that a full-width
+    /// line clears the 46mm display's rounded corner (StatusHub's watch measured the same, `Landing`).
+    private static let top: CGFloat = 32
 
     var body: some View {
         Group {
@@ -18,20 +25,27 @@ struct WatchRestockView: View {
                     .font(.system(size: 11))
                     .padding(8)
             } else {
-                List {
-                    Color.clear
-                        .frame(height: 32)
-                        .listRowBackground(Color.clear)
-                        .listRowInsets(EdgeInsets())
-                    ForEach(store.items) { item in
-                        rowButton(for: item)
-                            .listRowBackground(
-                                armedID == item.product_id
-                                    ? Color.red.opacity(0.35)
-                                    : Color.clear
-                            )
+                // A plain stack rather than a List: a watch List pads every row to a tall minimum,
+                // which spread a short list over several screens.
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 2) {
+                        ForEach(store.items) { item in
+                            rowButton(for: item)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 5)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(armedID == item.product_id ? Color.red.opacity(0.35) : Color.clear)
+                                )
+                        }
+                        clearAllButton
+                            .padding(.top, 10)
                     }
+                    .padding(.top, Self.top)
+                    .padding(.horizontal, 4)
+                    .padding(.bottom, 12)
                 }
+                .scrollIndicators(.never)
             }
         }
         .toolbar(.hidden, for: .navigationBar)
@@ -69,6 +83,30 @@ struct WatchRestockView: View {
             }
         }
         .buttonStyle(.plain)
+    }
+
+    /// Empties the whole list: the first press arms it (red), the second clears. Left unconfirmed it
+    /// disarms after 3s, the same as a row's delete.
+    private var clearAllButton: some View {
+        Button {
+            if clearArmed {
+                clearArmed = false
+                WKInterfaceDevice.current().play(.click)
+                Task { try? await store.clearAll() }
+            } else {
+                clearArmed = true
+                Task {
+                    try? await Task.sleep(nanoseconds: 3_000_000_000)
+                    clearArmed = false
+                }
+            }
+        } label: {
+            Text(clearArmed ? "Confirm" : "Clear all")
+                .font(.system(size: 14))
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.bordered)
+        .tint(clearArmed ? .red : nil)
     }
 
     private func handleTap(on item: RestockItem) {

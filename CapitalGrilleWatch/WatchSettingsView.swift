@@ -1,4 +1,5 @@
 import SwiftUI
+import WatchKit
 
 struct WatchSettingsView: View {
     @State private var backend = Backend.current
@@ -8,6 +9,16 @@ struct WatchSettingsView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                Button {
+                    WatchChatHistory.shared.clear()
+                    WKInterfaceDevice.current().play(.click)
+                } label: {
+                    Text("Clear context")
+                        .font(.system(size: 14))
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+
                 section(title: "API key") {
                     Text(hasKey ? "Set (from iPhone)" : "Not set — open Settings on iPhone")
                         .font(.system(size: 12))
@@ -43,7 +54,6 @@ struct WatchSettingsView: View {
             .padding(.vertical, 8)
         }
         .toolbar(.hidden, for: .navigationBar)
-        .ignoresSafeArea(edges: .top)
     }
 
     @ViewBuilder

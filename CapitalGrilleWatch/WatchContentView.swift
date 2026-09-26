@@ -9,7 +9,7 @@ struct WatchContentView: View {
             NavigationStack { WatchRestockView() }.tag(1)
             NavigationStack { WatchSettingsView() }.tag(2)
         }
-        .tabViewStyle(.page)
+        .tabViewStyle(.page(indexDisplayMode: .never))
         // The complication opens the app straight into a recording, on the chat page whichever page
         // was showing.
         .onOpenURL { url in

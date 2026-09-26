@@ -7,6 +7,9 @@ import Foundation
 /// caused fresh sessions to lose all context. UserDefaults survives kills and
 /// reboots.
 final class WatchChatHistory: ObservableObject {
+    /// One conversation, shared by the chat page and Settings (which clears it).
+    static let shared = WatchChatHistory()
+
     private(set) var sessionId: String
     private(set) var pairs: [(q: String, a: String)] = []
 
@@ -14,7 +17,7 @@ final class WatchChatHistory: ObservableObject {
     private static let sessionKey = "chatHistorySessionId"
     private static let maxPairs   = 40
 
-    init() {
+    private init() {
         let d = UserDefaults.standard
         self.sessionId = d.string(forKey: Self.sessionKey) ?? {
             let new = UUID().uuidString

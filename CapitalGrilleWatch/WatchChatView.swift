@@ -2,7 +2,7 @@ import SwiftUI
 import WatchKit
 
 struct WatchChatView: View {
-    @StateObject private var history = WatchChatHistory()
+    @ObservedObject private var history = WatchChatHistory.shared
     @StateObject private var menuStore = MenuStore()
     @StateObject private var bottleStore = BottleStore()
     @StateObject private var restockStore = RestockStore()
@@ -16,7 +16,6 @@ struct WatchChatView: View {
     @State private var toolCalls: [String] = []
     private static let toolInk = Color(red: 0xb3 / 255, green: 0x9d / 255, blue: 0xdb / 255)
     private let pendingAnchor = "pending-anchor"
-    @State private var response = ""
     @State private var errorMsg: String?
     @State private var currentTask: Task<Void, Never>?
     @ObservedObject private var capture = VoiceCapture.shared
@@ -32,22 +31,6 @@ struct WatchChatView: View {
         ZStack(alignment: .topLeading) {
             Color.black.ignoresSafeArea()
             mainContent
-            // Filled X button — opaque so content scrolling under it stays
-            // readable but the X is always prominent. Anchored to the very
-            // top-left of the screen.
-            if !history.pairs.isEmpty {
-                Button(action: clearResponse) {
-                    Image(systemName: "xmark.circle.fill")
-                        .resizable()
-                        .symbolRenderingMode(.palette)
-                        .foregroundStyle(Color.white, Color.black.opacity(0.85))
-                        .frame(width: 22, height: 22)
-                        .padding(6)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .ignoresSafeArea(edges: .top)
-            }
             if let err = errorMsg, !lastPrompt.isEmpty {
                 VStack {
                     Spacer()
@@ -120,6 +103,10 @@ struct WatchChatView: View {
             }
         }
         .toolbar(.hidden, for: .navigationBar)
+        // Cleared from Settings: a failed question's retry belongs to the conversation that went.
+        .onChange(of: history.pairs.isEmpty) { _, empty in
+            if empty { lastPrompt = ""; errorMsg = nil }
+        }
         .onAppear(perform: startIfAsked)
         .onChange(of: phase) { _, _ in startIfAsked() }
         .onChange(of: capture.recordRequested) { _, _ in startIfAsked() }
@@ -193,8 +180,8 @@ struct WatchChatView: View {
                     if at.y > WKInterfaceDevice.current().screenBounds.height / 2 { press() }
                 }
                 // Reserve a 32pt strip at the top so the newest response
-                // settles below the time + X button row when we scroll to
-                // the responseAnchor.
+                // settles below the clock row when we scroll to the
+                // responseAnchor.
                 .safeAreaInset(edge: .top) {
                     Color.clear.frame(height: 32)
                 }
@@ -314,16 +301,6 @@ struct WatchChatView: View {
         send(prompt: lastPrompt)
     }
 
-    private func clearResponse() {
-        withAnimation(.easeOut(duration: 0.2)) {
-            response = ""
-            lastPrompt = ""
-            errorMsg = nil
-            history.clear()
-        }
-        WKInterfaceDevice.current().play(.click)
-    }
-
     private func send(prompt: String, interactionId: UUID = UUID()) {
         chatState = .thinking
         errorMsg = nil
@@ -349,7 +326,6 @@ struct WatchChatView: View {
                 if Task.isCancelled { return }
                 pending = nil
                 history.append(q: prompt, a: answer)
-                response = answer
                 // Strong two-pulse haptic when the answer lands.
                 WKInterfaceDevice.current().play(.notification)
             } catch is CancellationError {
