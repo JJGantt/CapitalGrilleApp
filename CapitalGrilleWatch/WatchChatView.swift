@@ -10,7 +10,6 @@ struct WatchChatView: View {
     @State private var lastPrompt = ""
     @State private var response = ""
     @State private var errorMsg: String?
-    @State private var activity: String?
     @State private var currentTask: Task<Void, Never>?
     @ObservedObject private var capture = VoiceCapture.shared
     /// The `app_logs` interaction the recording under way belongs to (`VoiceLog`).
@@ -84,15 +83,19 @@ struct WatchChatView: View {
                     .disabled(chatState == .thinking)
                     .accessibilityHidden(true)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                // While recording, the whole glass is the press, and the x at the bottom throws it away.
+                // While recording, the whole glass is the press.
                 if capture.recording {
                     Color.clear
                         .contentShape(Rectangle())
                         .onTapGesture(perform: press)
                         .ignoresSafeArea()
+                }
+                // The x at the bottom throws away whatever is under way: the recording, or the
+                // question being transcribed and answered.
+                if capture.recording || chatState == .thinking {
                     VStack {
                         Spacer()
-                        Button(action: cancelRecording) {
+                        Button(action: capture.recording ? cancelRecording : cancel) {
                             Image(systemName: "xmark")
                                 .font(.system(size: 15, weight: .semibold))
                                 .foregroundColor(.white)
@@ -119,94 +122,72 @@ struct WatchChatView: View {
         }
     }
 
+    /// The page never changes while a question is worked on: the edge of the glass is the only sign
+    /// (`VoiceBorder`), as on StatusHub's watch.
     @ViewBuilder
     private var mainContent: some View {
-        switch chatState {
-        case .idle:
-            if history.pairs.isEmpty {
-                Button(action: press) {
-                    VStack {
-                        HStack {
-                            Text(">")
-                                .foregroundColor(.gray)
-                                .font(.system(size: 20, weight: .regular, design: .monospaced))
-                            Spacer()
-                        }
+        if history.pairs.isEmpty {
+            Button(action: press) {
+                VStack {
+                    HStack {
+                        Text(">")
+                            .foregroundColor(.gray)
+                            .font(.system(size: 20, weight: .regular, design: .monospaced))
                         Spacer()
                     }
-                    .padding(.leading, 6)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .contentShape(Rectangle())
+                    Spacer()
                 }
-                .buttonStyle(.plain)
-            } else {
-                ScrollViewReader { proxy in
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 14) {
-                            ForEach(Array(history.pairs.enumerated()), id: \.offset) { idx, pair in
-                                let isLatest = idx == history.pairs.count - 1
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(pair.q)
-                                        .foregroundColor(.gray)
-                                        .font(.system(size: 12, weight: .medium))
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                    Text(pair.a)
-                                        .foregroundColor(.white)
-                                        .font(.system(size: 13))
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                        .id(isLatest ? responseAnchor : "pair-\(idx)")
-                                }
+                .padding(.leading, 6)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+        } else {
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 14) {
+                        ForEach(Array(history.pairs.enumerated()), id: \.offset) { idx, pair in
+                            let isLatest = idx == history.pairs.count - 1
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(pair.q)
+                                    .foregroundColor(.gray)
+                                    .font(.system(size: 12, weight: .medium))
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                Text(pair.a)
+                                    .foregroundColor(.white)
+                                    .font(.system(size: 13))
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .id(isLatest ? responseAnchor : "pair-\(idx)")
                             }
                         }
-                        .padding(.horizontal, 8)
-                        .padding(.bottom, 8)
                     }
-                    .scrollIndicators(.never)
-                    .onTapGesture(coordinateSpace: .global) { at in
-                        if at.y > WKInterfaceDevice.current().screenBounds.height / 2 { press() }
-                    }
-                    // Reserve a 32pt strip at the top so the newest response
-                    // settles below the time + X button row when we scroll to
-                    // the responseAnchor.
-                    .safeAreaInset(edge: .top) {
-                        Color.clear.frame(height: 32)
-                    }
-                    .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                            withAnimation(.none) { proxy.scrollTo(responseAnchor, anchor: .top) }
-                        }
-                    }
-                    .onChange(of: history.pairs.count) { _, _ in
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                            withAnimation(.easeOut(duration: 0.2)) { proxy.scrollTo(responseAnchor, anchor: .top) }
-                        }
+                    .padding(.horizontal, 8)
+                    .padding(.bottom, 8)
+                }
+                .scrollIndicators(.never)
+                .onTapGesture(coordinateSpace: .global) { at in
+                    if at.y > WKInterfaceDevice.current().screenBounds.height / 2 { press() }
+                }
+                // Reserve a 32pt strip at the top so the newest response
+                // settles below the time + X button row when we scroll to
+                // the responseAnchor.
+                .safeAreaInset(edge: .top) {
+                    Color.clear.frame(height: 32)
+                }
+                .onAppear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                        withAnimation(.none) { proxy.scrollTo(responseAnchor, anchor: .top) }
                     }
                 }
-                // History scrolls up under the clock row; the idle prompt above
-                // keeps the top safe area so the screen's corner doesn't clip it.
-                .ignoresSafeArea(edges: .top)
-            }
-
-        case .thinking:
-            VStack(spacing: 10) {
-                ProgressView()
-                Text(activity ?? "Thinking…")
-                    .foregroundColor(.gray)
-                    .font(.system(size: 12))
-                    .lineLimit(2)
-                    .truncationMode(.middle)
-                    .multilineTextAlignment(.center)
-                Button(action: cancel) {
-                    Label("Cancel", systemImage: "stop.circle")
-                        .font(.system(size: 12, weight: .medium))
+                .onChange(of: history.pairs.count) { _, _ in
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                        withAnimation(.easeOut(duration: 0.2)) { proxy.scrollTo(responseAnchor, anchor: .top) }
+                    }
                 }
-                .tint(.red)
-                .buttonStyle(.bordered)
-                .controlSize(.small)
-                .handGestureShortcut(.primaryAction)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(.horizontal, 6)
+            // History scrolls up under the clock row; the idle prompt above
+            // keeps the top safe area so the screen's corner doesn't clip it.
+            .ignoresSafeArea(edges: .top)
         }
     }
 
@@ -259,7 +240,6 @@ struct WatchChatView: View {
                         latencyMs: Int(clip.duration * 1000))
         chatState = .thinking
         errorMsg = nil
-        activity = nil
         currentTask = Task {
             defer { try? FileManager.default.removeItem(at: clip.url) }
             let sent = Date()
@@ -294,13 +274,8 @@ struct WatchChatView: View {
     private func cancel() {
         currentTask?.cancel()
         currentTask = nil
-        activity = nil
         chatState = .idle
-        // Keep lastPrompt so the user can retry after cancelling — e.g. flip
-        // backend in Settings, then come back and tap Retry.
-        if !lastPrompt.isEmpty {
-            errorMsg = "Cancelled"
-        }
+        WKInterfaceDevice.current().play(.failure)
     }
 
     private func retry() {
@@ -321,7 +296,6 @@ struct WatchChatView: View {
     private func send(prompt: String, interactionId: UUID = UUID()) {
         chatState = .thinking
         errorMsg = nil
-        activity = nil
         lastPrompt = prompt
         currentTask = Task {
             do {
@@ -332,8 +306,7 @@ struct WatchChatView: View {
                     menuStore: menuStore,
                     bottleStore: bottleStore,
                     restockStore: restockStore,
-                    interactionId: interactionId,
-                    onActivity: { act in self.activity = act }
+                    interactionId: interactionId
                 )
                 if Task.isCancelled { return }
                 history.append(q: prompt, a: answer)
@@ -347,7 +320,6 @@ struct WatchChatView: View {
                     errorMsg = error.localizedDescription
                 }
             }
-            activity = nil
             if chatState == .thinking { chatState = .idle }
             currentTask = nil
         }
