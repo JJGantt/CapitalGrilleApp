@@ -4,12 +4,10 @@ import SwiftUI
 struct CapitalGrilleWatchApp: App {
     init() {
         APIKeyStore.seedFromSecretsIfNeeded()
-        // Force WatchPhoneRelay to spin up so it activates WCSession early
-        // and picks up any applicationContext (including the API key) the
-        // phone has already pushed.
-        _ = WatchPhoneRelay.shared
-        // Gating decides which backends and models are permitted. Unapplied, it
-        // stays on the bundled restricted profile (API + Haiku) and silently
+        // Activates WCSession early and picks up the API key the phone has already pushed.
+        _ = PhoneKeyReceiver.shared
+        // Gating decides which models are permitted. Unapplied, it
+        // stays on the bundled restricted profile (Haiku only) and silently
         // overrides whatever is picked in Settings.
         AppGate.apply()
         Task { await AppGate.refreshFromSupabase() }

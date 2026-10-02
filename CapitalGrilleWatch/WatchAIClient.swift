@@ -1,7 +1,7 @@
 import Foundation
 
-/// Thin wrapper around ChatEngine for the watch. Keeps Backend / model
-/// selection identical to the iOS app via the shared Backend / AIModel enums.
+/// Thin wrapper around ChatEngine for the watch. Keeps model selection
+/// identical to the iOS app via the shared AIModel enum.
 @MainActor
 enum WatchAIClient {
     static func send(prompt: String,

@@ -29,11 +29,6 @@ targets:
           - UIInterfaceOrientationPortrait
         NSMicrophoneUsageDescription: Lets you ask questions and add items by voice.
         NSSpeechRecognitionUsageDescription: Transcribes your voice into questions for the assistant.
-        NSAppTransportSecurity:
-          NSAllowsLocalNetworking: true
-          NSExceptionDomains:
-            "100.106.101.57":
-              NSExceptionAllowsInsecureHTTPLoads: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.jaredgantt.CapitalGrille
@@ -61,7 +56,6 @@ targets:
       - path: CapitalGrilleApp/AnthropicClient.swift
       - path: CapitalGrilleApp/AppLogger.swift
       - path: CapitalGrilleApp/APIKeyStore.swift
-      - path: CapitalGrilleApp/MacClient.swift
       - path: CapitalGrilleApp/ChatEngine.swift
       - path: CapitalGrilleApp/food-menu.json
         buildPhase: resources
@@ -83,11 +77,6 @@ targets:
         # silence StayAwake plays while an answer is on its way (CapitalGrilleWatch/StayAwake.swift).
         UIBackgroundModes:
           - audio
-        NSAppTransportSecurity:
-          NSAllowsLocalNetworking: true
-          NSExceptionDomains:
-            "100.106.101.57":
-              NSExceptionAllowsInsecureHTTPLoads: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.jaredgantt.CapitalGrille.watch

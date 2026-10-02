@@ -1,8 +1,7 @@
 import Foundation
 
 /// Shared chat engine — builds the system prompt + tool definitions from the
-/// app's stores and runs a single turn through either Mac (Claude Code) or
-/// direct Anthropic API. Used by both the iOS app and the watch app so they
+/// app's stores and runs a single turn through the Anthropic API. Used by both the iOS app and the watch app so they
 /// answer identically.
 @MainActor
 final class ChatEngine {
@@ -46,46 +45,16 @@ final class ChatEngine {
         // failure we fall back to the in-code literals, so the prompt never breaks.
         let remotePrompt = await Self.fetchPromptBlocks()
         let (systemStable, systemDynamic, tools) = buildPromptAndTools(remotePrompt: remotePrompt)
-        let combinedSystem = systemStable + "\n\n" + systemDynamic
 
-        func logInteraction(backend: String, answer: String?, error: String?) async {
+        func logInteraction(answer: String?, error: String?) async {
             await AppLogger.shared.record(.init(
                 timestamp: startedAt, interactionId: interactionId, sessionId: sessionId,
-                backend: "\(surface):\(backend)", kind: "interaction", toolName: nil, input: nil,
+                backend: "\(surface):api", kind: "interaction", toolName: nil, input: nil,
                 output: nil, error: error,
                 latencyMs: Int(Date().timeIntervalSince(startedAt) * 1000),
                 tokensIn: nil, tokensOut: nil,
                 userInput: question, finalAnswer: answer))
             await AppLogger.shared.flush(interactionId)
-        }
-
-        if Backend.current == .mac {
-            do {
-                let answer = try await MacClient.ask(
-                    question: question, history: history, systemPrompt: combinedSystem, mode: surface,
-                    sessionId: sessionId,
-                    onActivity: onActivity
-                )
-                await bottleStore.refreshFromSupabase()
-                await cocktailStore?.refreshFromRemote()
-                await restockStore.refresh()
-                await logInteraction(backend: "mac", answer: answer, error: nil)
-                return answer
-            } catch {
-                if Self.isConnectionError(error) {
-                    if let onActivity { await MainActor.run { onActivity("Mac unreachable — falling back to API") } }
-                    await AppLogger.shared.record(.init(
-                        timestamp: Date(), interactionId: interactionId, sessionId: sessionId,
-                        backend: "\(surface):mac", kind: "fallback", toolName: nil, input: nil,
-                        output: nil, error: error.localizedDescription,
-                        latencyMs: nil, tokensIn: nil, tokensOut: nil,
-                        userInput: nil, finalAnswer: nil))
-                    // fall through to Direct API
-                } else {
-                    await logInteraction(backend: "mac", answer: nil, error: error.localizedDescription)
-                    throw error
-                }
-            }
         }
 
         do {
@@ -101,10 +70,10 @@ final class ChatEngine {
             )
             await bottleStore.refreshFromSupabase()
             await restockStore.refresh()
-            await logInteraction(backend: "api", answer: answer, error: nil)
+            await logInteraction(answer: answer, error: nil)
             return answer
         } catch {
-            await logInteraction(backend: "api", answer: nil, error: error.localizedDescription)
+            await logInteraction(answer: nil, error: error.localizedDescription)
             throw error
         }
     }
@@ -170,17 +139,17 @@ final class ChatEngine {
         let areas = bottleStore.areas.map(\.name)
         let areasJSON = (try? String(data: JSONSerialization.data(withJSONObject: areas), encoding: .utf8)) ?? "[]"
 
-        let toolName = Backend.current == .mac ? "mcp__bottle__update_bottle_locations" : "update_bottle_locations"
-        let areaTool = Backend.current == .mac ? "mcp__bottle__edit_areas" : "edit_areas"
-        let restockTool = Backend.current == .mac ? "mcp__bottle__update_restock" : "update_restock"
-        let addProductTool = Backend.current == .mac ? "mcp__bottle__add_product" : "add_product"
-        let deleteProductTool = Backend.current == .mac ? "mcp__bottle__delete_product" : "delete_product"
-        let detailsTool = Backend.current == .mac ? "mcp__bottle__get_bottle_details" : "get_bottle_details"
-        let byVarietalTool = Backend.current == .mac ? "mcp__bottle__get_bottles_by_varietal" : "get_bottles_by_varietal"
-        let searchTool = Backend.current == .mac ? "mcp__bottle__search_bottles" : "search_bottles"
-        let pairingsTool = Backend.current == .mac ? "mcp__bottle__get_pairings" : "get_pairings"
-        let foodTool = Backend.current == .mac ? "mcp__bottle__get_food_menu" : "get_food_menu"
-        let seasonalTool = Backend.current == .mac ? "mcp__bottle__get_seasonal_program" : "get_seasonal_program"
+        let toolName = "update_bottle_locations"
+        let areaTool = "edit_areas"
+        let restockTool = "update_restock"
+        let addProductTool = "add_product"
+        let deleteProductTool = "delete_product"
+        let detailsTool = "get_bottle_details"
+        let byVarietalTool = "get_bottles_by_varietal"
+        let searchTool = "search_bottles"
+        let pairingsTool = "get_pairings"
+        let foodTool = "get_food_menu"
+        let seasonalTool = "get_seasonal_program"
 
         let restockCtx = restockStore.items.map { item -> [String: Any] in
             ["product_id": item.product_id, "quantity": item.quantity]
@@ -837,25 +806,5 @@ final class ChatEngine {
             addProductDef, deleteProductDef, setImageDef, updateDetailsDef,
         ]
         return (systemStable, systemDynamic, tools)
-    }
-
-    private static func isConnectionError(_ error: Error) -> Bool {
-        #if os(watchOS)
-        // Watch-specific: phone relay unreachable means we should fall back to API.
-        if case WatchPhoneRelay.RelayError.notReachable = error { return true }
-        #endif
-        let ns = error as NSError
-        guard ns.domain == NSURLErrorDomain else { return false }
-        switch ns.code {
-        case NSURLErrorCannotFindHost,
-             NSURLErrorCannotConnectToHost,
-             NSURLErrorNetworkConnectionLost,
-             NSURLErrorDNSLookupFailed,
-             NSURLErrorTimedOut,
-             NSURLErrorNotConnectedToInternet:
-            return true
-        default:
-            return false
-        }
     }
 }

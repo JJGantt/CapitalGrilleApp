@@ -8,7 +8,7 @@ struct CapitalGrilleApp: App {
         // let Supabase override it in the background if a config row exists.
         AppGate.apply()
         Task { await AppGate.refreshFromSupabase() }
-        WatchRelayHandler.activate()
+        WatchKeySync.activate()
         #if DEBUG
         // Diagnostic heartbeat — DEBUG only so TestFlight/App Store builds
         // don't ping Supabase on every cold start.

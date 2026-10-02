@@ -3,7 +3,6 @@ import SwiftUI
 struct SettingsView: View {
     @ObservedObject var bottleStore: BottleStore
     @Environment(\.dismiss) var dismiss
-    @State private var backend: Backend = Backend.current
     @State private var model: AIModel = AIModel.current
     @State private var newAreaName: String = ""
     @State private var renameTarget: BottleArea?
@@ -17,14 +16,6 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Backend") {
-                    GatedPicker(options: Backend.allCases,
-                                selection: $backend,
-                                isAllowed: { AppGate.allowedBackends.contains($0.rawValue) },
-                                label: { $0.label })
-                        .onChange(of: backend) { new in Backend.current = new }
-                }
-
                 Section("Anthropic API key") {
                     if showKeyEditor {
                         SecureField("sk-ant-…", text: $apiKeyDraft)
@@ -196,7 +187,7 @@ struct SettingsView: View {
     }
 
     private func pushKeyToWatch() {
-        WatchRelayHandler.shared.pushAPIKey(APIKeyStore.current)
+        WatchKeySync.shared.pushAPIKey(APIKeyStore.current)
     }
 
     private func remove(area: String) async {

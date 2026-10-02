@@ -2,7 +2,6 @@ import SwiftUI
 import WatchKit
 
 struct WatchSettingsView: View {
-    @State private var backend = Backend.current
     @State private var model = AIModel.current
     @State private var hasKey = APIKeyStore.current != nil
 
@@ -26,16 +25,6 @@ struct WatchSettingsView: View {
                     Text(hasKey ? "Set (from iPhone)" : "Not set — open Settings on iPhone")
                         .font(.system(size: 12))
                         .foregroundColor(hasKey ? .white : .red)
-                }
-
-                section(title: "Backend") {
-                    ForEach(Backend.allCases, id: \.self) { b in
-                        radioRow(label: b.label, selected: backend == b,
-                                 allowed: AppGate.allowedBackends.contains(b.rawValue)) {
-                            backend = b
-                            Backend.current = b
-                        }
-                    }
                 }
 
                 section(title: "Model") {
