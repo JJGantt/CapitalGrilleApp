@@ -77,6 +77,12 @@ targets:
         # silence StayAwake plays while an answer is on its way (CapitalGrilleWatch/StayAwake.swift).
         UIBackgroundModes:
           - audio
+        # capitalgrille://record is what the complication opens. Unregistered, the tap still opens the
+        # app but onOpenURL never receives the URL, so no recording starts.
+        CFBundleURLTypes:
+          - CFBundleURLName: com.jaredgantt.CapitalGrille.watch
+            CFBundleURLSchemes:
+              - capitalgrille
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.jaredgantt.CapitalGrille.watch
