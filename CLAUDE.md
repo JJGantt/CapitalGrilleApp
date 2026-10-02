@@ -2,10 +2,6 @@
 
 iOS + watchOS app, xcodegen-generated (`project.yml`). Team `XMH4AVFC78`.
 
-## Devices
-- iPhone (Jared's iPhone): `43E696C5-1412-5026-BEBF-914C7818B296`
-- Watch (Apple Watch SE 3): `15EAAA2F-0775-5655-839A-603F56EC9DE1`
-
 ## Getting a build onto Jared's devices: TestFlight, always
 Every build reaches his iPhone and watch through TestFlight: `./scripts/release.sh` (see "TestFlight release" below). Watch work in particular only ever goes this way. Do not build to a device id or `devicectl install` — that route needs his phone on the Mac's network and gets used by nobody.
 
