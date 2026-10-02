@@ -6,25 +6,13 @@ iOS + watchOS app, xcodegen-generated (`project.yml`). Team `XMH4AVFC78`.
 - iPhone (Jared's iPhone): `43E696C5-1412-5026-BEBF-914C7818B296`
 - Watch (Apple Watch SE 3): `15EAAA2F-0775-5655-839A-603F56EC9DE1`
 
-## Build & install
-```
-cd ~/repos/CapitalGrilleApp
-xcodegen generate                           # only if project.yml changed
-xcodebuild -project CapitalGrille.xcodeproj -scheme CapitalGrille \
-  -destination "id=43E696C5-1412-5026-BEBF-914C7818B296" -configuration Debug build
+## Getting a build onto Jared's devices: TestFlight, always
+Every build reaches his iPhone and watch through TestFlight: `./scripts/release.sh` (see "TestFlight release" below). Watch work in particular only ever goes this way. Do not build to a device id or `devicectl install` — that route needs his phone on the Mac's network and gets used by nobody.
 
-# iPhone
-xcrun devicectl device install app --device 43E696C5-1412-5026-BEBF-914C7818B296 \
-  ~/Library/Developer/Xcode/DerivedData/CapitalGrille-bwvudmifqxrusxbowtqpddxkllbd/Build/Products/Debug-iphoneos/CapitalGrille.app
-
-# Watch (direct, optional — phone install will normally push to watch automatically)
-xcrun devicectl device install app --device 15EAAA2F-0775-5655-839A-603F56EC9DE1 \
-  ~/Library/Developer/Xcode/DerivedData/CapitalGrille-bwvudmifqxrusxbowtqpddxkllbd/Build/Products/Debug-watchos/CapitalGrilleWatch.app
-```
-
-To check that a change compiles when no device is attached, build unsigned — `-destination "generic/platform=iOS" CODE_SIGNING_ALLOWED=NO`. A signed build with nothing to install onto proves no more.
+To check that a change compiles first, build unsigned — `xcodegen generate` if `project.yml` changed, then `xcodebuild -project CapitalGrille.xcodeproj -scheme CapitalGrille -destination "generic/platform=iOS" CODE_SIGNING_ALLOWED=NO build`.
 
 ## Watch install gotcha — "Could not install at this time"
+Only bites a direct Mac→device install, which is not how builds ship (above).
 Root cause: **Developer Mode on the watch is hidden until the system sees a dev-signed install attempt arrive via the direct Mac→Watch CoreDevice channel.** The iPhone→Watch app-relay path silently fails when Dev Mode is off, surfacing as an IDS socket timeout in `appconduitd` logs and a generic "Could not install at this time" dialog. App Store watch apps install fine because they don't need Dev Mode.
 
 ### Symptoms when Dev Mode is off on the watch
@@ -96,7 +84,7 @@ Architecture preference: the **backend is the source of truth**; the app derives
 - **Bottle catalog (`bottles` table):** NEVER add a bottle on my own initiative or from web research — the only valid reason a bottle exists is "we physically carry it," and only Jared knows that. Adding is allowed ONLY when he explicitly asks. **Editing/correcting and deleting ARE allowed without asking each time, once I've confirmed the facts via sources** (e.g. delete a phantom row, enrich a tasting note). He wants rich, accurate, sourced detail in the data, not thin notes. Phantom rows have null locations; real bottles occupy a shelf slot (primary_area/column/row).
 - **Dish questions:** NEVER describe a menu item from generic/"standard" culinary knowledge. Pull the ACTUAL ingredients from the menu in Supabase (`menu_dishes`, or the `get_food_menu` tool) first (Generous Pour items lacking recipe detail usually appear on the regular menu with full `portion`/`description`). Guessing teaches him wrong facts he'll repeat on the floor.
 - **Description style (grapes/regions/producers/tasting notes):** write FOR A LEARNER, not an insider. Never use an undefined industry term (DOC/DOCG, AVA, appellation, Charmat, field blend, blanc de blancs, "single varietal", "Mash #1"…) — define it in the same sentence or cut it. Don't lead with shouty EXACT/ESTIMATE labels on wine grapes; convey confidence in plain words ("the winery confirms this exact mix" / "they don't publish amounts, so this is an estimate"). Explain US labeling plainly ("a US wine named for one grape must be ≥75% that grape"). Include all vital info, no padding; clarity over brevity. (Whiskey grain-bill/cask notes keep EXACT/ESTIMATE labels per his earlier explicit request.)
-- **TestFlight:** NEVER run `scripts/release.sh` / push a build unless Jared explicitly asks in that moment. Building/compiling to verify is fine; shipping is not. When he's home he builds straight to his phone — an unprompted push wastes a build number and submits a beta review he didn't ask for. After app changes, just report that it builds and offer TestFlight as an option.
+- **TestFlight:** it is the only way a build reaches his devices — never attempt a direct install. Ship with `scripts/release.sh` when he asks for the change on his phone or watch.
 
 ## Menu learning notes
 Jared bartends at Capital Grille (since 2026-06-12) and is learning the menu (wine, whiskey, pairings). The living study log is at `~/Life/Learn/capital-grille-menu.md` (deliberately separate from this app) — update it as new topics are covered.
