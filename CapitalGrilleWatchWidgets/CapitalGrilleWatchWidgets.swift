@@ -5,6 +5,7 @@ import SwiftUI
 struct CapitalGrilleWatchWidgets: WidgetBundle {
     var body: some Widget {
         CapitalGrilleComplication()
+        BlankRecordComplication()
         if #available(watchOS 26.0, *) {
             OpenControl()
         }
@@ -24,6 +25,23 @@ struct CapitalGrilleComplication: Widget {
         }
         .configurationDisplayName("Capital Grille")
         .description("Capital Grille")
+        .supportedFamilies([.accessoryCircular, .accessoryCorner])
+    }
+}
+
+/// The same button under a new kind, so a face that cached the first complication's old drawing can
+/// take one that has never been drawn any other way. Leave both: a kind that disappears drops off
+/// every face that holds it.
+struct BlankRecordComplication: Widget {
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: "BlankRecordComplication", provider: Provider()) { _ in
+            Color.clear
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .widgetURL(URL(string: "capitalgrille://record"))
+                .containerBackground(for: .widget) { Color.clear }
+        }
+        .configurationDisplayName("Capital Grille Blank")
+        .description("Capital Grille Blank")
         .supportedFamilies([.accessoryCircular, .accessoryCorner])
     }
 }
