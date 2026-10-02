@@ -26,8 +26,14 @@ EXPORT_OPTIONS="/tmp/CapitalGrille-ExportOptions.plist"
 # The team's signing identities live in the gnarcast-build keychain (made by surf-app's
 # tools/testflight.sh), which locks itself after two hours idle. Unlocked with its own saved password,
 # the same way that script does; left locked, codesign stops the archive on a password dialog.
-security unlock-keychain -p "$(cat "$HOME/.appstoreconnect/private_keys/gnarcast-build-keychain.password")" \
-    "$HOME/Library/Keychains/gnarcast-build.keychain-db"
+# It is on the keychain search list only while this script runs: left there permanently, every
+# ordinary build and codesign on the Mac finds its identities, hits it locked, and asks Jared for a
+# password he does not have.
+KC="$HOME/Library/Keychains/gnarcast-build.keychain-db"
+security unlock-keychain -p "$(cat "$HOME/.appstoreconnect/private_keys/gnarcast-build-keychain.password")" "$KC"
+SEARCH_LIST=$(security list-keychains -d user | xargs -n1 | grep -v gnarcast-build | xargs)
+trap 'security list-keychains -d user -s $SEARCH_LIST' EXIT
+security list-keychains -d user -s "$KC" $SEARCH_LIST
 
 # --- bump build number in project.yml ---
 current=$(awk '/^[[:space:]]+CURRENT_PROJECT_VERSION:/ {gsub(/"/,"",$2); print $2; exit}' project.yml)
