@@ -5,13 +5,13 @@ import Foundation
 @MainActor
 enum WatchAIClient {
     static func send(prompt: String,
-                     history: [(q: String, a: String)],
+                     history: [ChatTurn],
                      sessionId: String,
                      menuStore: MenuStore,
                      bottleStore: BottleStore,
                      restockStore: RestockStore,
                      interactionId: UUID,
-                     onActivity: (@MainActor (String?) -> Void)? = nil) async throws -> String {
+                     onActivity: (@MainActor (String?) -> Void)? = nil) async throws -> ChatTurn {
         let engine = ChatEngine(
             menuStore: menuStore,
             bottleStore: bottleStore,
@@ -25,8 +25,7 @@ enum WatchAIClient {
             If the user asks for a list (ingredients, components, options), give the actual list, one item per line. If they ask a one-fact question, give one sentence. Length matches what the answer requires — never pad, never substitute a summary for a list when components were asked for.
             """
         )
-        let mapped = history.map { (question: $0.q, answer: $0.a) }
-        return try await engine.ask(question: prompt, history: mapped, sessionId: sessionId,
+        return try await engine.ask(question: prompt, history: history, sessionId: sessionId,
                                     interactionId: interactionId, onActivity: onActivity)
     }
 }

@@ -11,9 +11,12 @@ final class WatchChatHistory: ObservableObject {
     static let shared = WatchChatHistory()
 
     private(set) var sessionId: String
-    private(set) var pairs: [(q: String, a: String)] = []
+    private(set) var pairs: [ChatTurn] = []
 
-    private static let pairsKey   = "chatHistoryPairs"
+    /// Turns carry their tool calls (`ChatTurn`). The old question/answer-only history under
+    /// "chatHistoryPairs" is dropped rather than carried over: tool-less "Added X" answers are what
+    /// taught the model to claim an add without making it.
+    private static let pairsKey   = "chatHistoryTurns"
     private static let sessionKey = "chatHistorySessionId"
     private static let maxPairs   = 40
 
@@ -24,15 +27,16 @@ final class WatchChatHistory: ObservableObject {
             d.set(new, forKey: Self.sessionKey)
             return new
         }()
+        d.removeObject(forKey: "chatHistoryPairs")
         if let data = d.data(forKey: Self.pairsKey),
-           let stored = try? JSONDecoder().decode([Pair].self, from: data) {
-            self.pairs = stored.map { (q: $0.q, a: $0.a) }
+           let stored = try? JSONDecoder().decode([ChatTurn].self, from: data) {
+            self.pairs = stored
         }
     }
 
-    func append(q: String, a: String) {
+    func append(_ turn: ChatTurn) {
         objectWillChange.send()
-        pairs.append((q: q, a: a))
+        pairs.append(turn)
         if pairs.count > Self.maxPairs { pairs.removeFirst() }
         persist()
     }
@@ -48,14 +52,7 @@ final class WatchChatHistory: ObservableObject {
     }
 
     private func persist() {
-        let stored = pairs.map { Pair(q: $0.q, a: $0.a) }
-        guard let data = try? JSONEncoder().encode(stored) else { return }
+        guard let data = try? JSONEncoder().encode(pairs) else { return }
         UserDefaults.standard.set(data, forKey: Self.pairsKey)
-    }
-
-    /// Codable shape — tuples aren't Codable, hence the wrapper.
-    private struct Pair: Codable {
-        let q: String
-        let a: String
     }
 }

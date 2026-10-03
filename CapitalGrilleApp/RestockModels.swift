@@ -53,7 +53,7 @@ final class RestockStore: ObservableObject {
             } else {
                 items.append(RestockItem(
                     product_id: pid,
-                    product_kind: (u["product_kind"] as? String) ?? "wine",
+                    product_kind: (u["product_kind"] as? String) ?? "liquor",
                     quantity: qty,
                     name: u["name"] as? String,
                     added_at: nil
@@ -69,7 +69,7 @@ final class RestockStore: ObservableObject {
                 if qty <= 0 {
                     try await SupabaseClient.shared.delete(path: "restock_items?product_id=eq.\(pid)")
                 } else {
-                    let kind = (u["product_kind"] as? String) ?? "wine"
+                    let kind = (u["product_kind"] as? String) ?? "liquor"
                     var row: [String: Any] = ["product_id": pid, "product_kind": kind, "quantity": qty]
                     if let name = u["name"] as? String, !name.isEmpty {
                         row["name"] = name

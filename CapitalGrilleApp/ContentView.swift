@@ -78,8 +78,9 @@ struct ContentView: View {
 
     struct QAExchange: Identifiable {
         let id = UUID()
-        let question: String
-        let answer: String
+        let turn: ChatTurn
+        var question: String { turn.question }
+        var answer: String { turn.answer }
     }
 
     var body: some View {
@@ -437,7 +438,7 @@ struct ContentView: View {
 
     func askAI(question: String) {
         guard !aiBusy else { return }
-        let history = aiHistory.map { (question: $0.question, answer: $0.answer) }
+        let history = aiHistory.map(\.turn)
         aiBusy = true
         aiError = nil
         aiActivity = nil
@@ -447,9 +448,9 @@ struct ContentView: View {
 
         Task {
             do {
-                let answer = try await askAnything(question: question, history: history)
+                let turn = try await askAnything(question: question, history: history)
                 await MainActor.run {
-                    aiHistory.append(QAExchange(question: question, answer: answer))
+                    aiHistory.append(QAExchange(turn: turn))
                     pendingQuestion = nil
                     aiBusy = false
                     aiActivity = nil
@@ -466,7 +467,7 @@ struct ContentView: View {
     }
 
     @MainActor
-    private func askAnything(question: String, history: [(question: String, answer: String)]) async throws -> String {
+    private func askAnything(question: String, history: [ChatTurn]) async throws -> ChatTurn {
         let engine = ChatEngine(menuStore: store, bottleStore: bottleStore, restockStore: restockStore, cocktailStore: cocktailStore, surface: "ios")
         return try await engine.ask(question: question, history: history, sessionId: aiSessionId) { activity in
             self.aiActivity = activity

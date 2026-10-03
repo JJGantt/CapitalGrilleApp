@@ -30,42 +30,27 @@ struct AnthropicClient {
     static let endpoint = URL(string: "https://api.anthropic.com/v1/messages")!
     static let version = "2023-06-01"
 
-    // MARK: - Food (no tools)
-
-    static func chat(question: String, history: [(question: String, answer: String)], menuJSON: String,
-                     interactionId: UUID, sessionId: String?) async throws -> String {
-        let systemStable = """
-        You are a quick reference assistant for The Capital Grille bartender/server training. Below is the complete menu data (JSON) — dishes, prices, ingredients, portions, prep, talking points, etc. Use this to answer questions accurately.
-
-        Be concise — 1-3 sentences unless the user asks for a list or detail. If a question can be answered from the data, do so. If not, say so plainly rather than guessing.
-
-        MENU DATA:
-        \(menuJSON)
-        """
-        return try await chatWithTools(question: question, history: history, systemStable: systemStable, systemDynamic: "", tools: [], interactionId: interactionId, sessionId: sessionId)
-    }
-
     // MARK: - General multi-turn with optional tools
 
     static func chatWithTools(question: String,
-                              history: [(question: String, answer: String)],
+                              history: [ChatTurn],
                               systemStable: String,
                               systemDynamic: String,
                               tools: [AnthropicTool],
                               interactionId: UUID,
                               sessionId: String?,
-                              onActivity: (@MainActor (String?) -> Void)? = nil) async throws -> String {
+                              onActivity: (@MainActor (String?) -> Void)? = nil) async throws -> ChatTurn {
         guard let apiKey = APIKeyStore.current, APIKeyStore.looksValid(apiKey) else {
             throw AnthropicError.noAPIKey
         }
 
-        // Build messages: prior history as plain text, then current user question.
+        // Prior turns go back WITH the tools they called, as real tool_use/tool_result blocks. Sent as
+        // question/answer text alone, the model reads a run of its own "Added X" answers with no tool
+        // behind them and starts answering "Added" without calling anything.
         var messages: [[String: Any]] = []
-        for ex in history {
-            messages.append(["role": "user", "content": ex.question])
-            messages.append(["role": "assistant", "content": ex.answer])
-        }
+        for turn in history { messages += turn.messages }
         messages.append(["role": "user", "content": question])
+        var traces: [ToolTrace] = []
 
         // Loop: send → if tool_use, run handlers, append results, send again.
         // Cap at a reasonable number of turns to avoid infinite loops.
@@ -147,6 +132,8 @@ struct AnthropicClient {
                     input: input, output: resultText, error: toolError, latencyMs: toolLatency,
                     tokensIn: nil, tokensOut: nil, userInput: nil, finalAnswer: nil))
 
+                let inputJSON = (try? String(data: JSONSerialization.data(withJSONObject: input), encoding: .utf8)) ?? "{}"
+                traces.append(ToolTrace(id: id, name: name, inputJSON: inputJSON, result: resultText, isError: isError))
                 toolResults.append([
                     "type": "tool_result",
                     "tool_use_id": id,
@@ -160,7 +147,8 @@ struct AnthropicClient {
         if let onActivity {
             await MainActor.run { onActivity(nil) }
         }
-        return collectedText.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
+        let answer = collectedText.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
+        return ChatTurn(question: question, answer: answer, tools: traces)
     }
 
     // MARK: - Single API call
@@ -234,4 +222,41 @@ struct AnthropicClient {
             tokensOut: usage?["output_tokens"] as? Int
         )
     }
+}
+
+/// One question and its answer, with every tool the answer called. Kept in chat history so the next
+/// request shows the model what it actually did, not only what it said.
+struct ChatTurn: Codable {
+    let question: String
+    let answer: String
+    var tools: [ToolTrace] = []
+
+    /// A long tool result (a menu section) is cut in history: the call and its outcome are what
+    /// matter later, and the model can call again for the detail.
+    private static let resultLimit = 400
+
+    /// The turn as API messages: question, the tool calls and their results, then the answer.
+    var messages: [[String: Any]] {
+        var out: [[String: Any]] = [["role": "user", "content": question]]
+        if !tools.isEmpty {
+            out.append(["role": "assistant", "content": tools.map { t -> [String: Any] in
+                let input = (try? JSONSerialization.jsonObject(with: Data(t.inputJSON.utf8))) ?? [String: Any]()
+                return ["type": "tool_use", "id": t.id, "name": t.name, "input": input]
+            }])
+            out.append(["role": "user", "content": tools.map { t -> [String: Any] in
+                let r = t.result.count > Self.resultLimit ? String(t.result.prefix(Self.resultLimit)) + "…" : t.result
+                return ["type": "tool_result", "tool_use_id": t.id, "content": r, "is_error": t.isError]
+            }])
+        }
+        out.append(["role": "assistant", "content": answer.isEmpty ? "(no answer)" : answer])
+        return out
+    }
+}
+
+struct ToolTrace: Codable {
+    let id: String
+    let name: String
+    let inputJSON: String
+    let result: String
+    let isError: Bool
 }

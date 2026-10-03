@@ -35,10 +35,10 @@ final class ChatEngine {
     }
 
     func ask(question: String,
-             history: [(question: String, answer: String)],
+             history: [ChatTurn],
              sessionId: String,
              interactionId: UUID = UUID(),
-             onActivity: (@MainActor (String?) -> Void)? = nil) async throws -> String {
+             onActivity: (@MainActor (String?) -> Void)? = nil) async throws -> ChatTurn {
         let startedAt = Date()
 
         // Editable rule text comes from Supabase (app_content/system_prompt); on any
@@ -58,7 +58,7 @@ final class ChatEngine {
         }
 
         do {
-            let answer = try await AnthropicClient.chatWithTools(
+            let turn = try await AnthropicClient.chatWithTools(
                 question: question,
                 history: history,
                 systemStable: systemStable,
@@ -70,8 +70,8 @@ final class ChatEngine {
             )
             await bottleStore.refreshFromSupabase()
             await restockStore.refresh()
-            await logInteraction(answer: answer, error: nil)
-            return answer
+            await logInteraction(answer: turn.answer, error: nil)
+            return turn
         } catch {
             await logInteraction(answer: nil, error: error.localizedDescription)
             throw error
@@ -277,7 +277,9 @@ final class ChatEngine {
         - Quantity in update_restock is ABSOLUTE (the new total), not a delta. For relative phrasing like "take one off", compute the new value (current − 1) from the CURRENT RESTOCK LIST. Result ≤ 0 → quantity: 0 to remove.
         - For any product already in the catalog (wines OR liquors), use its existing id from the catalog skeleton and product_kind matching its kind. Omit the name field.
         - For items that don't match any real product (oranges, lemons, lime juice, ice, paper towels...), add as free-text: product_kind: "misc", product_id: a kebab-case slug of the name (e.g. "oranges", "lime-juice"), AND set the name field to the human-readable string ("Oranges", "Lime juice").
-        - Match aggressively against real products when the user's phrasing plausibly refers to one. If it's clearly not in the product list, free-text. If it's ambiguous, ASK rather than guessing.
+        - NEVER ask a follow-up about a restock item: the answer is not read, so a question means nothing gets added. Add the closest product in the catalog skeleton and name what you added, so a wrong pick is visible. Match by sound, because the request is speech-to-text and names arrive mangled ("Hendrix" → Hendrick's Gin, "Angel Ride" → Angel's Envy Rye, "Gregory's Citron" → Ketel One Citroen). Only when nothing is even close, add it as free-text with the words as heard.
+        - "Add X" for an item already on the list means one more: current quantity + 1.
+        - Never say an item was added, changed or removed unless update_restock was called for it in this turn and returned "Saved". The history shows each earlier turn's tool calls; an earlier "Added" is not this turn's add.
         - Batch multiple items in one call when the user lists them in sequence.
 
         Catalog rules:
@@ -665,9 +667,22 @@ final class ChatEngine {
                 "required": ["updates"]
             ],
             handler: { input in
-                let updates = (input["updates"] as? [[String: Any]]) ?? []
+                // A catalogued bottle's kind comes from its own row, never from the model: left to the
+                // model it gets omitted or wrong, and the upsert overwrites a right kind with it.
+                let updates = ((input["updates"] as? [[String: Any]]) ?? []).map { u -> [String: Any] in
+                    var u = u
+                    if let pid = u["product_id"] as? String, let kind = bottleStore.bottles[pid]?.kind {
+                        u["product_kind"] = kind
+                    }
+                    return u
+                }
                 try await restockStore.apply(updates)
-                return "Updated restock list (\(updates.count) change(s))."
+                // The list as it now stands, so the answer reports what landed.
+                let now = restockStore.items.map { item -> String in
+                    let name = item.name ?? bottleStore.bottles[item.product_id]?.displayName ?? item.product_id
+                    return "\(name) ×\(item.quantity)"
+                }
+                return "Saved. Restock list now: " + (now.isEmpty ? "(empty)" : now.joined(separator: ", "))
             }
         )
 

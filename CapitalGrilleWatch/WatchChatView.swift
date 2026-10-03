@@ -146,11 +146,11 @@ struct WatchChatView: View {
                         ForEach(Array(history.pairs.enumerated()), id: \.offset) { idx, pair in
                             let isLatest = idx == history.pairs.count - 1
                             VStack(alignment: .leading, spacing: 4) {
-                                Text(pair.q)
+                                Text(pair.question)
                                     .foregroundColor(.gray)
                                     .font(.system(size: 12, weight: .medium))
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                                Text(pair.a)
+                                Text(pair.answer)
                                     .foregroundColor(.white)
                                     .font(.system(size: 13))
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -311,7 +311,7 @@ struct WatchChatView: View {
         toolCalls = []
         currentTask = Task {
             do {
-                let answer = try await WatchAIClient.send(
+                let turn = try await WatchAIClient.send(
                     prompt: prompt,
                     history: history.pairs,
                     sessionId: history.sessionId,
@@ -327,7 +327,7 @@ struct WatchChatView: View {
                 )
                 if Task.isCancelled { return }
                 pending = nil
-                history.append(q: prompt, a: answer)
+                history.append(turn)
                 // Strong two-pulse haptic when the answer lands.
                 WKInterfaceDevice.current().play(.notification)
             } catch is CancellationError {
