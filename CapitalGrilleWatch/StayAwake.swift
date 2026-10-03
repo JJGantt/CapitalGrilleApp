@@ -25,6 +25,9 @@ final class StayAwake {
     /// The minute ran out on this wait: nothing restarts the hold until the chat stops thinking.
     private var spent = false
 
+    /// Told when the minute runs out with the chat still thinking, so the log shows the app was let go.
+    var onExpired: (() -> Void)?
+
     private init() {}
 
     /// Holds while `on`, lets go when not. Called whenever the chat's thinking state changes.
@@ -54,6 +57,7 @@ final class StayAwake {
                     guard let self, self.holding, self.hold == this else { return }
                     self.spent = true
                     self.stop()
+                    self.onExpired?()
                 }
             }
             holding = true

@@ -108,9 +108,21 @@ struct WatchChatView: View {
             if empty { lastPrompt = ""; errorMsg = nil }
         }
         .onAppear(perform: startIfAsked)
-        .onChange(of: phase) { _, _ in startIfAsked() }
+        .onChange(of: phase) { _, now in
+            // Wrist down and up mid-question, in the log: a slow answer can then be told apart from
+            // one that sat suspended.
+            if chatState == .thinking {
+                VoiceLog.record("voice_phase", id: voiceId, sessionId: history.sessionId, output: "\(now)")
+            }
+            startIfAsked()
+        }
         // Kept running wrist-down while the answer is on its way (StayAwake), and let go when it lands.
-        .onChange(of: chatState) { _, now in StayAwake.shared.set(now == .thinking) }
+        .onChange(of: chatState) { _, now in
+            StayAwake.shared.onExpired = { [voiceId, sessionId = history.sessionId] in
+                VoiceLog.record("voice_stay_awake_expired", id: voiceId, sessionId: sessionId)
+            }
+            StayAwake.shared.set(now == .thinking)
+        }
         .onChange(of: capture.recordRequested) { _, _ in startIfAsked() }
         .task {
             if menuStore.menu == nil { menuStore.load() }
@@ -266,7 +278,7 @@ struct WatchChatView: View {
             let sent = Date()
             func elapsed() -> Int { Int(Date().timeIntervalSince(sent) * 1000) }
             do {
-                let words = try await Transcriber.transcribe(clip)
+                let words = try await Transcriber.transcribe(clip, interactionId: id)
                 if Task.isCancelled {
                     VoiceLog.record("voice_cancelled", id: id, sessionId: session, output: words,
                                     latencyMs: elapsed(), ends: true)
