@@ -2,8 +2,8 @@ import SwiftUI
 import WatchKit
 
 struct WatchRestockView: View {
-    @StateObject private var store = RestockStore()
-    @StateObject private var bottleStore = BottleStore()
+    @EnvironmentObject private var store: RestockStore
+    @EnvironmentObject private var bottleStore: BottleStore
     @State private var armedID: String?
     /// The clear-all button has been pressed once and is waiting for the confirming press.
     @State private var clearArmed = false
@@ -14,7 +14,10 @@ struct WatchRestockView: View {
 
     var body: some View {
         Group {
-            if store.items.isEmpty && store.loadError == nil {
+            if !store.loaded && store.loadError == nil {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if store.items.isEmpty && store.loadError == nil {
                 Text("Restock list empty")
                     .foregroundColor(.gray)
                     .font(.system(size: 12))
@@ -50,10 +53,9 @@ struct WatchRestockView: View {
         }
         .toolbar(.hidden, for: .navigationBar)
         .ignoresSafeArea(edges: .top)
-        .task {
-            await bottleStore.refreshFromSupabase()
-            await store.refresh()
-        }
+        // Names and backup spots come from the catalog the chat page loads; this page fetches only
+        // the list, each time it is turned to.
+        .onAppear { Task { await store.refresh() } }
     }
 
     @ViewBuilder

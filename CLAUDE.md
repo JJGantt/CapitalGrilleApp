@@ -62,6 +62,8 @@ nothing restarts it until the chat stops thinking). It does not speed up the dim
 ## In-app AI assistant
 `ChatEngine.swift` answers through the Anthropic API (`AnthropicClient.chatWithTools`), with its tools as the `AnthropicTool` handlers in the same file.
 
+**Chat history carries each turn's tool calls** (`ChatTurn`/`ToolTrace` in `AnthropicClient.swift`), replayed to the model as real `tool_use`/`tool_result` blocks with long results cut. Sent as question/answer text alone, the model sees its own run of "Added X" answers with no tool behind them and starts claiming adds it never makes. `update_restock` answers with the list as it now stands, and takes a catalogued bottle's kind from the bottle's own row rather than the model. On the watch, the chat page and the restock page share one `BottleStore` and one `RestockStore` (owned by `WatchContentView`), so a voice add is already on the restock page and that page fetches only the list.
+
 The **system prompt** is built in-app (`buildPromptAndTools`). Editable rule blocks live **remotely in Supabase `app_content` (key=`system_prompt`, JSON `data`: restock/food_menu/base_rules/catalog_rules/cocktail_routing)** and **override** the in-code fallbacks; they use `{{tool}}`/`{{data}}` placeholders resolved at runtime. Update the remote block to change live behavior. The **catalog skeleton** injected into the cached prompt prefix is built dynamically from `bottleStore` — enrich it by editing `formatBottle`, no data migration. All app content (bottles, pairings, glossary, descriptions, views) is backend data: adding/editing content needs no rebuild; only a new grouping FIELD or new UI/tool needs a build.
 
 ## Bottle / wine / liquor data model

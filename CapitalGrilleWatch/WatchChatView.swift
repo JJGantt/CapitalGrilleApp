@@ -4,8 +4,8 @@ import WatchKit
 struct WatchChatView: View {
     @ObservedObject private var history = WatchChatHistory.shared
     @StateObject private var menuStore = MenuStore()
-    @StateObject private var bottleStore = BottleStore()
-    @StateObject private var restockStore = RestockStore()
+    @EnvironmentObject private var bottleStore: BottleStore
+    @EnvironmentObject private var restockStore: RestockStore
     @State private var chatState: ChatState = .idle
     @State private var lastPrompt = ""
     /// What the hub heard, shown the moment the transcript is back and until the answer lands, so a
@@ -114,8 +114,10 @@ struct WatchChatView: View {
         .onChange(of: capture.recordRequested) { _, _ in startIfAsked() }
         .task {
             if menuStore.menu == nil { menuStore.load() }
+            // The restock list is tiny; it does not wait behind the catalog.
+            async let restock: Void = restockStore.refresh()
             await bottleStore.refreshFromSupabase()
-            await restockStore.refresh()
+            await restock
         }
     }
 

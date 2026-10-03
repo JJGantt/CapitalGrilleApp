@@ -15,12 +15,15 @@ struct RestockItem: Codable, Identifiable, Hashable {
 final class RestockStore: ObservableObject {
     @Published var items: [RestockItem] = []
     @Published var loadError: String?
+    /// The first fetch has landed: before it, an empty `items` means "not known yet", not an empty list.
+    @Published private(set) var loaded = false
 
     func refresh() async {
         do {
             let rows: [RestockItem] = try await SupabaseClient.shared.get(path: "restock_items?select=*&order=added_at.asc")
             self.items = rows
             self.loadError = nil
+            self.loaded = true
         } catch is CancellationError {
             // View was torn down mid-fetch (tab switch, etc.) — not a real error.
             return
