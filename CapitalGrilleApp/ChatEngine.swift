@@ -277,7 +277,7 @@ final class ChatEngine {
         - Quantity in update_restock is ABSOLUTE (the new total), not a delta. For relative phrasing like "take one off", compute the new value (current − 1) from the CURRENT RESTOCK LIST. Result ≤ 0 → quantity: 0 to remove.
         - For any product already in the catalog (wines OR liquors), use its existing id from the catalog skeleton and product_kind matching its kind. Omit the name field.
         - For items that don't match any real product (oranges, lemons, lime juice, ice, paper towels...), add as free-text: product_kind: "misc", product_id: a kebab-case slug of the name (e.g. "oranges", "lime-juice"), AND set the name field to the human-readable string ("Oranges", "Lime juice").
-        - NEVER ask a follow-up about a restock item: the answer is not read, so a question means nothing gets added. Add the closest product in the catalog skeleton and name what you added, so a wrong pick is visible. Match by sound, because the request is speech-to-text and brand names arrive mangled. Only when nothing is even close, add it as free-text with the words as heard.
+        - NEVER ask a follow-up about a restock item: the answer is not read, so a question means nothing gets added. Add the closest product in the catalog skeleton and name what you added, so a wrong pick is visible. Match by sound, because the request is speech-to-text and brand names arrive mangled. Every word heard counts: a word after the brand usually names which bottle of that brand (rye, reposado, 12 year, single barrel), so match the whole phrase, not just the brand. Only when nothing is even close, add it as free-text with the words as heard. When no item is named at all (filler, frustration), add nothing.
         - "Add X" for an item already on the list means one more: current quantity + 1.
         - Never say an item was added, changed or removed unless update_restock was called for it in this turn and returned "Saved". The history shows each earlier turn's tool calls; an earlier "Added" is not this turn's add.
         - Batch multiple items in one call when the user lists them in sequence.
@@ -676,13 +676,18 @@ final class ChatEngine {
                     }
                     return u
                 }
+                // What each item went from and to, and that the request is done, so the answer reports the
+                // change itself instead of working it out from a list that already holds the new item.
+                let was = Dictionary(restockStore.items.map { ($0.product_id, $0.quantity) }, uniquingKeysWith: { a, _ in a })
                 try await restockStore.apply(updates)
-                // The list as it now stands, so the answer reports what landed.
-                let now = restockStore.items.map { item -> String in
-                    let name = item.name ?? bottleStore.bottles[item.product_id]?.displayName ?? item.product_id
-                    return "\(name) ×\(item.quantity)"
+                let changes = updates.compactMap { u -> String? in
+                    guard let pid = u["product_id"] as? String, let qty = u["quantity"] as? Int else { return nil }
+                    let name = (u["name"] as? String) ?? bottleStore.bottles[pid]?.displayName ?? pid
+                    let before = was[pid] ?? 0
+                    if qty <= 0 { return "\(name) removed (was ×\(before))" }
+                    return before > 0 ? "\(name) ×\(before) → ×\(qty)" : "\(name) added at ×\(qty)"
                 }
-                return "Saved. Restock list now: " + (now.isEmpty ? "(empty)" : now.joined(separator: ", "))
+                return "Saved: " + changes.joined(separator: "; ") + ". This request is complete; do not change these items again for it."
             }
         )
 
