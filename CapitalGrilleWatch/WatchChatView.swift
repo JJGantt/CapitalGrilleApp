@@ -278,7 +278,10 @@ struct WatchChatView: View {
             let sent = Date()
             func elapsed() -> Int { Int(Date().timeIntervalSince(sent) * 1000) }
             do {
-                let words = try await Transcriber.transcribe(clip, interactionId: id)
+                let words = try await Transcriber.transcribe(clip, interactionId: id) { attempt, error in
+                    VoiceLog.record("voice_transcribe_retry", id: id, sessionId: session, output: "try \(attempt)",
+                                    error: String(describing: error), latencyMs: elapsed())
+                }
                 if Task.isCancelled {
                     VoiceLog.record("voice_cancelled", id: id, sessionId: session, output: words,
                                     latencyMs: elapsed(), ends: true)
@@ -297,7 +300,10 @@ struct WatchChatView: View {
             } catch {
                 VoiceLog.record("voice_transcribe_failed", id: id, sessionId: session,
                                 error: String(describing: error), latencyMs: elapsed(), ends: true)
-                if !Task.isCancelled { errorMsg = error.localizedDescription }
+                if !Task.isCancelled {
+                    errorMsg = error.localizedDescription
+                    WKInterfaceDevice.current().play(.failure)
+                }
                 chatState = .idle
                 currentTask = nil
             }

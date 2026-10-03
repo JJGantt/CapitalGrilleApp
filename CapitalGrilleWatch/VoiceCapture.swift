@@ -101,17 +101,51 @@ enum Transcriber {
 
     private static let url = URL(string: "https://jared-status-hub.fly.dev/api/cg/transcribe")!
 
+    /// A clip normally comes back in 1-9s, so a try that has not finished in `attemptLimit` is stuck, not
+    /// slow: it is dropped and the clip sent again. Three tries fit inside the minute StayAwake keeps the
+    /// app awake, so a stall ends in an answer or the failure buzz while the app can still deliver it.
+    private static let attemptLimit: TimeInterval = 15
+    private static let attempts = 3
+    /// `timeoutIntervalForResource` is a cap on the WHOLE request; a URLRequest's own timeout only
+    /// fires after that long with no bytes moving, so a trickling upload never trips it.
+    private static let session: URLSession = {
+        let c = URLSessionConfiguration.default
+        c.timeoutIntervalForResource = attemptLimit
+        c.timeoutIntervalForRequest = attemptLimit
+        return URLSession(configuration: c)
+    }()
+
     /// `interactionId` rides as `X-Interaction-Id`, so the hub's timing row (`voice_hub`) lands under
-    /// the same question as the watch's own steps.
-    static func transcribe(_ clip: Recorder.Clip, interactionId: UUID) async throws -> String {
+    /// the same question as the watch's own steps. `onRetry` is told each time a stuck try is dropped.
+    static func transcribe(_ clip: Recorder.Clip, interactionId: UUID,
+                           onRetry: (Int, Error) -> Void = { _, _ in }) async throws -> String {
+        var attempt = 1
+        while true {
+            do {
+                return try await once(clip, interactionId: interactionId)
+            } catch {
+                guard attempt < attempts, retryable(error), !Task.isCancelled else { throw error }
+                onRetry(attempt, error)
+                attempt += 1
+            }
+        }
+    }
+
+    /// A dropped or failed connection, or the hub/Groq failing, is worth another try; a refused key is not.
+    private static func retryable(_ error: Error) -> Bool {
+        if error is URLError { return true }
+        if case Failure.http(let code) = error { return code >= 500 || code == 0 }
+        return false
+    }
+
+    private static func once(_ clip: Recorder.Clip, interactionId: UUID) async throws -> String {
         guard let key = APIKeyStore.current else { throw Failure.noKey }
         var r = URLRequest(url: url)
         r.httpMethod = "POST"
-        r.timeoutInterval = 30
         r.setValue(key, forHTTPHeaderField: "X-Owner-Key")
         r.setValue("audio/mp4", forHTTPHeaderField: "Content-Type")
         r.setValue(interactionId.uuidString, forHTTPHeaderField: "X-Interaction-Id")
-        let (data, resp) = try await URLSession.shared.upload(for: r, fromFile: clip.url)
+        let (data, resp) = try await session.upload(for: r, fromFile: clip.url)
         let code = (resp as? HTTPURLResponse)?.statusCode ?? 0
         guard (200..<300).contains(code) else { throw Failure.http(code) }
         struct Body: Decodable { let transcript: String }
@@ -123,7 +157,8 @@ enum Transcriber {
 /// The voice path's steps, written to `app_logs` under the same `interaction_id` as the question they
 /// became, so a failed question shows every step from the press to the answer in one place. Kinds:
 /// `voice_mic_failed`, `voice_cancelled`, `voice_recorded` (latency = how long it recorded, output = the clip size),
-/// `voice_transcribed` (latency = the hub round trip, output = the words), `voice_transcribe_failed`,
+/// `voice_transcribed` (latency = the hub round trip, output = the words), `voice_transcribe_retry` (a try
+/// that hung or failed was dropped and the clip sent again; output = which try), `voice_transcribe_failed`,
 /// `voice_empty` (the hub heard no words), `voice_phase` (the app went to the background or came back
 /// while the question was being worked on), `voice_stay_awake_expired` (the minute StayAwake holds ran
 /// out before the answer). The hub writes `voice_hub` under the same id: when the upload arrived, how
