@@ -658,6 +658,33 @@ final class ChatEngine {
             }
         )
 
+        // Applies restock updates (`add` or `set`) to the list as freshly fetched, so no count is ever worked out
+        // against a stale copy, and returns what each item went from and to, so an answer reports the change
+        // itself instead of working it out from a list that already holds the new item.
+        func saveRestock(_ raw: [[String: Any]]) async throws -> [String] {
+            await restockStore.refresh()
+            let was = Dictionary(restockStore.items.map { ($0.product_id, $0.quantity) }, uniquingKeysWith: { a, _ in a })
+            let updates = raw.map { u -> [String: Any] in
+                let pid = u["product_id"] as! String
+                var u = u
+                u.removeValue(forKey: "quantity")
+                if let set = u["set"] as? Int { u["quantity"] = max(set, 0) }
+                else { u["quantity"] = max((was[pid] ?? 0) + (u["add"] as! Int), 0) }
+                // A catalogued bottle's kind comes from its own row, never from the model: left to the
+                // model it gets omitted or wrong, and the upsert overwrites a right kind with it.
+                if let kind = bottleStore.bottles[pid]?.kind { u["product_kind"] = kind }
+                return u
+            }
+            try await restockStore.apply(updates)
+            return updates.map { u -> String in
+                let pid = u["product_id"] as! String, qty = u["quantity"] as! Int
+                let name = (u["name"] as? String) ?? bottleStore.bottles[pid]?.displayName ?? pid
+                let before = was[pid] ?? 0
+                if qty <= 0 { return "\(name) removed (was ×\(before))" }
+                return "\(name) now ×\(qty) on the list (was " + (before > 0 ? "×\(before))" : "not on it)")
+            }
+        }
+
         let restockToolDef = AnthropicTool(
             name: "update_restock",
             description: "Add/change/remove items on the restock list. Give each item either `add` (how many more, negative to take some off — the tool adds it to whatever is on the list) or `set` (the exact new total; set 0 removes it). For real products use their existing id. For free-text items (oranges, lemons, etc.) use product_kind 'misc', a slug id, AND a name.",
@@ -682,8 +709,6 @@ final class ChatEngine {
                 "required": ["updates"]
             ],
             handler: { input in
-                // The count is worked out here from the list as it is now, so the model never does
-                // arithmetic against a copy of the list that may be stale.
                 // An update with neither `add` nor `set` (e.g. the old `quantity` field, which the model copies
                 // from earlier turns' tool calls in its history) rejects the whole call, so it is resent rather
                 // than dropped while the answer claims it saved.
@@ -692,61 +717,82 @@ final class ChatEngine {
                 if raw.isEmpty || !bad.isEmpty {
                     return "Nothing saved: every update needs product_id and either `add` or `set`. Send the whole call again."
                 }
-                await restockStore.refresh()
-                let was = Dictionary(restockStore.items.map { ($0.product_id, $0.quantity) }, uniquingKeysWith: { a, _ in a })
-                let updates = raw.map { u -> [String: Any] in
-                    let pid = u["product_id"] as! String
-                    var u = u
-                    u.removeValue(forKey: "quantity")
-                    if let set = u["set"] as? Int { u["quantity"] = max(set, 0) }
-                    else { u["quantity"] = max((was[pid] ?? 0) + (u["add"] as! Int), 0) }
-                    // A catalogued bottle's kind comes from its own row, never from the model: left to the
-                    // model it gets omitted or wrong, and the upsert overwrites a right kind with it.
-                    if let kind = bottleStore.bottles[pid]?.kind { u["product_kind"] = kind }
-                    return u
-                }
-                try await restockStore.apply(updates)
-                // What each item went from and to, and that the request is done, so the answer reports the
-                // change itself instead of working it out from a list that already holds the new item.
-                let changes = updates.map { u -> String in
-                    let pid = u["product_id"] as! String, qty = u["quantity"] as! Int
-                    let name = (u["name"] as? String) ?? bottleStore.bottles[pid]?.displayName ?? pid
-                    let before = was[pid] ?? 0
-                    if qty <= 0 { return "\(name) removed (was ×\(before))" }
-                    return "\(name) now ×\(qty) on the list (was " + (before > 0 ? "×\(before))" : "not on it)")
-                }
-                return "Saved: " + changes.joined(separator: "; ") + ". This request is complete; do not change these items again for it."
+                return "Saved: " + (try await saveRestock(raw)).joined(separator: "; ") + ". This request is complete; do not change these items again for it."
             }
         )
 
         // Par sheets for the backup liquor cabinets live in Supabase (cabinets / cabinet_pars).
         struct CabinetRow: Decodable { let id: String; let name: String; let note: String? }
         struct ParRow: Decodable { let product_id: String; let product_kind: String; let name: String?; let quantity: Int }
-        let getCabinetParTool = AnthropicTool(
-            name: "get_cabinet_par",
-            description: "Get the par list for a backup liquor cabinet: every product that belongs in it, with its id and how many. Call this when the user reads out what is in a cabinet. Compare what they read against it and add each shortfall with update_restock (`add`). Then reply with only: one short line saying the shortfall was added to the restock list, then every bottle in the cabinet beyond par (on the par but over its count, or not on it at all), one per line as \"Name ×n\" where n is how many over. No counts, comparisons, or explanation beyond that.",
+        // The comparison is done here, not by the model: left to the model it dropped par items he never read
+        // out, and answered with the shortfall when he asked for what was over par.
+        let checkCabinetTool = AnthropicTool(
+            name: "check_cabinet",
+            description: "Use when the user reads out what is in a backup liquor cabinet. Pass everything he read, with counts. The tool compares it against the cabinet's par, adds every shortfall to the restock list itself, and returns the reply. Answer with that reply exactly as returned, nothing added. Do not also call update_restock for the shortfall.",
             inputSchema: [
                 "type": "object",
                 "properties": [
-                    "cabinet": ["type": "string", "description": "Cabinet id: 'dark' (dark liquor) or 'light' (light liquor)."]
+                    "cabinet": ["type": "string", "description": "Cabinet id: 'dark' (dark liquor) or 'light' (light liquor)."],
+                    "contents": [
+                        "type": "array",
+                        "description": "Everything he read out as in the cabinet. Empty if he said it is empty.",
+                        "items": [
+                            "type": "object",
+                            "properties": [
+                                "product_id": ["type": "string", "description": "The bottle's catalog id. Match by sound: names arrive mangled by speech-to-text. Omit only for something with no catalog row, and give name."],
+                                "name":       ["type": "string", "description": "As heard; required when product_id is omitted."],
+                                "count":      ["type": "integer", "minimum": 0]
+                            ],
+                            "required": ["count"]
+                        ]
+                    ]
                 ],
-                "required": ["cabinet"]
+                "required": ["cabinet", "contents"]
             ],
             handler: { input in
                 let cabinet = (input["cabinet"] as? String) ?? ""
                 let enc = cabinet.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? cabinet
                 let cabs: [CabinetRow] = (try? await SupabaseClient.shared.get(path: "cabinets?select=id,name,note&order=sort_order.asc")) ?? []
-                guard let cab = cabs.first(where: { $0.id == cabinet }) else {
-                    return "Unknown cabinet. Cabinets: " + cabs.map { "\($0.id) (\($0.name))" }.joined(separator: ", ")
+                guard cabs.contains(where: { $0.id == cabinet }) else {
+                    return "Nothing saved: unknown cabinet. Cabinets: " + cabs.map { "\($0.id) (\($0.name))" }.joined(separator: ", ")
                 }
-                let pars: [ParRow] = (try? await SupabaseClient.shared.get(path: "cabinet_pars?cabinet_id=eq.\(enc)&select=product_id,product_kind,name,quantity&order=sort_order.asc")) ?? []
-                var out = ["\(cab.name) par:"]
-                out += pars.map { p in
-                    let name = p.name ?? bottleStore.bottles[p.product_id]?.displayName ?? p.product_id
-                    return "• \(name) [id:\(p.product_id)" + (p.product_kind == "misc" ? ", kind:misc" : "") + "] ×\(p.quantity)"
+                let pars: [ParRow] = try await SupabaseClient.shared.get(path: "cabinet_pars?cabinet_id=eq.\(enc)&select=product_id,product_kind,name,quantity&order=sort_order.asc")
+                let parIds = Set(pars.map(\.product_id))
+                // What he read, keyed by id (or by name for something uncatalogued), in the order he said it.
+                var read: [(key: String, name: String, count: Int)] = []
+                for c in (input["contents"] as? [[String: Any]]) ?? [] {
+                    let count = (c["count"] as? Int) ?? 1
+                    let key: String, name: String
+                    if let pid = c["product_id"] as? String {
+                        guard bottleStore.bottles[pid] != nil || parIds.contains(pid) else {
+                            let misc = pars.filter { $0.product_kind == "misc" }.map { "\($0.product_id) (\($0.name ?? $0.product_id))" }
+                            return "Nothing saved: '\(pid)' is not a catalog id or on this par. Uncatalogued par items: \(misc.joined(separator: ", ")). Send the whole call again."
+                        }
+                        key = pid
+                        name = pars.first(where: { $0.product_id == pid })?.name ?? bottleStore.bottles[pid]?.displayName ?? pid
+                    } else if let n = c["name"] as? String {
+                        key = "name:" + n.lowercased(); name = n
+                    } else {
+                        return "Nothing saved: each item needs product_id or name. Send the whole call again."
+                    }
+                    if let i = read.firstIndex(where: { $0.key == key }) { read[i].count += count }
+                    else { read.append((key, name, count)) }
                 }
-                if let note = cab.note { out.append("Sheet note: \(note)") }
-                return out.joined(separator: "\n")
+                let have = Dictionary(read.map { ($0.key, $0.count) }, uniquingKeysWith: +)
+                var adds: [[String: Any]] = []
+                for p in pars where (have[p.product_id] ?? 0) < p.quantity {
+                    var u: [String: Any] = ["product_id": p.product_id, "product_kind": p.product_kind, "add": p.quantity - (have[p.product_id] ?? 0)]
+                    if let n = p.name { u["name"] = n }
+                    adds.append(u)
+                }
+                let parQty = Dictionary(pars.map { ($0.product_id, $0.quantity) }, uniquingKeysWith: +)
+                let over = read.compactMap { r -> String? in
+                    let n = r.count - (parQty[r.key] ?? 0)
+                    return n > 0 ? "\(r.name) ×\(n)" : nil
+                }
+                let saved = adds.isEmpty ? [] : try await saveRestock(adds)
+                let reply = ([adds.isEmpty ? "Nothing to add." : "Shortfall was added to the restock list."] + over).joined(separator: "\n")
+                return "Saved: " + (saved.isEmpty ? "nothing" : saved.joined(separator: "; ")) + ".\n\nReply:\n" + reply
             }
         )
 
@@ -880,7 +926,7 @@ final class ChatEngine {
         let tools: [AnthropicTool] = [
             getFoodMenuTool, getSeasonalProgramTool, getBottleDetailsTool, getBottlesByVarietalTool,
             searchBottlesTool, getPairingsTool,
-            updateTool, areasTool, restockToolDef, getCabinetParTool,
+            updateTool, areasTool, restockToolDef, checkCabinetTool,
             addProductDef, deleteProductDef, setImageDef, updateDetailsDef,
         ]
         return (systemStable, systemDynamic, tools)
