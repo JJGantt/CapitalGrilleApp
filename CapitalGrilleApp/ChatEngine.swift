@@ -732,7 +732,7 @@ final class ChatEngine {
 
         let restockCabinetTool = AnthropicTool(
             name: "restock_cabinet",
-            description: "The user has read out everything currently in a backup liquor cabinet. Pass ALL of it in one call; this compares it against the cabinet's par, adds whatever is short to the restock list, and returns what was added and what is in the cabinet that the par doesn't call for. Don't look at the restock list for this; it is handled here. Tell the user what was added and mention the extras.",
+            description: "The user has read out everything currently in a backup liquor cabinet. Pass ALL of it in one call; this compares it against the cabinet's par, adds whatever is short to the restock list, and returns what was added and what is in the cabinet that the par doesn't call for. Tell the user what was added and mention the extras.",
             inputSchema: [
                 "type": "object",
                 "properties": [
@@ -777,7 +777,8 @@ final class ChatEngine {
                                             "quantity": (current[p.product_id] ?? 0) + short]
                     if let n = p.name { u["name"] = n }
                     updates.append(u)
-                    added.append("\(parName(p)) ×\(short)")
+                    let was = current[p.product_id] ?? 0
+                    added.append("\(parName(p)) ×\(short)" + (was > 0 ? " (was already on the list ×\(was), now ×\(was + short))" : ""))
                 }
                 if !updates.isEmpty { try await restockStore.apply(updates) }
 
