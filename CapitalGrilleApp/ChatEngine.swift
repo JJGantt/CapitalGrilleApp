@@ -43,7 +43,11 @@ final class ChatEngine {
 
         // Editable rule text comes from Supabase (app_content/system_prompt); on any
         // failure we fall back to the in-code literals, so the prompt never breaks.
-        let remotePrompt = await Self.fetchPromptBlocks()
+        // The restock list is edited from other devices and cleared at 6am, so it is re-read for every
+        // question rather than trusted from whenever this device last looked.
+        async let blocks = Self.fetchPromptBlocks()
+        await restockStore.refresh()
+        let remotePrompt = await blocks
         let (systemStable, systemDynamic, tools) = buildPromptAndTools(remotePrompt: remotePrompt)
 
         func logInteraction(answer: String?, error: String?) async {
@@ -311,8 +315,9 @@ final class ChatEngine {
         systemStable += "\n\n" + promptBlock("catalog_rules", catalogRulesFallback)
 
         let systemDynamic = promptBlock("restock", """
-        CURRENT RESTOCK LIST (product_id → quantity):
+        CURRENT RESTOCK LIST (product_id → quantity), read at the start of this question:
         \(restockJSON)
+        Other people and devices edit this list, and it is cleared every morning, so counts from earlier in the conversation may be out of date. The latest count is this list or, after a change, update_restock's result.
         """)
 
         // Tools — capture stores via closure
@@ -528,7 +533,14 @@ final class ChatEngine {
             handler: { input in
                 let updates = (input["updates"] as? [[String: Any]]) ?? []
                 let result = try await bottleStore.updateLocations(updates)
-                var msg = "Updated \(result.updated.count) wine(s): \(result.updated.joined(separator: ", "))"
+                // Each bottle's locations as saved, read back after the refresh, not as requested.
+                let saved = result.updated.map { id -> String in
+                    guard let b = bottleStore.bottles[id] else { return id }
+                    return "\(b.displayName): primary \(locStr(b.primary) ?? "none"), backup \(locStr(b.backup) ?? "none")"
+                }
+                var msg = saved.isEmpty ? "Nothing updated." : "Saved — " + saved.joined(separator: "; ")
+                let skipped = updates.count - result.updated.count - result.missing.count
+                if skipped > 0 { msg += ". \(skipped) update(s) had no bottle_id or no location and were skipped" }
                 if !result.missing.isEmpty {
                     msg += ". MISSING (these wines don't exist — call add_product first): \(result.missing.joined(separator: ", "))"
                 }
@@ -551,8 +563,9 @@ final class ChatEngine {
                 if existing.first?.readonly == true {
                     return "'\(existing.first?.name ?? pid)' is readonly and can't be deleted by the AI."
                 }
-                try await SupabaseClient.shared.patch(path: "bottles?id=eq.\(pid)", body: ["deleted": true])
+                let rows = try await SupabaseClient.shared.patchReturning(path: "bottles?id=eq.\(pid)", body: ["deleted": true])
                 await bottleStore.refreshFromSupabase()
+                if rows.isEmpty { return "Nothing deleted: no product with id '\(pid)'." }
                 return "Deleted '\(existing.first?.name ?? pid)'."
             }
         )
@@ -588,7 +601,10 @@ final class ChatEngine {
                 }
                 try await SupabaseClient.shared.upsert(path: "bottles", body: [row], onConflict: "id")
                 await bottleStore.refreshFromSupabase()
-                return "Added \(row["kind"] ?? "?") '\(row["name"] ?? "?")'."
+                guard let b = bottleStore.bottles[row["id"] as? String ?? ""] else {
+                    return "Not saved: '\(row["name"] ?? "?")' is not in the catalog after the write."
+                }
+                return "Saved \(b.kind ?? "?") '\(b.displayName)' [id:\(b.id)]: primary \(locStr(b.primary) ?? "none"), backup \(locStr(b.backup) ?? "none")."
             }
         )
 
@@ -752,17 +768,16 @@ final class ChatEngine {
                 switch action {
                 case "add":
                     try await bottleStore.addArea(name)
-                    return "Added area '\(name)'."
                 case "rename":
                     guard let newName = input["new_name"] as? String else { return "Missing new_name." }
                     try await bottleStore.renameArea(name, to: newName)
-                    return "Renamed '\(name)' to '\(newName)'."
                 case "remove":
                     try await bottleStore.removeArea(name)
-                    return "Removed area '\(name)'."
                 default:
                     return "Unknown action '\(action)'."
                 }
+                // The areas as saved, so a rename or remove that matched nothing shows as unchanged.
+                return "Areas now: " + bottleStore.areas.map(\.name).joined(separator: ", ")
             }
         )
 
