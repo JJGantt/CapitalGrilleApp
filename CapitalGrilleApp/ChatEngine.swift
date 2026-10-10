@@ -691,6 +691,110 @@ final class ChatEngine {
             }
         )
 
+        // Cabinet restock: the par sheets live in Supabase (cabinets / cabinet_pars). The comparison and the
+        // restock write happen here rather than in the model, and the shortfall is ADDED to whatever the
+        // restock list already holds: an item already on the list was put there for some other reason, so
+        // it never counts toward a cabinet's shortfall.
+        struct CabinetRow: Decodable { let id: String; let name: String; let note: String? }
+        struct ParRow: Decodable { let product_id: String; let product_kind: String; let name: String?; let quantity: Int }
+        func cabinetPar(_ cabinet: String) async -> (CabinetRow, [ParRow])? {
+            let enc = cabinet.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? cabinet
+            let cabs: [CabinetRow] = (try? await SupabaseClient.shared.get(path: "cabinets?id=eq.\(enc)&select=id,name,note")) ?? []
+            guard let cab = cabs.first else { return nil }
+            let pars: [ParRow] = (try? await SupabaseClient.shared.get(path: "cabinet_pars?cabinet_id=eq.\(enc)&select=product_id,product_kind,name,quantity&order=sort_order.asc")) ?? []
+            return (cab, pars)
+        }
+        func unknownCabinet() async -> String {
+            let cabs: [CabinetRow] = (try? await SupabaseClient.shared.get(path: "cabinets?select=id,name,note&order=sort_order.asc")) ?? []
+            return "Unknown cabinet. Cabinets: " + cabs.map { "\($0.id) (\($0.name))" }.joined(separator: ", ")
+        }
+        func parName(_ p: ParRow) -> String { p.name ?? bottleStore.bottles[p.product_id]?.displayName ?? p.product_id }
+
+        let getCabinetParTool = AnthropicTool(
+            name: "get_cabinet_par",
+            description: "Get the par list for a backup liquor cabinet: every product that belongs in it, with its id and how many. Call this when the user starts reading out what is in a cabinet, then pass what they read to restock_cabinet using these ids.",
+            inputSchema: [
+                "type": "object",
+                "properties": [
+                    "cabinet": ["type": "string", "description": "Cabinet id: 'dark' (dark liquor) or 'light' (light liquor)."]
+                ],
+                "required": ["cabinet"]
+            ],
+            handler: { input in
+                let cabinet = (input["cabinet"] as? String) ?? ""
+                guard let (cab, pars) = await cabinetPar(cabinet) else { return await unknownCabinet() }
+                var out = ["\(cab.name) par [cabinet:\(cab.id)]:"]
+                out += pars.map { "• \(parName($0)) [id:\($0.product_id)] ×\($0.quantity)" }
+                if let note = cab.note { out.append("Sheet note: \(note)") }
+                return out.joined(separator: "\n")
+            }
+        )
+
+        let restockCabinetTool = AnthropicTool(
+            name: "restock_cabinet",
+            description: "The user has read out everything currently in a backup liquor cabinet. Pass ALL of it in one call; this compares it against the cabinet's par, adds whatever is short to the restock list, and returns what was added and what is in the cabinet that the par doesn't call for. Don't look at the restock list for this; it is handled here. Tell the user what was added and mention the extras.",
+            inputSchema: [
+                "type": "object",
+                "properties": [
+                    "cabinet": ["type": "string", "description": "Cabinet id from get_cabinet_par."],
+                    "on_hand": [
+                        "type": "array",
+                        "description": "Everything the user read out as in the cabinet. Empty if it is empty.",
+                        "items": [
+                            "type": "object",
+                            "properties": [
+                                "product_id": ["type": "string", "description": "Id from the par list or the catalog skeleton; for something in neither, a kebab-case slug of what was heard."],
+                                "count":      ["type": "integer", "minimum": 1],
+                                "name":       ["type": "string", "description": "What was heard. Required when product_id is not in the par list or catalog."]
+                            ],
+                            "required": ["product_id", "count"]
+                        ]
+                    ]
+                ],
+                "required": ["cabinet", "on_hand"]
+            ],
+            handler: { input in
+                let cabinet = (input["cabinet"] as? String) ?? ""
+                guard let (cab, pars) = await cabinetPar(cabinet) else { return await unknownCabinet() }
+                guard !pars.isEmpty else { return "\(cab.name) has no par list." }
+                var have: [String: Int] = [:]
+                var heard: [String: String] = [:]
+                for item in (input["on_hand"] as? [[String: Any]]) ?? [] {
+                    guard let pid = item["product_id"] as? String else { continue }
+                    have[pid, default: 0] += (item["count"] as? Int) ?? 1
+                    if let n = item["name"] as? String { heard[pid] = n }
+                }
+                let parQty = Dictionary(pars.map { ($0.product_id, $0.quantity) }, uniquingKeysWith: { a, _ in a })
+
+                await restockStore.refresh()
+                let current = Dictionary(restockStore.items.map { ($0.product_id, $0.quantity) }, uniquingKeysWith: { a, _ in a })
+                var updates: [[String: Any]] = []
+                var added: [String] = []
+                for p in pars {
+                    let short = p.quantity - (have[p.product_id] ?? 0)
+                    guard short > 0 else { continue }
+                    var u: [String: Any] = ["product_id": p.product_id, "product_kind": p.product_kind,
+                                            "quantity": (current[p.product_id] ?? 0) + short]
+                    if let n = p.name { u["name"] = n }
+                    updates.append(u)
+                    added.append("\(parName(p)) ×\(short)")
+                }
+                if !updates.isEmpty { try await restockStore.apply(updates) }
+
+                let extras = have.keys.sorted().compactMap { pid -> String? in
+                    let over = have[pid]! - (parQty[pid] ?? 0)
+                    guard over > 0 else { return nil }
+                    let name = bottleStore.bottles[pid]?.displayName ?? heard[pid] ?? pid
+                    return "\(name) ×\(over)"
+                }
+                var out = [added.isEmpty ? "Nothing short; nothing added to restock." : "Added to restock: " + added.joined(separator: ", ") + "."]
+                out.append(extras.isEmpty ? "Nothing extra." : "Extra (not on the par): " + extras.joined(separator: ", ") + ".")
+                if let note = cab.note { out.append("Sheet note: \(note)") }
+                out.append("This request is complete.")
+                return out.joined(separator: "\n")
+            }
+        )
+
         let areasTool = AnthropicTool(
             name: "edit_areas",
             description: "Add, rename, or remove a wine storage area. Only call when the user explicitly asks to manage area names.",
@@ -822,7 +926,7 @@ final class ChatEngine {
         let tools: [AnthropicTool] = [
             getFoodMenuTool, getSeasonalProgramTool, getBottleDetailsTool, getBottlesByVarietalTool,
             searchBottlesTool, getPairingsTool,
-            updateTool, areasTool, restockToolDef,
+            updateTool, areasTool, restockToolDef, getCabinetParTool, restockCabinetTool,
             addProductDef, deleteProductDef, setImageDef, updateDetailsDef,
         ]
         return (systemStable, systemDynamic, tools)
