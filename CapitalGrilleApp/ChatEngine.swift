@@ -728,7 +728,7 @@ final class ChatEngine {
         // out, and answered with the shortfall when he asked for what was over par.
         let checkCabinetTool = AnthropicTool(
             name: "check_cabinet",
-            description: "Use when the user reads out what is in a backup liquor cabinet. Pass everything he read, with counts. The tool compares it against the cabinet's par, adds every shortfall to the restock list itself, and returns the reply. Answer with that reply exactly as returned, nothing added. Do not also call update_restock for the shortfall.",
+            description: "Use when the user reads out what is in a backup liquor cabinet. Pass every bottle he read, as catalog ids with counts. The tool compares it against the cabinet's par, adds every shortfall to the restock list itself, and returns the reply. Answer with that reply exactly as returned, nothing added. Do not also call update_restock for the shortfall.",
             inputSchema: [
                 "type": "object",
                 "properties": [
@@ -739,11 +739,10 @@ final class ChatEngine {
                         "items": [
                             "type": "object",
                             "properties": [
-                                "product_id": ["type": "string", "description": "The bottle's catalog id. Match by sound: names arrive mangled by speech-to-text. Omit only for something with no catalog row, and give name."],
-                                "name":       ["type": "string", "description": "As heard; required when product_id is omitted."],
+                                "product_id": ["type": "string", "description": "The bottle's catalog id. Match by sound: names arrive mangled by speech-to-text. A bare brand is that brand's plain bottle (Woodford Reserve, not Double Oaked or Rye); a variant only when its word is said."],
                                 "count":      ["type": "integer", "minimum": 0]
                             ],
-                            "required": ["count"]
+                            "required": ["product_id", "count"]
                         ]
                     ]
                 ],
@@ -757,26 +756,15 @@ final class ChatEngine {
                     return "Nothing saved: unknown cabinet. Cabinets: " + cabs.map { "\($0.id) (\($0.name))" }.joined(separator: ", ")
                 }
                 let pars: [ParRow] = try await SupabaseClient.shared.get(path: "cabinet_pars?cabinet_id=eq.\(enc)&select=product_id,product_kind,name,quantity&order=sort_order.asc")
-                let parIds = Set(pars.map(\.product_id))
-                // What he read, keyed by id (or by name for something uncatalogued), in the order he said it.
+                // What he read, in the order he said it.
                 var read: [(key: String, name: String, count: Int)] = []
                 for c in (input["contents"] as? [[String: Any]]) ?? [] {
-                    let count = (c["count"] as? Int) ?? 1
-                    let key: String, name: String
-                    if let pid = c["product_id"] as? String {
-                        guard bottleStore.bottles[pid] != nil || parIds.contains(pid) else {
-                            let misc = pars.filter { $0.product_kind == "misc" }.map { "\($0.product_id) (\($0.name ?? $0.product_id))" }
-                            return "Nothing saved: '\(pid)' is not a catalog id or on this par. Uncatalogued par items: \(misc.joined(separator: ", ")). Send the whole call again."
-                        }
-                        key = pid
-                        name = pars.first(where: { $0.product_id == pid })?.name ?? bottleStore.bottles[pid]?.displayName ?? pid
-                    } else if let n = c["name"] as? String {
-                        key = "name:" + n.lowercased(); name = n
-                    } else {
-                        return "Nothing saved: each item needs product_id or name. Send the whole call again."
+                    guard let pid = c["product_id"] as? String, let b = bottleStore.bottles[pid] else {
+                        return "Nothing saved: '\((c["product_id"] as? String) ?? "?")' is not a catalog id. Send the whole call again with ids from the catalog."
                     }
-                    if let i = read.firstIndex(where: { $0.key == key }) { read[i].count += count }
-                    else { read.append((key, name, count)) }
+                    let count = (c["count"] as? Int) ?? 1
+                    if let i = read.firstIndex(where: { $0.key == pid }) { read[i].count += count }
+                    else { read.append((pid, b.displayName, count)) }
                 }
                 let have = Dictionary(read.map { ($0.key, $0.count) }, uniquingKeysWith: +)
                 var adds: [[String: Any]] = []
