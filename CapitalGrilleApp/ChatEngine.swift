@@ -668,14 +668,22 @@ final class ChatEngine {
             handler: { input in
                 // The count is worked out here from the list as it is now, so the model never does
                 // arithmetic against a copy of the list that may be stale.
+                // An update with neither `add` nor `set` (e.g. the old `quantity` field, which the model copies
+                // from earlier turns' tool calls in its history) rejects the whole call, so it is resent rather
+                // than dropped while the answer claims it saved.
+                let raw = (input["updates"] as? [[String: Any]]) ?? []
+                let bad = raw.filter { $0["product_id"] as? String == nil || ($0["add"] as? Int == nil && $0["set"] as? Int == nil) }
+                if raw.isEmpty || !bad.isEmpty {
+                    return "Nothing saved: every update needs product_id and either `add` or `set`. Send the whole call again."
+                }
                 await restockStore.refresh()
                 let was = Dictionary(restockStore.items.map { ($0.product_id, $0.quantity) }, uniquingKeysWith: { a, _ in a })
-                let updates = ((input["updates"] as? [[String: Any]]) ?? []).compactMap { u -> [String: Any]? in
-                    guard let pid = u["product_id"] as? String else { return nil }
+                let updates = raw.map { u -> [String: Any] in
+                    let pid = u["product_id"] as! String
                     var u = u
+                    u.removeValue(forKey: "quantity")
                     if let set = u["set"] as? Int { u["quantity"] = max(set, 0) }
-                    else if let add = u["add"] as? Int { u["quantity"] = max((was[pid] ?? 0) + add, 0) }
-                    else { return nil }
+                    else { u["quantity"] = max((was[pid] ?? 0) + (u["add"] as! Int), 0) }
                     // A catalogued bottle's kind comes from its own row, never from the model: left to the
                     // model it gets omitted or wrong, and the upsert overwrites a right kind with it.
                     if let kind = bottleStore.bottles[pid]?.kind { u["product_kind"] = kind }
@@ -689,7 +697,7 @@ final class ChatEngine {
                     let name = (u["name"] as? String) ?? bottleStore.bottles[pid]?.displayName ?? pid
                     let before = was[pid] ?? 0
                     if qty <= 0 { return "\(name) removed (was ×\(before))" }
-                    return before > 0 ? "\(name) ×\(before) → ×\(qty)" : "\(name) added at ×\(qty)"
+                    return "\(name) now ×\(qty) on the list (was " + (before > 0 ? "×\(before))" : "not on it)")
                 }
                 return "Saved: " + changes.joined(separator: "; ") + ". This request is complete; do not change these items again for it."
             }
@@ -700,7 +708,7 @@ final class ChatEngine {
         struct ParRow: Decodable { let product_id: String; let product_kind: String; let name: String?; let quantity: Int }
         let getCabinetParTool = AnthropicTool(
             name: "get_cabinet_par",
-            description: "Get the par list for a backup liquor cabinet: every product that belongs in it, with its id and how many. Call this when the user reads out what is in a cabinet. Compare what they read against it, add each shortfall with update_restock (`add`), and mention anything in the cabinet the par doesn't call for.",
+            description: "Get the par list for a backup liquor cabinet: every product that belongs in it, with its id and how many. Call this when the user reads out what is in a cabinet. Compare what they read against it and add each shortfall with update_restock (`add`). Then reply with only: one short line saying the shortfall was added to the restock list, then every bottle in the cabinet beyond par (on the par but over its count, or not on it at all), one per line as \"Name ×n\" where n is how many over. No counts, comparisons, or explanation beyond that.",
             inputSchema: [
                 "type": "object",
                 "properties": [
