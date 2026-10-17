@@ -1,11 +1,15 @@
 import AVFoundation
 
-/// **Keeps the app running, wrist down, until the answer is in.** A watch app keeps running in the
-/// background only while it plays or records audio. Once a voice prompt's recording ends, the app still
-/// has to transcribe it and wait on the model, and with the wrist down watchOS suspends it in the middle
-/// of that: the answer's tap never comes, and the screen still says it is thinking when he looks. So
-/// while the chat is thinking this plays SILENCE (mixed with others, so it interrupts nothing he is
-/// listening to), and stops the moment it is not.
+/// **Keeps the app running, wrist down, until the answer is in.** Once a voice prompt's recording ends,
+/// the app still has to transcribe it and wait on the model, and with the wrist down watchOS suspends it
+/// in the middle of that: the answer's tap never comes, and the screen still says it is thinking when he
+/// looks. So while the chat is thinking (or an order is being taken) this HOLDS THE MICROPHONE and throws
+/// away what it hears, and lets go the moment it is not.
+///
+/// Playing silence does NOT do this, though it looks like it should: a watch app that only plays is frozen
+/// the instant the wrist drops, with its engine still reporting running (measured on StatusHub's watch,
+/// and here: an order's transcript came back from the hub in 1.6s and the watch only saw it 30s later). A
+/// watch app that records is kept running.
 ///
 /// It does not make a dimmed screen redraw faster (watchOS caps that at about once a second); it keeps
 /// the app working so the answer lands, and the wrist is tapped, on time.
@@ -14,8 +18,6 @@ final class StayAwake {
     static let shared = StayAwake()
 
     private let engine = AVAudioEngine()
-    private let player = AVAudioPlayerNode()
-    private var wired = false
     private var holding = false
     /// The most it holds for in one go, his number: past this an answer that has not come is not worth
     /// the battery to wait on awake, and the app goes back to being suspended as usual.
@@ -39,16 +41,16 @@ final class StayAwake {
         if holding && engine.isRunning { return }
         let session = AVAudioSession.sharedInstance()
         do {
-            try session.setCategory(.playback, mode: .default, options: [.mixWithOthers])
+            try session.setCategory(.playAndRecord, mode: .default, options: [.mixWithOthers])
             try session.setActive(true)
-            if !wired {
-                engine.attach(player)
-                engine.connect(player, to: engine.mainMixerNode, format: Self.silence.format)
-                wired = true
+            let input = engine.inputNode
+            let format = input.outputFormat(forBus: 0)
+            guard format.sampleRate > 0, format.channelCount > 0 else {
+                try? session.setActive(false, options: .notifyOthersOnDeactivation)
+                throw NSError(domain: "StayAwake", code: 1, userInfo: [NSLocalizedDescriptionKey: "no microphone format"])
             }
+            if !holding { input.installTap(onBus: 0, bufferSize: 4096, format: format) { _, _ in } }
             if !engine.isRunning { try engine.start() }
-            player.scheduleBuffer(Self.silence, at: nil, options: .loops)
-            player.play()
             if !holding {
                 hold += 1
                 let this = hold
@@ -62,6 +64,7 @@ final class StayAwake {
             }
             holding = true
         } catch {
+            engine.inputNode.removeTap(onBus: 0)
             VoiceLog.record("voice_stay_awake_failed", id: UUID(), sessionId: "",
                             error: String(describing: error), ends: true)
         }
@@ -70,16 +73,8 @@ final class StayAwake {
     private func stop() {
         guard holding else { return }
         holding = false
-        player.stop()
+        engine.inputNode.removeTap(onBus: 0)
         engine.stop()
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
-
-    /// A second of silence, looped.
-    private static let silence: AVAudioPCMBuffer = {
-        let format = AVAudioFormat(standardFormatWithSampleRate: 22050, channels: 1)!
-        let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 22050)!
-        buffer.frameLength = buffer.frameCapacity   // zero-filled: silence
-        return buffer
-    }()
 }

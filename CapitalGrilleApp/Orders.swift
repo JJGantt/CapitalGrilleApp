@@ -72,6 +72,18 @@ final class OrderStore: ObservableObject {
     }
 }
 
+/// Thrown by `add_orders` so the call counts as failed: the model gets one more turn to resend it, where a
+/// successful call ends the exchange with no closing reply (`finishAfterTools`).
+enum OrderError: LocalizedError {
+    case unknownIds([String])
+    var errorDescription: String? {
+        switch self {
+        case .unknownIds(let ids):
+            return "Not added. These ids are not on the menu: \(ids.joined(separator: ", ")). Use ids exactly as listed, or kind other with the name as heard."
+        }
+    }
+}
+
 /// **Turns what was heard into orders on the menu.** The transcript goes to the model with the whole
 /// menu — every dish, cocktail, wine and liquor with its id — and the model calls `add_orders` with the
 /// ids. The name stored is the menu's own, taken from the id here, never the model's spelling, so the
@@ -146,7 +158,7 @@ enum OrderTaker {
                 // Nothing is saved from a call with a bad id: the model resends the whole order with ids
                 // from the list, rather than half of it landing.
                 if !unknown.isEmpty {
-                    return "Not added. These ids are not on the menu: \(unknown.joined(separator: ", ")). Use ids exactly as listed, or kind other with the name as heard."
+                    throw OrderError.unknownIds(unknown)
                 }
                 guard !items.isEmpty else { return "Nothing to add." }
                 try await store.add(items, heard: heard, interactionId: interactionId)
@@ -162,13 +174,14 @@ enum OrderTaker {
             systemDynamic: recent(store.orders),
             tools: [addOrders],
             interactionId: interactionId,
-            sessionId: sessionId
+            sessionId: sessionId,
+            finishAfterTools: true
         )
         return added.n
     }
 
     private static let rules = """
-    You take orders for a bartender at The Capital Grille. Each message is the speech-to-text of one recording made at the bar: a guest ordering, usually with the bartender reading the order back. Pull out what was ordered and call add_orders once with every NEW item. Do not reply with text.
+    You take orders for a bartender at The Capital Grille. Each message is the speech-to-text of one recording made at the bar: a guest ordering, usually with the bartender reading the order back. Pull out what was ordered and call add_orders once with every NEW item. Do not reply with text: the call is the whole answer, and nothing you write is read.
 
     - Use the menu below. Every item names its id; pass the id exactly. Match by SOUND, because brand and dish names arrive mangled by transcription ("whispering angle" is Whispering Angel). Every word heard counts: "Tito's soda" is the liquor Tito's with the note "soda"; "a glass of the Caymus" is the wine Caymus with the note "glass".
     - A drink that is not one of our cocktails but is built on a bottle we carry is that bottle, with the build in the note: "Tito's and soda, splash of cran" is Tito's, note "soda, splash cran". A drink with no bottle named (a margarita, a beer, a soda) is kind other, named as heard.

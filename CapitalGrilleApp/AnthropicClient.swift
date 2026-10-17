@@ -39,6 +39,7 @@ struct AnthropicClient {
                               tools: [AnthropicTool],
                               interactionId: UUID,
                               sessionId: String?,
+                              finishAfterTools: Bool = false,
                               onActivity: (@MainActor (String?) -> Void)? = nil) async throws -> ChatTurn {
         guard let apiKey = APIKeyStore.current, APIKeyStore.looksValid(apiKey) else {
             throw AnthropicError.noAPIKey
@@ -142,6 +143,10 @@ struct AnthropicClient {
                 ])
             }
             messages.append(["role": "user", "content": toolResults])
+            // `finishAfterTools`: the tools ARE the answer (the order list), so once they have all
+            // succeeded there is nothing for another round trip to say. A failed one goes back to the
+            // model to be fixed.
+            if finishAfterTools && !toolResults.contains(where: { $0["is_error"] as? Bool == true }) { break }
         }
         // Clear activity once we're returning the final answer.
         if let onActivity {
