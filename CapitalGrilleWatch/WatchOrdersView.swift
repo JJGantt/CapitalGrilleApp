@@ -2,8 +2,9 @@ import SwiftUI
 import WatchKit
 
 /// **The order list.** Double tap starts a recording of a guest ordering, the next press sends it: the
-/// hub transcribes it, `OrderTaker` turns it into menu items, and they land at the top of the list. The
-/// clip is deleted once it is transcribed; only the text is kept.
+/// hub transcribes it, `OrderTaker` writes the items down as heard (they land at the top of the list,
+/// with a tap), then renames each to its menu name a few seconds later. A row still as heard is drawn
+/// dimmer. The clip is deleted once it is transcribed; only the text is kept.
 ///
 /// Rows work like the restock list's: a tap arms one (red), a second tap marks it done and it leaves the
 /// list. Clear all at the bottom takes two presses.
@@ -120,7 +121,7 @@ struct WatchOrdersView: View {
                 VStack(alignment: .leading, spacing: 1) {
                     Text(order.qty > 1 ? "\(order.qty)× \(order.name)" : order.name)
                         .font(.system(size: 14))
-                        .foregroundColor(.white)
+                        .foregroundColor(order.standardized ? .white : Color(white: 0.6))
                     if let note = order.note, !note.isEmpty {
                         Text(note)
                             .font(.system(size: 11))
@@ -234,13 +235,22 @@ struct WatchOrdersView: View {
                     return
                 }
                 VoiceLog.record("voice_transcribed", id: id, sessionId: sessionId, output: words, latencyMs: elapsed())
-                let added = try await OrderTaker.take(words, store: store, menu: menuStore.menu,
-                                                      bottles: Array(bottleStore.bottles.values),
-                                                      cocktails: cocktailStore.cocktails,
-                                                      interactionId: id, sessionId: sessionId)
+                let rows = try await OrderTaker.write(words, store: store, interactionId: id, sessionId: sessionId)
                 try Task.checkCancellation()
-                VoiceLog.record("orders_added", id: id, sessionId: sessionId, output: "\(added)", latencyMs: elapsed(), ends: true)
-                finish(haptic: added > 0 ? .success : .retry)
+                VoiceLog.record("orders_added", id: id, sessionId: sessionId, output: "\(rows.count)", latencyMs: elapsed())
+                // The items are on the list as heard: that is the moment to tell the wrist. Matching them
+                // to the menu carries on with the app still held awake.
+                WKInterfaceDevice.current().play(rows.isEmpty ? .retry : .success)
+                if !rows.isEmpty {
+                    try await OrderTaker.standardize(rows, store: store, menu: menuStore.menu,
+                                                     bottles: Array(bottleStore.bottles.values),
+                                                     cocktails: cocktailStore.cocktails,
+                                                     interactionId: id, sessionId: sessionId)
+                    VoiceLog.record("orders_standardized", id: id, sessionId: sessionId, latencyMs: elapsed())
+                }
+                VoiceLog.record("orders_done", id: id, sessionId: sessionId, latencyMs: elapsed(), ends: true)
+                working = false
+                task = nil
             } catch is CancellationError {
                 VoiceLog.record("voice_cancelled", id: id, sessionId: sessionId, latencyMs: elapsed(), ends: true)
             } catch {

@@ -20,7 +20,7 @@ struct OrdersListView: View {
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(order.qty > 1 ? "\(order.qty)× \(order.name)" : order.name)
                                     .font(.system(.body, design: .serif))
-                                    .foregroundColor(.cgText)
+                                    .foregroundColor(order.standardized ? .cgText : .cgTextMuted)
                                 if let note = order.note, !note.isEmpty {
                                     Text(note)
                                         .font(.footnote)

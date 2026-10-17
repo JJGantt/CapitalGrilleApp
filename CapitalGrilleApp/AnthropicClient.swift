@@ -40,6 +40,7 @@ struct AnthropicClient {
                               interactionId: UUID,
                               sessionId: String?,
                               finishAfterTools: Bool = false,
+                              model: String? = nil,
                               onActivity: (@MainActor (String?) -> Void)? = nil) async throws -> ChatTurn {
         guard let apiKey = APIKeyStore.current, APIKeyStore.looksValid(apiKey) else {
             throw AnthropicError.noAPIKey
@@ -60,7 +61,7 @@ struct AnthropicClient {
             let started = Date()
             let response: CallResponse
             do {
-                response = try await call(apiKey: apiKey, systemStable: systemStable, systemDynamic: systemDynamic, tools: tools, messages: messages)
+                response = try await call(apiKey: apiKey, systemStable: systemStable, systemDynamic: systemDynamic, tools: tools, messages: messages, model: model)
             } catch {
                 let latency = Int(Date().timeIntervalSince(started) * 1000)
                 await AppLogger.shared.record(.init(
@@ -169,7 +170,8 @@ struct AnthropicClient {
                              systemStable: String,
                              systemDynamic: String,
                              tools: [AnthropicTool],
-                             messages: [[String: Any]]) async throws -> CallResponse {
+                             messages: [[String: Any]],
+                             model: String?) async throws -> CallResponse {
         // Split system into two blocks: stable prefix (cached) + dynamic suffix.
         // Cache hits drop input token rate-limit cost dramatically.
         let systemBlocks: [[String: Any]] = [
@@ -184,12 +186,14 @@ struct AnthropicClient {
             ]
         ]
         var body: [String: Any] = [
-            "model": Self.model,
+            "model": model ?? Self.model,
             "max_tokens": 4096,
             "system": systemBlocks,
             "messages": messages
         ]
-        for (k, v) in AIModel.current.thinkingParams { body[k] = v }
+        // A model named by the caller (the order passes) takes its own thinking settings.
+        let params = model.map { AIModel(rawValue: $0)?.thinkingParams ?? [:] } ?? AIModel.current.thinkingParams
+        for (k, v) in params { body[k] = v }
         if !tools.isEmpty {
             body["tools"] = tools.map { tool in
                 [

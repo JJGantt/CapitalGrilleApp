@@ -1,6 +1,7 @@
 import Foundation
 
-/// One item a guest ordered, under its menu name (`cg_orders`, data-layer 00125).
+/// One item a guest ordered (`cg_orders`, data-layer 00125/00126). Written as heard, then renamed to its
+/// menu name by the second pass; `standardized_at` is nil until that pass has looked at it.
 struct Order: Codable, Identifiable, Hashable {
     let id: String
     let created_at: String
@@ -9,6 +10,10 @@ struct Order: Codable, Identifiable, Hashable {
     let name: String
     let qty: Int
     let note: String?
+    let heard_name: String?
+    let standardized_at: String?
+
+    var standardized: Bool { standardized_at != nil }
 }
 
 /// The open orders, newest first. The list lives behind the hub's owner-gated `/api/cg/orders` (status-hub
@@ -19,39 +24,60 @@ final class OrderStore: ObservableObject {
     @Published private(set) var orders: [Order] = []
     @Published private(set) var loaded = false
     @Published var loadError: String?
+    /// Which model runs each pass: hub settings `cg_orders_model_first` / `cg_orders_model_second`, read
+    /// with the list, so switching a model needs no build.
+    private(set) var firstModel = "claude-sonnet-5"
+    private(set) var secondModel = "claude-sonnet-5"
 
     private static let base = "https://jared-status-hub.fly.dev/api/cg/orders"
 
     func refresh() async {
-        do { take(try await call("", method: "GET")) } catch { fail(error) }
+        do { take(try await call("", method: "GET")) } catch { note(error) }
     }
 
-    func add(_ items: [[String: Any]], heard: String, interactionId: UUID) async throws {
-        take(try await call("", method: "POST",
-                            body: ["items": items, "heard": heard, "interaction_id": interactionId.uuidString]))
+    /// The first pass's items, as heard. Returns the rows as saved, for the second pass to rename.
+    func add(_ items: [[String: Any]], heard: String, interactionId: UUID) async throws -> [Order] {
+        let data = try await call("", method: "POST",
+                                  body: ["items": items, "heard": heard, "interaction_id": interactionId.uuidString])
+        take(data)
+        struct Body: Decodable { let added: [Order] }
+        return (try? JSONDecoder().decode(Body.self, from: data).added) ?? []
+    }
+
+    /// The second pass: each row matched to the menu, or marked as looked at and left as heard.
+    func standardize(_ updates: [[String: Any]]) async throws {
+        take(try await call("/standardize", method: "POST", body: ["updates": updates]))
     }
 
     func done(_ id: String) async {
         orders.removeAll { $0.id == id }
-        do { take(try await call("/done", method: "POST", body: ["id": id])) } catch { fail(error) }
+        do { take(try await call("/done", method: "POST", body: ["id": id])) } catch { recover(error) }
     }
 
     func clearAll() async {
         orders = []
-        do { take(try await call("/done", method: "POST", body: ["all": true])) } catch { fail(error) }
+        do { take(try await call("/done", method: "POST", body: ["all": true])) } catch { recover(error) }
     }
 
     private func take(_ data: Data) {
-        struct Body: Decodable { let orders: [Order] }
+        struct Models: Decodable { let first: String; let second: String }
+        struct Body: Decodable { let orders: [Order]; let models: Models? }
         guard let body = try? JSONDecoder().decode(Body.self, from: data) else { return }
         orders = body.orders
+        if let m = body.models { firstModel = m.first; secondModel = m.second }
         loaded = true
         loadError = nil
     }
 
-    private func fail(_ error: Error) {
+    private func note(_ error: Error) {
         if error is CancellationError || (error as? URLError)?.code == .cancelled { return }
         loadError = error.localizedDescription
+    }
+
+    /// A write that failed after the list was changed on screen: the list is read back once, so what
+    /// shows is what is stored. A failed read is only noted; it does not read again.
+    private func recover(_ error: Error) {
+        note(error)
         Task { await refresh() }
     }
 
@@ -72,43 +98,30 @@ final class OrderStore: ObservableObject {
     }
 }
 
-/// Thrown by `add_orders` so the call counts as failed: the model gets one more turn to resend it, where a
-/// successful call ends the exchange with no closing reply (`finishAfterTools`).
-enum OrderError: LocalizedError {
-    case unknownIds([String])
-    var errorDescription: String? {
-        switch self {
-        case .unknownIds(let ids):
-            return "Not added. These ids are not on the menu: \(ids.joined(separator: ", ")). Use ids exactly as listed, or kind other with the name as heard."
-        }
-    }
-}
-
-/// **Turns what was heard into orders on the menu.** The transcript goes to the model with the whole
-/// menu — every dish, cocktail, wine and liquor with its id — and the model calls `add_orders` with the
-/// ids. The name stored is the menu's own, taken from the id here, never the model's spelling, so the
-/// same dish always reads the same on the list.
+/// **Turns what was heard into orders, in two passes.**
 ///
-/// **Repeats are the model's call, not a matcher's**: the bartender reads the order back inside the same
-/// recording, and sometimes records a confirmation as a second one, so the open orders go in with their
-/// age and the model adds only what is new.
+/// 1. **As heard** (`write`): the transcript and the open orders go to the model, with no menu, and it
+///    calls `add_orders` with each NEW item worded as it was said. They are on the list at once.
+///    Deciding what is new happens here, because it decides what gets written: the bartender reads the
+///    order back inside the recording, sometimes records a confirmation as a second one, and guests ask
+///    about items they do not order, so the open orders go in with their age and the model adds only
+///    what was ordered and is not already there. That judgement is the model's, not a matcher's.
+/// 2. **Standardized** (`standardize`): those rows and the whole menu (every dish, cocktail, wine and
+///    liquor with its id) go to the model, which calls `standardize` with a menu id for each row it can
+///    place. The stored name is the menu's own, looked up from the id, never the model's spelling. A row
+///    with no match, or an id not on the menu, keeps its heard wording: nothing is ever refused or lost,
+///    and if this pass fails the heard rows are already on the list.
+///
+/// Each pass is one request (`finishAfterTools`): the tool call is the whole answer.
 @MainActor
 enum OrderTaker {
-    static let tool = "add_orders"
-
-    /// Returns how many items were added.
-    static func take(_ heard: String, store: OrderStore, menu: MenuData?, bottles: [Bottle],
-                     cocktails: [Cocktail], interactionId: UUID, sessionId: String) async throws -> Int {
-        let dishes = Dictionary((menu.map { $0.lunch + $0.dinner + $0.capital_hours } ?? []).map { ($0.name, $0) },
-                                uniquingKeysWith: { a, _ in a })
-        let drinks = Dictionary(cocktails.map { ($0.name, $0) }, uniquingKeysWith: { a, _ in a })
-        let byId = Dictionary(bottles.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
-
-        final class Count: @unchecked Sendable { var n = 0 }
-        let added = Count()
-        let addOrders = AnthropicTool(
-            name: tool,
-            description: "Add the items the guest ordered to the order list. One call with every new item.",
+    /// The first pass. Returns the rows it wrote, as saved.
+    static func write(_ heard: String, store: OrderStore, interactionId: UUID, sessionId: String) async throws -> [Order] {
+        final class Box: @unchecked Sendable { var rows: [Order] = [] }
+        let box = Box()
+        let tool = AnthropicTool(
+            name: "add_orders",
+            description: "Add the new items to the order list, as heard. One call with every new item.",
             inputSchema: [
                 "type": "object",
                 "properties": [
@@ -117,80 +130,126 @@ enum OrderTaker {
                         "items": [
                             "type": "object",
                             "properties": [
-                                "kind": ["type": "string", "enum": ["dish", "cocktail", "wine", "liquor", "other"]],
-                                "id": ["type": "string", "description": "The item's id from the menu below, exactly. Omit for kind other."],
-                                "name": ["type": "string", "description": "Only for kind other: the item as heard."],
+                                "name": ["type": "string", "description": "The item, as ordered."],
                                 "qty": ["type": "integer", "minimum": 1],
-                                "note": ["type": "string", "description": "How it was ordered: temperature, neat/rocks/up, a mixer, a side or a change. Omit if nothing."],
+                                "note": ["type": "string", "description": "How it was asked for. Omit if nothing."],
                             ],
-                            "required": ["kind", "qty"],
+                            "required": ["name", "qty"],
                         ],
                     ],
                 ],
                 "required": ["items"],
             ],
             handler: { input in
-                let raw = (input["items"] as? [[String: Any]]) ?? []
-                var items: [[String: Any]] = []
-                var unknown: [String] = []
-                for i in raw {
-                    let kind = i["kind"] as? String ?? "other"
-                    let id = i["id"] as? String ?? ""
-                    var item: [String: Any] = ["kind": kind, "qty": max(1, i["qty"] as? Int ?? 1)]
+                let items: [[String: Any]] = ((input["items"] as? [[String: Any]]) ?? []).compactMap { i in
+                    guard let name = (i["name"] as? String)?.trimmingCharacters(in: .whitespaces), !name.isEmpty else { return nil }
+                    var item: [String: Any] = ["name": name, "qty": max(1, i["qty"] as? Int ?? 1)]
                     if let note = i["note"] as? String, !note.isEmpty { item["note"] = note }
-                    switch kind {
-                    case "dish":
-                        guard let d = dishes[id] else { unknown.append(id); continue }
-                        item["item_id"] = d.name; item["name"] = d.name
-                    case "cocktail":
-                        guard let c = drinks[id] else { unknown.append(id); continue }
-                        item["item_id"] = c.name; item["name"] = c.name
-                    case "wine", "liquor":
-                        guard let b = byId[id] else { unknown.append(id); continue }
-                        item["kind"] = b.kind == "wine" ? "wine" : "liquor"
-                        item["item_id"] = b.id; item["name"] = b.displayName
-                    default:
-                        guard let name = i["name"] as? String, !name.isEmpty else { continue }
-                        item["kind"] = "other"; item["name"] = name
-                    }
-                    items.append(item)
+                    return item
                 }
-                // Nothing is saved from a call with a bad id: the model resends the whole order with ids
-                // from the list, rather than half of it landing.
-                if !unknown.isEmpty {
-                    throw OrderError.unknownIds(unknown)
-                }
-                guard !items.isEmpty else { return "Nothing to add." }
-                try await store.add(items, heard: heard, interactionId: interactionId)
-                added.n += items.count
+                guard !items.isEmpty else { return "Nothing new." }
+                box.rows = try await store.add(items, heard: heard, interactionId: interactionId)
                 return "Added \(items.count)."
             }
         )
-
         _ = try await AnthropicClient.chatWithTools(
-            question: heard,
-            history: [],
-            systemStable: rules + "\n\n" + catalog(dishes: Array(dishes.values), cocktails: Array(drinks.values), bottles: bottles),
-            systemDynamic: recent(store.orders),
-            tools: [addOrders],
-            interactionId: interactionId,
-            sessionId: sessionId,
-            finishAfterTools: true
-        )
-        return added.n
+            question: heard, history: [], systemStable: firstRules, systemDynamic: recent(store.orders),
+            tools: [tool], interactionId: interactionId, sessionId: sessionId,
+            finishAfterTools: true, model: store.firstModel)
+        return box.rows
     }
 
-    private static let rules = """
-    You take orders for a bartender at The Capital Grille. Each message is the speech-to-text of one recording made at the bar: a guest ordering, usually with the bartender reading the order back. Pull out what was ordered and call add_orders once with every NEW item. Do not reply with text: the call is the whole answer, and nothing you write is read.
+    /// The second pass, over the rows the first one wrote.
+    static func standardize(_ rows: [Order], store: OrderStore, menu: MenuData?, bottles: [Bottle],
+                            cocktails: [Cocktail], interactionId: UUID, sessionId: String) async throws {
+        guard !rows.isEmpty else { return }
+        let dishes = Dictionary((menu.map { $0.lunch + $0.dinner + $0.capital_hours } ?? []).map { ($0.name, $0) },
+                                uniquingKeysWith: { a, _ in a })
+        let drinks = Dictionary(cocktails.map { ($0.name, $0) }, uniquingKeysWith: { a, _ in a })
+        let byId = Dictionary(bottles.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
+        let rowIds = Set(rows.map(\.id))
 
-    - Use the menu below. Every item names its id; pass the id exactly. Match by SOUND, because brand and dish names arrive mangled by transcription ("whispering angle" is Whispering Angel). Every word heard counts: "Tito's soda" is the liquor Tito's with the note "soda"; "a glass of the Caymus" is the wine Caymus with the note "glass".
-    - A drink that is not one of our cocktails but is built on a bottle we carry is that bottle, with the build in the note: "Tito's and soda, splash of cran" is Tito's, note "soda, splash cran". A drink with no bottle named (a margarita, a beer, a soda) is kind other, named as heard.
-    - A food item not on the menu is kind other, named as heard.
+        let tool = AnthropicTool(
+            name: "standardize",
+            description: "Match each order row to the menu. One call covering every row.",
+            inputSchema: [
+                "type": "object",
+                "properties": [
+                    "rows": [
+                        "type": "array",
+                        "items": [
+                            "type": "object",
+                            "properties": [
+                                "row": ["type": "string", "description": "The row's `row` value from ROWS, exactly; nothing else."],
+                                "kind": ["type": "string", "enum": ["dish", "cocktail", "wine", "liquor"]],
+                                "menu_id": ["type": "string", "description": "The menu item's id, exactly as listed. Omit when the row is not on the menu."],
+                                "note": ["type": "string", "description": "The row's note, rewritten short. Omit to keep it."],
+                            ],
+                            "required": ["row"],
+                        ],
+                    ],
+                ],
+                "required": ["rows"],
+            ],
+            handler: { input in
+                var updates: [String: [String: Any]] = [:]
+                for r in (input["rows"] as? [[String: Any]]) ?? [] {
+                    // The id is read out of whatever came back: a model asked for the row's id has been
+                    // seen to return the whole row with it.
+                    guard let said = r["row"] as? String,
+                          let row = rowIds.first(where: { said.localizedCaseInsensitiveContains($0) }) else { continue }
+                    var u: [String: Any] = ["id": row]
+                    let id = r["menu_id"] as? String ?? ""
+                    switch r["kind"] as? String {
+                    case "dish": if let d = dishes[id] { u["kind"] = "dish"; u["item_id"] = d.name; u["name"] = d.name }
+                    case "cocktail": if let c = drinks[id] { u["kind"] = "cocktail"; u["item_id"] = c.name; u["name"] = c.name }
+                    case "wine", "liquor":
+                        if let b = byId[id] { u["kind"] = b.kind == "wine" ? "wine" : "liquor"; u["item_id"] = b.id; u["name"] = b.displayName }
+                    default: break
+                    }
+                    if u["item_id"] != nil, let note = r["note"] as? String { u["note"] = note.isEmpty ? NSNull() : note }
+                    updates[row] = u
+                }
+                // A row the model left out is looked at all the same: it stays as heard.
+                for row in rowIds where updates[row] == nil { updates[row] = ["id": row] }
+                try await store.standardize(Array(updates.values))
+                let matched = updates.values.filter { $0["item_id"] != nil }.count
+                return "Matched \(matched) of \(rowIds.count)."
+            }
+        )
+        let list = rows.map { o -> [String: Any] in
+            var r: [String: Any] = ["row": o.id, "item": o.name, "qty": o.qty]
+            if let note = o.note { r["note"] = note }
+            return r
+        }
+        let listJSON = (try? String(data: JSONSerialization.data(withJSONObject: list), encoding: .utf8)) ?? "[]"
+        _ = try await AnthropicClient.chatWithTools(
+            question: "ROWS:\n" + listJSON, history: [],
+            systemStable: secondRules + "\n\n" + catalog(dishes: Array(dishes.values), cocktails: Array(drinks.values), bottles: bottles),
+            systemDynamic: "Every row is in the message.", tools: [tool], interactionId: interactionId, sessionId: sessionId,
+            finishAfterTools: true, model: store.secondModel)
+    }
+
+    private static let firstRules = """
+    You write down orders for a bartender at The Capital Grille. Each message is the speech-to-text of one recording made at the bar: a guest ordering, usually with the bartender reading the order back, sometimes with questions about the menu along the way. Call add_orders once with every NEW item. Do not reply with text: the call is the whole answer, and nothing you write is read.
+
+    - Write each item the way it was ordered, cleaned of filler and spelled sensibly. Do not look anything up or rename it; a later pass matches items to the menu.
+    - name is the item itself ("Tito's soda", "ribeye", "Old Fashioned"); note is only how it was asked for: temperature, neat/rocks/up, a mixer, a side, a swap, an allergy. Never repeat the name in the note.
     - Quantities: "two", "a couple", "for both of us" → qty. Default 1.
-    - Notes are short and only what changes the item: temperature (medium rare), neat/rocks/up, mixers, sides, swaps, allergies. Never repeat the item's name in its note.
-    - THE READ-BACK IS NOT A SECOND ORDER. The bartender repeats the order to confirm it; an item said by the guest and repeated back is ONE item. A correction ("actually make that a Caymus", "no, rocks") changes the item it corrects rather than adding another.
+    - THE READ-BACK IS NOT A SECOND ORDER. The bartender repeats the order to confirm it; an item said by the guest and repeated back is ONE item. A correction ("actually make that a bottle", "no, rocks") changes the item it corrects rather than adding another.
+    - A QUESTION IS NOT AN ORDER. "What's in the Old Fashioned?", "is the bisque good?", "what bourbons do you have?" add nothing, unless the guest then orders it.
     - The OPEN ORDERS below are already on the list. If this recording only confirms or repeats items already there from the last few minutes, add nothing for them. Add only what is new.
-    - If nothing was ordered (small talk, a question), call nothing.
+    - If nothing new was ordered (small talk, only questions, only a confirmation), call add_orders with no items.
+    """
+
+    private static let secondRules = """
+    You match a bartender's order list at The Capital Grille to the menu. Each row in the message was written down as heard from speech-to-text. Call standardize once, with an entry for every row. Do not reply with text: the call is the whole answer.
+
+    - A row that IS on the menu: its kind and menu id, exactly as listed below. Match by SOUND, because names arrive mangled by transcription ("whispering angle" is Whispering Angel, "stag" is Stagg). Every word counts: a word after a brand usually names which bottle of it (rye, reposado, 12 year).
+    - A drink that is not one of our cocktails but is built on a bottle we carry is that bottle, with the build in the note: "Tito's soda" with "splash of cran" is the liquor Tito's, note "soda, splash cran".
+    - A row NOT on the menu (a beer, a margarita, an off-menu request): give only its row id. It stays as written.
+    - note: rewrite it short when the row is matched (only what changes the item, never the item's name); omit it to keep the row's note as is.
+    - Never guess a menu item that does not fit. Leaving a row as written is always fine.
     """
 
     private static func catalog(dishes: [Dish], cocktails: [Cocktail], bottles: [Bottle]) -> String {
