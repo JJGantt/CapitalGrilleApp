@@ -6,6 +6,7 @@ struct CapitalGrilleWatchWidgets: WidgetBundle {
     var body: some Widget {
         CapitalGrilleComplication()
         BlankRecordComplication()
+        OrderComplication()
         if #available(watchOS 26.0, *) {
             OpenControl()
         }
@@ -42,6 +43,22 @@ struct BlankRecordComplication: Widget {
         }
         .configurationDisplayName("Capital Grille Blank")
         .description("Capital Grille Blank")
+        .supportedFamilies([.accessoryCircular, .accessoryCorner])
+    }
+}
+
+/// Opens the app straight into recording an order (`capitalgrille://order`, answered in WatchContentView),
+/// on the order list. Blank like the others: the empty slot is the tap target.
+struct OrderComplication: Widget {
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: "OrderComplication", provider: Provider()) { _ in
+            Color.clear
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .widgetURL(URL(string: "capitalgrille://order"))
+                .containerBackground(for: .widget) { Color.clear }
+        }
+        .configurationDisplayName("Capital Grille Order")
+        .description("Capital Grille Order")
         .supportedFamilies([.accessoryCircular, .accessoryCorner])
     }
 }

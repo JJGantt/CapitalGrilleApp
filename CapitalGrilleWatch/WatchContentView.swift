@@ -22,12 +22,19 @@ struct WatchContentView: View {
         .environmentObject(bottleStore)
         .environmentObject(restockStore)
         .environmentObject(orderStore)
-        // The complication opens the app straight into a recording, on the chat page whichever page
-        // was showing.
+        // The complications open the app straight into a recording: `record` on the chat page, `order`
+        // on the order list, whichever page was showing.
         .onOpenURL { url in
-            guard url.scheme == "capitalgrille", url.host == "record" else { return }
-            page = 0
-            capture.requestRecording()
+            guard url.scheme == "capitalgrille" else { return }
+            switch url.host {
+            case "record":
+                page = 0
+                capture.requestRecording(for: .chat)
+            case "order" where AppGate.isOwnerDevice:
+                page = 3
+                capture.requestRecording(for: .orders)
+            default: break
+            }
         }
     }
 }

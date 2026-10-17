@@ -17,7 +17,13 @@ final class VoiceCapture: ObservableObject {
     private(set) var requestedAt = Date.distantPast
     static let requestWindow: TimeInterval = 20
 
-    func requestRecording() {
+    /// Which page a request is for: the chat (`capitalgrille://record`) or the order list
+    /// (`capitalgrille://order`). Only that page starts it.
+    enum Target { case chat, orders }
+    private(set) var requestedFor = Target.chat
+
+    func requestRecording(for target: Target = .chat) {
+        requestedFor = target
         requestedAt = Date()
         recordRequested = true
     }

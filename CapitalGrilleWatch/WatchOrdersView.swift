@@ -102,8 +102,16 @@ struct WatchOrdersView: View {
         }
         .toolbar(.hidden, for: .navigationBar)
         .onChange(of: working) { _, now in StayAwake.shared.set(now) }
-        .onChange(of: phase) { _, now in if now == .active && onScreen { Task { await store.refresh() } } }
-        .onChange(of: onScreen) { _, now in if now { Task { await store.refresh() } } }
+        .onChange(of: phase) { _, now in
+            if now == .active && onScreen { Task { await store.refresh() } }
+            startIfAsked()
+        }
+        .onChange(of: onScreen) { _, now in
+            if now { Task { await store.refresh() } }
+            startIfAsked()
+        }
+        .onChange(of: capture.recordRequested) { _, _ in startIfAsked() }
+        .onAppear(perform: startIfAsked)
         .task {
             if menuStore.menu == nil { menuStore.load() }
             if cocktailStore.cocktails.isEmpty { cocktailStore.load() }
@@ -194,6 +202,16 @@ struct WatchOrdersView: View {
                 VoiceLog.record("voice_mic_failed", id: id, sessionId: sessionId, error: String(describing: error), ends: true)
             }
         }
+    }
+
+    /// Starts the recording the order complication asked for (`capitalgrille://order`), once the app is
+    /// active and this page is showing — the same press as a double tap, so the same haptic and chirp. A
+    /// request older than `VoiceCapture.requestWindow` lapses rather than firing on a later wrist raise.
+    private func startIfAsked() {
+        guard capture.recordRequested, capture.requestedFor == .orders, phase == .active, onScreen else { return }
+        capture.recordRequested = false
+        guard capture.requestIsFresh, !capture.recording, !working else { return }
+        press()
     }
 
     private func cancelRecording() {

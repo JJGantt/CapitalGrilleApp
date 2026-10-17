@@ -251,7 +251,7 @@ struct WatchChatView: View {
     /// Starts the recording the complication asked for, once the app is active — the same press as a
     /// tap, so the same haptic and chirp. Nothing starts while a question is still being answered.
     private func startIfAsked() {
-        guard capture.recordRequested, phase == .active else { return }
+        guard capture.recordRequested, capture.requestedFor == .chat, phase == .active else { return }
         capture.recordRequested = false
         guard capture.requestIsFresh, !capture.recording, chatState != .thinking else { return }
         press()
