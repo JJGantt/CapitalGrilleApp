@@ -48,7 +48,11 @@ enum TopSection: String, CaseIterable, Identifiable {
     case liquor = "Liquor"
     case cocktails = "Cocktails"
     case restock = "Restock"
+    case orders = "Orders"
     var id: String { rawValue }
+
+    /// The order list is the owner's alone (it sits behind the hub's owner-gated route).
+    static var shown: [TopSection] { allCases.filter { $0 != .orders || AppGate.isOwnerDevice } }
 }
 
 struct ContentView: View {
@@ -56,6 +60,7 @@ struct ContentView: View {
     @StateObject private var bottleStore = BottleStore()
     @StateObject private var restockStore = RestockStore()
     @StateObject private var cocktailStore = CocktailStore()
+    @StateObject private var orderStore = OrderStore()
     @StateObject private var voice = VoiceRecorder()
     @State private var searchText = ""
     @State private var section: TopSection = .food
@@ -162,7 +167,7 @@ struct ContentView: View {
             // Tapping any segment also closes the AI conversation view — including
             // the currently-active segment (which native Picker wouldn't notify us about).
             HStack(spacing: 0) {
-                ForEach(TopSection.allCases) { s in
+                ForEach(TopSection.shown) { s in
                     Button(action: {
                         withAnimation {
                             section = s
@@ -223,6 +228,8 @@ struct ContentView: View {
             }
         } else if section == .restock {
             RestockListView(restockStore: restockStore, bottleStore: bottleStore)
+        } else if section == .orders {
+            OrdersListView(store: orderStore)
         } else {
             menuListView
         }

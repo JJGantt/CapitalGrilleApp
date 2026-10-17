@@ -57,6 +57,7 @@ targets:
       - path: CapitalGrilleApp/AppLogger.swift
       - path: CapitalGrilleApp/APIKeyStore.swift
       - path: CapitalGrilleApp/ChatEngine.swift
+      - path: CapitalGrilleApp/Orders.swift
       - path: CapitalGrilleApp/food-menu.json
         buildPhase: resources
       - path: CapitalGrilleApp/cocktails.json

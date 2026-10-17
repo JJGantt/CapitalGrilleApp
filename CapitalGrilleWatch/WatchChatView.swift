@@ -22,6 +22,8 @@ struct WatchChatView: View {
     /// The `app_logs` interaction the recording under way belongs to (`VoiceLog`).
     @State private var voiceId = UUID()
     @Environment(\.scenePhase) private var phase
+    /// The orders page binds double tap too; only the page showing takes it.
+    @Environment(\.onScreen) private var onScreen
 
     enum ChatState { case idle, thinking }
 
@@ -71,7 +73,7 @@ struct WatchChatView: View {
                 Button(action: press) { Color.clear.frame(width: 1, height: 1) }
                     .buttonStyle(.plain)
                     .handGestureShortcut(.primaryAction)
-                    .disabled(chatState == .thinking)
+                    .disabled(chatState == .thinking || !onScreen)
                     .accessibilityHidden(true)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 // While recording, the whole glass is the press.
