@@ -72,8 +72,6 @@ final class ChatEngine {
                 sessionId: sessionId,
                 onActivity: onActivity
             )
-            await bottleStore.refreshFromSupabase()
-            await restockStore.refresh()
             await logInteraction(answer: turn.answer, error: nil)
             return turn
         } catch {
@@ -564,7 +562,7 @@ final class ChatEngine {
                     return "'\(existing.first?.name ?? pid)' is readonly and can't be deleted by the AI."
                 }
                 let rows = try await SupabaseClient.shared.patchReturning(path: "bottles?id=eq.\(pid)", body: ["deleted": true])
-                await bottleStore.refreshFromSupabase()
+                await bottleStore.refreshBottles()
                 if rows.isEmpty { return "Nothing deleted: no product with id '\(pid)'." }
                 return "Deleted '\(existing.first?.name ?? pid)'."
             }
@@ -600,7 +598,7 @@ final class ChatEngine {
                     if let v = input[k] { row[k] = v }
                 }
                 try await SupabaseClient.shared.upsert(path: "bottles", body: [row], onConflict: "id")
-                await bottleStore.refreshFromSupabase()
+                await bottleStore.refreshBottles()
                 guard let b = bottleStore.bottles[row["id"] as? String ?? ""] else {
                     return "Not saved: '\(row["name"] ?? "?")' is not in the catalog after the write."
                 }
@@ -623,7 +621,7 @@ final class ChatEngine {
                 let wid = (input["bottle_id"] as? String) ?? ""
                 let url = (input["image_url"] as? String) ?? ""
                 let rows = try await SupabaseClient.shared.patchReturning(path: "bottles?id=eq.\(wid)", body: ["image_url": url])
-                await bottleStore.refreshFromSupabase()
+                await bottleStore.refreshBottles()
                 if rows.isEmpty { return "Wine '\(wid)' not found — call add_product first." }
                 return "Set image for '\(wid)'."
             }
@@ -652,7 +650,7 @@ final class ChatEngine {
                 }
                 if patch.isEmpty { return "Nothing to update for '\(wid)'." }
                 let rows = try await SupabaseClient.shared.patchReturning(path: "bottles?id=eq.\(wid)", body: patch)
-                await bottleStore.refreshFromSupabase()
+                await bottleStore.refreshBottles()
                 if rows.isEmpty { return "Wine '\(wid)' not found." }
                 return "Updated '\(wid)': \(patch.keys.sorted().joined(separator: ", "))."
             }

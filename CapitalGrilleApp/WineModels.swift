@@ -508,13 +508,28 @@ final class BottleStore: ObservableObject {
         }
     }
 
+    /// Bottles and areas: the only catalog tables the assistant's tools write.
+    private func loadBottles() async throws {
+        async let bottlesTask: [Bottle] = SupabaseClient.shared.get(path: "bottles?select=*&deleted=eq.false&unverified=eq.false")
+        async let areasTask: [BottleArea] = SupabaseClient.shared.get(path: "bottle_areas?select=*&order=name.asc")
+        let (rows, areaList) = try await (bottlesTask, areasTask)
+        self.bottles = Dictionary(uniqueKeysWithValues: rows.map { ($0.id, $0) })
+        self.areas = areaList
+    }
+
+    /// Re-read after a write. One round trip, where the full refresh is seven, most of them reference
+    /// tables (views, types, descriptions, pairings, glossary, dishes) that no write here touches.
+    func refreshBottles() async {
+        do {
+            try await loadBottles()
+        } catch {
+            self.loadError = "Supabase fetch failed: \(error.localizedDescription)"
+        }
+    }
+
     func refreshFromSupabase() async {
         do {
-            async let bottlesTask: [Bottle] = SupabaseClient.shared.get(path: "bottles?select=*&deleted=eq.false&unverified=eq.false")
-            async let areasTask: [BottleArea] = SupabaseClient.shared.get(path: "bottle_areas?select=*&order=name.asc")
-            let (rows, areaList) = try await (bottlesTask, areasTask)
-            self.bottles = Dictionary(uniqueKeysWithValues: rows.map { ($0.id, $0) })
-            self.areas = areaList
+            try await loadBottles()
             // View definitions are a soft dependency — a failure here must not break
             // the catalog, so fetch separately and ignore errors (falls back to By Type).
             if let views: [BottleSectionView] = try? await SupabaseClient.shared.get(
@@ -578,24 +593,24 @@ final class BottleStore: ObservableObject {
             let rows = try await SupabaseClient.shared.patchReturning(path: "bottles?id=eq.\(bottleId)", body: patch)
             if rows.isEmpty { missing.append(bottleId) } else { updated.append(bottleId) }
         }
-        await refreshFromSupabase()
+        await refreshBottles()
         return (updated, missing)
     }
 
     func addArea(_ name: String) async throws {
         try await SupabaseClient.shared.upsert(path: "bottle_areas",
             body: [["name": name]], onConflict: "name")
-        await refreshFromSupabase()
+        await refreshBottles()
     }
 
     func renameArea(_ name: String, to newName: String) async throws {
         try await SupabaseClient.shared.patch(path: "bottle_areas?name=eq.\(name)",
             body: ["name": newName])
-        await refreshFromSupabase()
+        await refreshBottles()
     }
 
     func removeArea(_ name: String) async throws {
         try await SupabaseClient.shared.delete(path: "bottle_areas?name=eq.\(name)")
-        await refreshFromSupabase()
+        await refreshBottles()
     }
 }
